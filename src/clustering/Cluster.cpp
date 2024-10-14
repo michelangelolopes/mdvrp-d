@@ -1,4 +1,4 @@
-#include "../../include/models/Cluster.h"
+#include "../../include/clustering/Cluster.h"
 
 #include <cmath>
 #include <iostream>

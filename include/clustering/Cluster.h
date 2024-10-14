@@ -1,7 +1,7 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
-#include "Problem.h"
+#include "../problem/Problem.h"
 
 class Cluster {
     public:

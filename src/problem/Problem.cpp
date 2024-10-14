@@ -1,4 +1,4 @@
-#include "../../include/models/Problem.h"
+#include "../../include/problem/Problem.h"
 
 #include <fstream>
 #include <iostream>
