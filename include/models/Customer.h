@@ -1,18 +1,11 @@
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
 
-class Customer {
+#include "Position2D.h"
+
+class Customer : public Position2D {
     public:
-        double x;
-        double y;
         double demand;
-
-        // Customer() {}
-
-        // Customer(double xInformed, double yInformed) {
-        //     x = xInformed;
-        //     y = yInformed;
-        // }
 };
 
 #endif

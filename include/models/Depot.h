@@ -1,17 +1,14 @@
 #ifndef DEPOT_H
 #define DEPOT_H
 
-#include <cstddef>
-#include "truck.h"
-#include "uav.h"
+#include "Position2D.h"
+#include "Truck.h"
+#include "Uav.h"
 
-class Depot {
-   
+class Depot : public Position2D {
     public:
-        double x;
-        double y;
-        Truck* trucks = NULL;
-        Uav* uavs = NULL;
+        Truck* trucks = nullptr;
+        Uav* uavs = nullptr;
 };
 
 #endif
