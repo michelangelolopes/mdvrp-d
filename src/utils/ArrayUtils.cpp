@@ -16,8 +16,8 @@ void** initialize(int count, int sizePointer, int sizeObject) {
     return matrix;
 }
 
-void freeMatrix(void** matrix, int count) {
-    for(int i = 0; i < count; i++) {
+void freeMatrix(void** matrix, int pointerCount) {
+    for(int i = 0; i < pointerCount; i++) {
         free(matrix[i]);
     }
 

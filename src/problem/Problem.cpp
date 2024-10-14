@@ -42,6 +42,9 @@ void Problem::finalize() {
     }
 
     if(this->depots != nullptr) {
+        for(int depotIndex = 0; depotIndex < this->depotCount; depotIndex++) {
+            this->depots[depotIndex].finalize();
+        }
         free(this->depots);
     }
 
