@@ -29,6 +29,7 @@ class Problem {
         Customer* customers = nullptr;
         int customerCount;
         double** customerDistanceMatrix = nullptr;
+        double** depotDistanceMatrix = nullptr;
 
     void create(string datasetFilename);
     void print();
@@ -40,6 +41,7 @@ class Problem {
     int loadCustomerInfo(string object, string info, string value);
 
     void initializeDistanceMatrix();
+    void initializeDepotDistanceMatrix();
     void printDistanceMatrix();
 };
 

@@ -51,6 +51,10 @@ void Problem::finalize() {
     if(this->customerDistanceMatrix != nullptr) {
         freeMatrix((void**)this->customerDistanceMatrix, this->customerCount);
     }
+
+    if(this->depotDistanceMatrix != nullptr) {
+        freeMatrix((void**)this->depotDistanceMatrix, this->depotCount);
+    }
 }
 
 void Problem::print() {
@@ -298,6 +302,19 @@ void Problem::initializeDistanceMatrix() {
     #ifndef NDEBUG
     printDistanceMatrix();
     #endif
+}
+
+void Problem::initializeDepotDistanceMatrix() {
+    depotDistanceMatrix = (double**) initialize(depotCount, customerCount, sizeof(double*), sizeof(double));
+
+    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
+        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+            customerDistanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
+                depots[depotIndex],
+                customers[customerIndex]
+            );
+        }
+    }
 }
 
 void Problem::printDistanceMatrix() {
