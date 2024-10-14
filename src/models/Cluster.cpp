@@ -1,36 +1,20 @@
-#ifndef CUSTOMER_CLUSTER_H
-#define CUSTOMER_CLUSTER_H
+#include "../../include/models/Cluster.h"
 
 #include <cmath>
 #include <iostream>
 
-#include "customer-sub-cluster.h"
-#include "array.h"
+#include "../../include/utils/ArrayUtils.h"
+#include "../../include/utils/MathUtils.h"
 
-double calculateEuclidianDistance(double x1, double y1, double x2, double y2) {
-
-    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
-}
-
-double calculateDistance(Customer currentCustomer, Customer neighborCustomer) {
-
-    return calculateEuclidianDistance(
-        currentCustomer.x, 
-        currentCustomer.y,
-        neighborCustomer.x,
-        neighborCustomer.y
-    );
-}
-
-int findClosestCustomer(int currentCustomerIndex, int* freeCustomersIndexes, Customer* customers, int customerCount) {
+int findClosestCustomerInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* freeCustomersIndexes, int* customerSectorMap) {
 
     int closestCustomerIndex = -1;
     double closestCustomerDistance = -1;
-    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-        if(freeCustomersIndexes[customerIndex] != -1) {
-            double neighborCustomerDistance = calculateDistance(
-                customers[currentCustomerIndex], 
-                customers[customerIndex]
+    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
+        if(freeCustomersIndexes[customerIndex] != 1 && customerSectorMap[customerIndex] == currentSectorIndex) {
+            double neighborCustomerDistance = calculateEuclidianDistance(
+                problem.customers[currentCustomerIndex], 
+                problem.customers[customerIndex]
             );
 
             // std::cout << neighborCustomerDistance << '\n';
@@ -45,63 +29,64 @@ int findClosestCustomer(int currentCustomerIndex, int* freeCustomersIndexes, Cus
     return closestCustomerIndex;
 }
 
-class CustomerCluster {
-    CustomerSubCluster* customerSubClusters;
+int findClosestCustomer(Problem problem, int currentCustomerIndex, int* freeCustomersIndexes) {
 
-    public:
+    int closestCustomerIndex = -1;
+    double closestCustomerDistance = -1;
+    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
+        if(freeCustomersIndexes[customerIndex] != 1) {
+            double neighborCustomerDistance = calculateEuclidianDistance(
+                problem.customers[currentCustomerIndex], 
+                problem.customers[customerIndex]
+            );
 
-        CustomerCluster() {}
+            // std::cout << neighborCustomerDistance << '\n';
 
-        static CustomerCluster create(
-            // Customer currentCustomer,
-            int currentCustomerIndex,
-            Customer* customers,
-            int customerCount,            
-            int subClusterSize,
-            int clusterSectionCount
-        ) {
-
-            int clusterSize = std::ceil((float)customerCount / (float) subClusterSize);
-            // std::cout << subClusterCount << '\n';
-            int** cluster = (int**) initialize(clusterSize, sizeof(int*));
-            int* freeCustomersIndexes = (int*) initialize(customerCount, sizeof(int));
-            freeCustomersIndexes[currentCustomerIndex] = -1;
-
-            // for(int sectionIndex = 0; sectionIndex < clusterSectionCount; sectionIndex++) {
-            // }
-            
-            int freeCustomersCount = customerCount - 1;
-            int clusterIndex = 0;
-            int subClusterCount = 0;
-            int* subCluster = (int*) initialize(subClusterSize, sizeof(int));
-            while(freeCustomersCount > 0) {
-                
-                if(subClusterCount >= subClusterSize) {
-                    subClusterCount = 0;
-                    cluster[clusterIndex] = subCluster;
-                    clusterIndex++;
-                    subCluster = (int*) initialize(subClusterSize, sizeof(int));
-                }
-
-                int closestCustomerIndex = findClosestCustomer(
-                    currentCustomerIndex, 
-                    freeCustomersIndexes, 
-                    customers, 
-                    customerCount
-                );
-
-                subCluster[subClusterCount] = closestCustomerIndex;
-                
-                subClusterCount++;
-                freeCustomersCount--;
+            if(closestCustomerDistance == -1 || closestCustomerDistance > neighborCustomerDistance) {
+                closestCustomerIndex = customerIndex;
+                closestCustomerDistance = neighborCustomerDistance;
             }
-
-            // std::cout << closestCustomerIndex << '\n';
-
-
-            return CustomerCluster(); 
         }
-    
-};
+    }
 
-#endif
+    return closestCustomerIndex;
+}
+
+void createCluster(Problem problem, int currentCustomerIndex, int subClusterSize, int clusterSectionCount) {
+
+    int clusterSize = std::ceil((float) problem.customerCount / (float) subClusterSize);
+    // std::cout << subClusterCount << '\n';
+    int** cluster = (int**) initialize(clusterSize, sizeof(int*));
+    int* freeCustomersIndexes = (int*) initialize(problem.customerCount, sizeof(int));
+    freeCustomersIndexes[currentCustomerIndex] = 1; //cluster vertex should not be considered
+
+    // for(int sectionIndex = 0; sectionIndex < clusterSectionCount; sectionIndex++) {
+    // }
+    
+    int freeCustomersCount = problem.customerCount - 1;
+    int clusterIndex = 0;
+    int subClusterCount = 0;
+    int* subCluster = (int*) initialize(subClusterSize, sizeof(int));
+
+    // findClosestCustomer(problem, currentCustomerIndex, freeCustomersIndexes, customerSectorMap);
+
+    while(freeCustomersCount > 0) {
+        
+        if(subClusterCount >= subClusterSize) {
+            subClusterCount = 0;
+            cluster[clusterIndex] = subCluster;
+            clusterIndex++;
+            subCluster = (int*) initialize(subClusterSize, sizeof(int));
+        }
+
+        subCluster[subClusterCount] = findClosestCustomer(problem, currentCustomerIndex, freeCustomersIndexes);
+        
+        subClusterCount++;
+        freeCustomersCount--;
+    }
+
+    // std::cout << closestCustomerIndex << '\n';
+
+
+    return; 
+}
