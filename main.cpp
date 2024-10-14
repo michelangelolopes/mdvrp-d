@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "include/clustering/Frame.h"
+#include "include/metaheuristics/StodolaInspiredAntSystem.h"
 #include "include/problem/Problem.h"
 
 using namespace std;
@@ -17,12 +17,13 @@ int main(int argc, char** argv) {
     }
 
     int sectorsCount = 7;
+    int subClusterSize = 7;
 
     Problem problem(datasetFilePath);
-    Frame frame(problem, sectorsCount);
+    StodolaInspiredAntSystem antSystem(problem, sectorsCount, subClusterSize);
 
     problem.finalize();
-    frame.finalize();
+    antSystem.finalize();
 
     return 0;
 }
