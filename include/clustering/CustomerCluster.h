@@ -21,8 +21,8 @@ class CustomerCluster {
         void finalize();
 };
 
-int findClosestCustomerInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* freeCustomersIndexes, int* customerSectorMap);
-int findClosestCustomer(Problem problem, int currentCustomerIndex, int* freeCustomersIndexes);
+int findClosestCustomerInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* visitedCustomersIndexes, int* customerSectorMap);
+int findClosestCustomer(Problem problem, int currentCustomerIndex, int* visitedCustomersIndexes);
 void createCluster(Problem problem, int currentCustomerIndex, int subClusterSize, int clusterSectionCount);
 
 #endif

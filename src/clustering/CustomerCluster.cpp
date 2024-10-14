@@ -7,12 +7,12 @@
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
-int findClosestNeighborInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* freeCustomersIndexes, int* customerSectorMap) {
+int findClosestNeighborInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* visitedCustomersIndexes, int* customerSectorMap) {
 
     int closestNeighborIndex = -1;
     double closestCustomerDistance = -1;
     for(int neighborIndex = 0; neighborIndex < problem.customerCount; neighborIndex++) {
-        if(freeCustomersIndexes[neighborIndex] != 1 && customerSectorMap[neighborIndex] == currentSectorIndex) {
+        if(visitedCustomersIndexes[neighborIndex] != 1 && customerSectorMap[neighborIndex] == currentSectorIndex) {
             double neighborCustomerDistance = problem.customerDistanceMatrix[currentCustomerIndex][neighborIndex];
 
             // std::cout << neighborCustomerDistance << '\n';
@@ -27,12 +27,12 @@ int findClosestNeighborInSector(Problem problem, int currentCustomerIndex, int c
     return closestNeighborIndex;
 }
 
-int findClosestNeighbor(Problem problem, int currentCustomerIndex, int* freeCustomersIndexes) {
+int findClosestNeighbor(Problem problem, int currentCustomerIndex, int* visitedCustomersIndexes) {
 
     int closestNeighborIndex = -1;
     double closestCustomerDistance = -1;
     for(int neighborIndex = 0; neighborIndex < problem.customerCount; neighborIndex++) {
-        if(freeCustomersIndexes[neighborIndex] != 1) {
+        if(visitedCustomersIndexes[neighborIndex] != 1) {
             double neighborCustomerDistance = problem.customerDistanceMatrix[currentCustomerIndex][neighborIndex];
 
             // std::cout << neighborCustomerDistance << '\n';
@@ -55,11 +55,11 @@ void CustomerCluster::create(Problem problem, Frame frame) {
     std::cout << "this->neighborCount " << this->neighborCount << "\n";
     std::cout << "this->clusterSize " << this->clusterSize << "\n";
 
-    int* freeCustomersIndexes = (int*) initialize(problem.customerCount, sizeof(int));
+    int* visitedCustomersIndexes = (int*) initialize(problem.customerCount, sizeof(int));
     int freeCustomersCount = this->neighborCount;
 
 
-    freeCustomersIndexes[this->customerIndex] = 1; //already visited
+    visitedCustomersIndexes[this->customerIndex] = 1; //already visited
 
     // int clusterCount = std::ceil((float) freeCustomersCount / (float) this->subClusterSize);
     // std::cout << "clusterCount " << this->clusterSize << "\n";
@@ -72,12 +72,12 @@ void CustomerCluster::create(Problem problem, Frame frame) {
     int closestNeighborIndex;
 
     for(int sectionIndex = 0; sectionIndex < frame.sectorsCount; sectionIndex++) {
-        closestNeighborIndex = findClosestNeighborInSector(problem, this->customerIndex, sectionIndex, freeCustomersIndexes, frame.customerSectorMap);
+        closestNeighborIndex = findClosestNeighborInSector(problem, this->customerIndex, sectionIndex, visitedCustomersIndexes, frame.customerSectorMap);
         
         if(closestNeighborIndex != -1) {
             std::cout << "closestNeighborIndex " << closestNeighborIndex << '\n';
             this->clusters[0][sectionIndex] = closestNeighborIndex;
-            freeCustomersIndexes[closestNeighborIndex] = 1; //visited
+            visitedCustomersIndexes[closestNeighborIndex] = 1; //visited
             freeCustomersCount--;
         }
     }
@@ -86,9 +86,9 @@ void CustomerCluster::create(Problem problem, Frame frame) {
     std::cout << "this->neighborCount - freeCustomersCount " << this->neighborCount - freeCustomersCount << "\n";
     std::cout << "frame.sectorsCount " << frame.sectorsCount << "\n";
     for(int subClusterIndex = this->neighborCount - freeCustomersCount; subClusterIndex < this->subClusterSize; subClusterIndex++) {
-        closestNeighborIndex = findClosestNeighbor(problem, this->customerIndex, freeCustomersIndexes);
+        closestNeighborIndex = findClosestNeighbor(problem, this->customerIndex, visitedCustomersIndexes);
         this->clusters[0][subClusterIndex] = closestNeighborIndex;
-        freeCustomersIndexes[closestNeighborIndex] = 1; //visited
+        visitedCustomersIndexes[closestNeighborIndex] = 1; //visited
         freeCustomersCount--;
     }
 
@@ -109,7 +109,7 @@ void CustomerCluster::create(Problem problem, Frame frame) {
     // clusterIndex++;
     
 
-    // findClosestNeighbor(problem, currentCustomerIndex, freeCustomersIndexes, customerSectorMap);
+    // findClosestNeighbor(problem, currentCustomerIndex, visitedCustomersIndexes, customerSectorMap);
 
     int clusterIndex = 1;
     int subClusterIndex = 0;
@@ -122,7 +122,7 @@ void CustomerCluster::create(Problem problem, Frame frame) {
         if(subClusterIndex == subClusterSize) {
 
             // for(int neighborIndex = 0; neighborIndex < problem.customerCount; neighborIndex++) {
-            //     if(freeCustomersIndexes[neighborIndex] == 0) {
+            //     if(visitedCustomersIndexes[neighborIndex] == 0) {
             //         std::cout << neighborIndex << ' ';
             //     }
             // }
@@ -138,15 +138,15 @@ void CustomerCluster::create(Problem problem, Frame frame) {
             std::cout << "subCluster -- clusters " << clusterIndex << '\n';
         }
 
-        closestNeighborIndex = findClosestNeighbor(problem, this->customerIndex, freeCustomersIndexes);
+        closestNeighborIndex = findClosestNeighbor(problem, this->customerIndex, visitedCustomersIndexes);
         this->clusters[clusterIndex][subClusterIndex] = closestNeighborIndex;
-        freeCustomersIndexes[closestNeighborIndex] = 1; //visited
+        visitedCustomersIndexes[closestNeighborIndex] = 1; //visited
         
         subClusterIndex++;
         freeCustomersCount--;
     }
 
-    free(freeCustomersIndexes);
+    free(visitedCustomersIndexes);
 
     // std::cout << closestCustomerIndex << '\n';
 
