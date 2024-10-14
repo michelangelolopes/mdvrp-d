@@ -50,7 +50,7 @@ int findClosestNeighbor(Problem problem, int currentCustomerIndex, int* freeCust
 void CustomerCluster::create(Problem problem, Frame frame) {
     this->neighborCount = problem.customerCount - 1;
     this->clusterSize = std::ceil((float) this->neighborCount / (float) this->subClusterSize);
-    this->clusters = (int**) initialize(this->clusterSize, sizeof(int*));
+    this->clusters = (int**) initialize(this->clusterSize, this->subClusterSize, sizeof(int*), sizeof(int));
     
     std::cout << "this->neighborCount " << this->neighborCount << "\n";
     std::cout << "this->clusterSize " << this->clusterSize << "\n";
@@ -60,10 +60,6 @@ void CustomerCluster::create(Problem problem, Frame frame) {
 
 
     freeCustomersIndexes[this->customerIndex] = 1; //already visited
-
-    for(int clusterIndex = 0; clusterIndex < this->clusterSize; clusterIndex++) {
-        this->clusters[clusterIndex] = (int*) initialize(this->subClusterSize, sizeof(int));
-    }
 
     // int clusterCount = std::ceil((float) freeCustomersCount / (float) this->subClusterSize);
     // std::cout << "clusterCount " << this->clusterSize << "\n";
@@ -160,9 +156,6 @@ void CustomerCluster::create(Problem problem, Frame frame) {
 
 void CustomerCluster::finalize() {
     if(this->clusters != nullptr) {
-        for(int clusterIndex = 0; clusterIndex < this->clusterSize; clusterIndex++) {
-            free(this->clusters[clusterIndex]);
-        }
-        free(this->clusters);
+        freeMatrix((void**) this->clusters, this->clusterSize);
     }
 }

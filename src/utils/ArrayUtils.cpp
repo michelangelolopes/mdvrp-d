@@ -2,16 +2,25 @@
 
 #include <cstdlib>
 
-void* initialize(int count, int sizeObject) {
+void* initialize(int count, int objectSize) {
 
-    return (void*) calloc(count, sizeObject);
+    return (void*) calloc(count, objectSize);
 }
 
-void** initialize(int count, int sizePointer, int sizeObject) {
+void** initialize(int count, int pointerSize, int objectSize) {
 
-    void** matrix = (void**) calloc(count, sizePointer);
+    void** matrix = (void**) calloc(count, pointerSize);
     for(int i = 0; i < count; i++) {
-        matrix[i] = initialize(count, sizeObject);
+        matrix[i] = initialize(count, objectSize);
+    }
+    return matrix;
+}
+
+void** initialize(int pointerCount, int objectCount, int pointerSize, int objectSize) {
+
+    void** matrix = (void**) calloc(pointerCount, pointerSize);
+    for(int i = 0; i < pointerCount; i++) {
+        matrix[i] = initialize(objectCount, objectSize);
     }
     return matrix;
 }
