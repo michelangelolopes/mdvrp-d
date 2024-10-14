@@ -36,6 +36,20 @@ void Problem::create(string filename) {
     // fscanf(file, "Problem = %s", name);
 }
 
+void Problem::finalize() {
+    if(this->customers != nullptr) {
+        free(this->customers);
+    }
+
+    if(this->depots != nullptr) {
+        free(this->depots);
+    }
+
+    if(this->customerDistanceMatrix != nullptr) {
+        freeMatrix((void**)this->customerDistanceMatrix, this->customerCount);
+    }
+}
+
 void Problem::print() {
 
     std::cout << "----------------------------\n";

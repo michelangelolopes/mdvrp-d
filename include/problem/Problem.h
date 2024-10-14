@@ -32,6 +32,7 @@ class Problem {
 
     void create(string datasetFilename);
     void print();
+    void finalize();
 
     int loadGeneralInfo(string key, string value);
     int loadObjectInfo(string key, string value);

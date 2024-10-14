@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
     Problem problem(datasetFilePath);
     Frame frame(problem, sectorsCount);
 
-    // free(customers);
-    // freeMatrix((void**) pheromoneMatrix, customerCount);
+    problem.finalize();
+    frame.finalize();
 
     return 0;
 }

@@ -16,11 +16,12 @@ class Frame : public Sector {
         }
 
         int sectorsCount;
-        int* customerSectorMap;
-        Sector* sectors;
+        int* customerSectorMap = nullptr;
+        Sector* sectors = nullptr;
 
         void create(Problem problem);
         void print();
+        void finalize();
         
         void initializePositions();
         void updatePositions(Position2D position);

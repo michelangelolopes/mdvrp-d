@@ -28,6 +28,17 @@ void Frame::print() {
     std::cout << "min.y: " << min.y << '\n';
 }
 
+void Frame::finalize() {
+
+    if(this->sectors != nullptr) {
+        free(this->sectors);
+    }
+
+    if(this->customerSectorMap != nullptr) {
+        free(this->customerSectorMap);
+    }
+}
+
 void Frame::initializePositions() {
     max.x = 0;
     min.x = 0;
