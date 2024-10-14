@@ -1,15 +1,14 @@
-#ifndef ARRAY_H
-#define ARRAY_H
+#include "../../include/utils/ArrayUtils.h"
 
 #include <cstdlib>
 
 void* initialize(int count, int sizeObject) {
-    void* array = (void*) calloc(count, sizeObject);
 
-    return array;
+    return (void*) calloc(count, sizeObject);
 }
 
 void** initialize(int count, int sizePointer, int sizeObject) {
+
     void** matrix = (void**) calloc(count, sizePointer);
     for(int i = 0; i < count; i++) {
         matrix[i] = initialize(count, sizeObject);
@@ -24,5 +23,3 @@ void freeMatrix(void** matrix, int count) {
 
     free(matrix);
 }
-
-#endif
