@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "../../include/utils/ArrayUtils.h"
+#include "../../include/utils/MathUtils.h"
 
 void Problem::create(string filename) {
 
@@ -263,6 +264,31 @@ int Problem::loadCustomerInfo(string object, string info, string value) {
     }
 
     return 0;
+}
+
+void Problem::initializeDistanceMatrix() {
+    customerDistanceMatrix = (double**) initialize(customerCount, sizeof(double*), sizeof(double));
+
+    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+        for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
+            customerDistanceMatrix[customerIndex][neighborIndex] = calculateEuclidianDistance(
+                customers[customerIndex],
+                customers[neighborIndex]
+            );
+        }
+    }
+
+    #ifndef NDEBUG
+    printDistanceMatrix();
+    #endif
+}
+
+void Problem::printDistanceMatrix() {
+    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+        for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
+            std::cout << "[" << customerIndex << "]" << "[" << neighborIndex << "] = " << customerDistanceMatrix[customerIndex][neighborIndex] << '\n';
+        }
+    }
 }
 
 int extractIndex(istringstream& stream) {

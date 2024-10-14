@@ -33,17 +33,14 @@ int findClosestCustomer(Problem problem, int currentCustomerIndex, int* freeCust
 
     int closestCustomerIndex = -1;
     double closestCustomerDistance = -1;
-    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
-        if(freeCustomersIndexes[customerIndex] != 1) {
-            double neighborCustomerDistance = calculateEuclidianDistance(
-                problem.customers[currentCustomerIndex], 
-                problem.customers[customerIndex]
-            );
+    for(int neighborIndex = 0; neighborIndex < problem.customerCount; neighborIndex++) {
+        if(freeCustomersIndexes[neighborIndex] != 1) {
+            double neighborCustomerDistance = problem.customerDistanceMatrix[currentCustomerIndex][neighborIndex];
 
             // std::cout << neighborCustomerDistance << '\n';
 
             if(closestCustomerDistance == -1 || closestCustomerDistance > neighborCustomerDistance) {
-                closestCustomerIndex = customerIndex;
+                closestCustomerIndex = neighborIndex;
                 closestCustomerDistance = neighborCustomerDistance;
             }
         }

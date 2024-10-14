@@ -17,6 +17,7 @@ class Problem {
 
         Problem(string datasetFilename) {
             create(datasetFilename);
+            initializeDistanceMatrix();
         }
 
         string name;
@@ -27,6 +28,7 @@ class Problem {
         
         Customer* customers = nullptr;
         int customerCount;
+        double** customerDistanceMatrix = nullptr;
 
     void create(string datasetFilename);
     void print();
@@ -35,6 +37,9 @@ class Problem {
     int loadObjectInfo(string key, string value);
     int loadVehicleInfo(string object, string info, string value);
     int loadCustomerInfo(string object, string info, string value);
+
+    void initializeDistanceMatrix();
+    void printDistanceMatrix();
 };
 
 int extractIndex(istringstream& stream);
