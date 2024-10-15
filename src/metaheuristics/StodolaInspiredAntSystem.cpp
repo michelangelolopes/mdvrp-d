@@ -16,8 +16,7 @@ void StodolaInspiredAntSystem::createCustomerClusters(int subClusterSize) {
     customerClusters = (CustomerCluster*) initialize(this->problemInstance.vertexCount, sizeof(CustomerCluster));
 
     for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
-        customerClusters[vertexIndex] = CustomerCluster(vertexIndex, subClusterSize);
-        customerClusters[vertexIndex].create(this->problemInstance, this->frame);
+        customerClusters[vertexIndex] = CustomerCluster(this->problemInstance, this->frame, vertexIndex, subClusterSize);
     }
 
     std::cout << "StodolaInspiredAntSystem::createCustomerClusters() -- end\n";
@@ -152,6 +151,8 @@ int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomers
 
     }
 
+    //TODO: consider non primary clusters
+
     double totalDepotSelectionProbabilitySum = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         totalDepotSelectionProbabilitySum += depotSelectionProbability[depotIndex];
@@ -239,6 +240,11 @@ int StodolaInspiredAntSystem::selectClusterNonPrimary(int vertexIndex, int* visi
         int unvisitedCustomersCount = 0;
         for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
             int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+
+            if(customerIndex == -1) {
+                break;
+            }
+
             if(visitedCustomersIndexes[customerIndex] != 1) {
                 unvisitedCustomersCount++;
             }
