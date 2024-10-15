@@ -6,26 +6,18 @@
 
 void Frame::create(ProblemInstance problemInstance) {
 
-    initializePositions();
+    this->customerCount = problemInstance.customerCount;
 
-    // for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-    //     updateFramePositions(frame, problemInstance.depots[depotIndex]);
-    // }
+    initializePositions();
 
     for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
         updatePositions(problemInstance.customers[customerIndex]);
     }
 
-    #ifndef NDEBUG
-    print();
-    #endif
-}
+    std::cout << "SectorsCount: " << sectorsCount << "\n";
 
-void Frame::print() {
-    std::cout << "max.x: " << max.x << '\n';
-    std::cout << "min.x: " << min.x << '\n';
-    std::cout << "max.y: " << max.y << '\n';
-    std::cout << "min.y: " << min.y << '\n';
+    initializeSectors();
+    assignSectorToCustomers(problemInstance);
 }
 
 void Frame::finalize() {
@@ -37,6 +29,35 @@ void Frame::finalize() {
     if(this->customerSectorMap != nullptr) {
         free(this->customerSectorMap);
     }
+}
+
+void Frame::print() {
+
+    std::cout << "\n--------------------------------------------------\n";
+
+    std::cout << "Frame: ";
+    std::cout << "(" << min.x << ", " << min.y << ") - "; 
+    std::cout << "(" << max.x << ", " << max.y << ")\n";
+
+    std::cout << "-------------------------\n";
+    for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
+        std::cout << "Sector[" << sectorIndex << "]: ";
+        std::cout << "(" << sectors[sectorIndex].min.x << ", " << sectors[sectorIndex].min.y << ") - "; 
+        std::cout << "(" << sectors[sectorIndex].max.x << ", " << sectors[sectorIndex].max.y << ")\n";
+    }
+
+    std::cout << "-------------------------\n";
+    for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
+        std::cout << "Sector[" << sectorIndex << "]: ";
+        for(int customerIndex = 0; customerIndex < this->customerCount; customerIndex++) {
+            if(customerSectorMap[customerIndex] == sectorIndex) {
+                std::cout << customerIndex << "\t";
+            }
+        }
+        std::cout << '\n';
+    }
+
+    std::cout << "--------------------------------------------------\n";
 }
 
 void Frame::initializePositions() {
@@ -69,7 +90,6 @@ void Frame::initializeSectors() {
     double xTotal = abs(min.x) + abs(max.x);
     double yTotal = abs(min.y) + abs(max.y);
 
-    // xTotal = std::ceil(xTotal);
     sectors = (Sector*) initialize(sectorsCount, sizeof(Sector));
 
     if(xTotal >= yTotal) {
@@ -83,23 +103,14 @@ void Frame::initializeSectors() {
 void Frame::splitSectorsHorizontally(double xTotal) {
     int sectorTotalSize = std::ceil(xTotal / sectorsCount);
 
-    std::cout << "sectorTotalSizeX: " << sectorTotalSize << '\n';
-
     double sectorStart = min.x;
     double sectorEnd;
 
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         
         sectorEnd = sectorStart + (sectorTotalSize - 1);
-        
-        std::cout << "sectorX " << sectorIndex << '\n';
-        std::cout << "startX: " << sectorStart << '\n';
-        std::cout << "endX: " << sectorEnd << '\n';
 
-        sectors[sectorIndex].min.x = sectorStart;
-        sectors[sectorIndex].max.x = sectorEnd;
-        sectors[sectorIndex].min.y = min.y;
-        sectors[sectorIndex].max.y = max.y;
+        sectors[sectorIndex] = Sector(Position2D(sectorStart, min.y), Position2D(sectorEnd, max.y));
 
         sectorStart = sectorEnd + 1;
     }
@@ -108,23 +119,14 @@ void Frame::splitSectorsHorizontally(double xTotal) {
 void Frame::splitSectorsVertically(double yTotal) {
     int sectorTotalSize = std::ceil(yTotal / sectorsCount);
 
-    std::cout << "sectorTotalSizeY: " << sectorTotalSize << '\n';
-
     double sectorStart = min.y;
     double sectorEnd;
 
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         
         sectorEnd = sectorStart + (sectorTotalSize - 1);
-        
-        std::cout << "sectorY " << sectorIndex << '\n';
-        std::cout << "startY: " << sectorStart << '\n';
-        std::cout << "endY: " << sectorEnd << '\n';
 
-        sectors[sectorIndex].min.y = sectorStart;
-        sectors[sectorIndex].max.y = sectorEnd;
-        sectors[sectorIndex].min.x = min.x;
-        sectors[sectorIndex].max.x = max.x;
+        sectors[sectorIndex] = Sector(Position2D(min.x, sectorStart), Position2D(max.x, sectorEnd));
 
         sectorStart = sectorEnd + 1;
     }
@@ -141,10 +143,6 @@ void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
                 break;
             }
         }
-    }
-
-    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
-        std::cout << "customerIndex " << customerIndex << " sectorIndex " << customerSectorMap[customerIndex] << '\n';
     }
 }
 

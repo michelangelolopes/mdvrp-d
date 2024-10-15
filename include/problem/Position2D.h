@@ -3,6 +3,12 @@
 
 class Position2D {
     public:
+        Position2D() {}
+        Position2D(double x, double y) {
+            this->x = x;
+            this->y = y;
+        }
+
         double x;
         double y;
 };

@@ -6,23 +6,25 @@
 
 class Frame : public Sector {
     public:
-        Frame() {}
-
-        Frame(ProblemInstance problemInstance, int sectorsCount) {
+        Frame(int sectorsCount) {
             this->sectorsCount = sectorsCount;
-            create(problemInstance);
-            initializeSectors();
-            assignSectorToCustomers(problemInstance);
         }
 
+        Frame(ProblemInstance problemInstance, int sectorsCount) : 
+        Frame(sectorsCount) 
+        {
+            create(problemInstance);
+        }
+
+        int customerCount;
         int sectorsCount;
         int* customerSectorMap = nullptr;
         Sector* sectors = nullptr;
 
         void create(ProblemInstance problemInstance);
-        void print();
         void finalize();
-        
+        void print();
+
         void initializePositions();
         void updatePositions(Position2D position);
         

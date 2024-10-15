@@ -7,10 +7,6 @@
 
 #include "../../include/utils/ArrayUtils.h"
 
-void StodolaInspiredAntSystem::createFrame(int sectorsCount) {
-    this->frame = Frame(this->problemInstance, sectorsCount);
-}
-
 void StodolaInspiredAntSystem::createCustomerClusters(int subClusterSize) {
     std::cout << "StodolaInspiredAntSystem::createCustomerClusters() -- start\n";
     customerClusters = (CustomerCluster*) initialize(this->problemInstance.vertexCount, sizeof(CustomerCluster));

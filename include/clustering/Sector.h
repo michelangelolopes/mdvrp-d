@@ -5,8 +5,11 @@
 
 class Sector {
     public:
-        Position2D max;
+        Sector() {}
+        Sector(Position2D min, Position2D max) : min(min), max(max) {}
+
         Position2D min;
+        Position2D max;
 };
 
 #endif
