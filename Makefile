@@ -1,6 +1,6 @@
 compile:
 	@echo "compiling..."
-	@g++ ./bin/mdvrp-d include/clustering/* include/metaheuristics/* include/problem/*  include/utils/* src/clustering/* src/metaheuristics/* src/problem/* src/utils/* src/main.cpp
+	@g++ -o ./bin/mdvrp-d include/clustering/* include/metaheuristics/* include/problem/*  include/utils/* src/clustering/* src/metaheuristics/* src/problem/* src/utils/* src/main.cpp
 
 compile_debug:
 	@echo "compiling in debug mode..."

@@ -14,8 +14,6 @@ void Frame::create(ProblemInstance problemInstance) {
         updatePositions(problemInstance.customers[customerIndex].position);
     }
 
-    std::cout << "SectorsCount: " << sectorsCount << "\n";
-
     initializeSectors();
     assignSectorToCustomers(problemInstance);
 }
