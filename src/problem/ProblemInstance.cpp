@@ -9,7 +9,7 @@
 
 void ProblemInstance::create(string filename) {
 
-    // Problem problem;
+    // ProblemInstance problemInstance;
 
     ifstream file;
     file.open(filename);
@@ -32,8 +32,8 @@ void ProblemInstance::create(string filename) {
     print();
     #endif
 
-    // return problem;
-    // fscanf(file, "Problem = %s", name);
+    // return problemInstance;
+    // fscanf(file, "ProblemInstance = %s", name);
 }
 
 void ProblemInstance::finalize() {
@@ -48,12 +48,8 @@ void ProblemInstance::finalize() {
         free(this->depots);
     }
 
-    if(this->customerDistanceMatrix != nullptr) {
-        freeMatrix((void**)this->customerDistanceMatrix, this->customerCount);
-    }
-
-    if(this->depotDistanceMatrix != nullptr) {
-        freeMatrix((void**)this->depotDistanceMatrix, this->depotCount);
+    if(this->distanceMatrix != nullptr) {
+        freeMatrix((void**)this->distanceMatrix, this->vertexCount);
     }
 }
 
@@ -95,7 +91,7 @@ void ProblemInstance::print() {
 }
 
 int ProblemInstance::loadGeneralInfo(string key, string value) {
-    // int isProblem = ;
+    // int isProblemInstance = ;
     // int isDepotCount = ;
     // int isCustomerCount = ;
     // int isVehicleInfo = !isCustomerCount && key.compare("Depot");
@@ -103,7 +99,7 @@ int ProblemInstance::loadGeneralInfo(string key, string value) {
     
     // std::cout << "Depot: " << key.compare("Depot") << '\n';
 
-    // std::cout << "isProblem: " << isProblem << '\n';
+    // std::cout << "isProblemInstance: " << isProblemInstance << '\n';
     // std::cout << "isDepotCount: " << isDepotCount << '\n';
     // std::cout << "isCustomerCount: " << isCustomerCount << '\n';
 
@@ -288,13 +284,23 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 }
 
 void ProblemInstance::initializeDistanceMatrix() {
-    customerDistanceMatrix = (double**) initialize(customerCount, sizeof(double*), sizeof(double));
+    this->vertexCount = customerCount + depotCount;
+    this->distanceMatrix = (double**) initialize(vertexCount, customerCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
         for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
-            customerDistanceMatrix[customerIndex][neighborIndex] = calculateEuclidianDistance(
+            distanceMatrix[customerIndex][neighborIndex] = calculateEuclidianDistance(
                 customers[customerIndex],
                 customers[neighborIndex]
+            );
+        }
+    }
+
+    for(int depotIndex = customerCount; depotIndex < vertexCount; depotIndex++) {
+        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+            distanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
+                depots[depotIndex],
+                customers[customerIndex]
             );
         }
     }
@@ -304,23 +310,16 @@ void ProblemInstance::initializeDistanceMatrix() {
     #endif
 }
 
-void ProblemInstance::initializeDepotDistanceMatrix() {
-    depotDistanceMatrix = (double**) initialize(depotCount, customerCount, sizeof(double*), sizeof(double));
-
-    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
-        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-            customerDistanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
-                depots[depotIndex],
-                customers[customerIndex]
-            );
-        }
-    }
-}
-
 void ProblemInstance::printDistanceMatrix() {
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
         for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
-            std::cout << "[" << customerIndex << "]" << "[" << neighborIndex << "] = " << customerDistanceMatrix[customerIndex][neighborIndex] << '\n';
+            std::cout << "Customer-Customer: [" << customerIndex << "]" << "[" << neighborIndex << "] = " << distanceMatrix[customerIndex][neighborIndex] << '\n';
+        }
+    }
+
+    for(int depotIndex = customerCount; depotIndex < vertexCount; depotIndex++) {
+        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+            std::cout << "Depot-Customer: [" << depotIndex - customerCount << "]" << "[" << customerIndex << "] = " << distanceMatrix[depotIndex][customerIndex] << '\n';
         }
     }
 }

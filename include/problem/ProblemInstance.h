@@ -1,5 +1,5 @@
-#ifndef PROBLEM_H
-#define PROBLEM_H
+#ifndef PROBLEM_INSTANCE_H
+#define PROBLEM_INSTANCE_H
 
 // #include <cstddef>
 // #include "../utils/FileUtils.h"
@@ -11,13 +11,12 @@
 
 using namespace std;
 
-class Problem {
+class ProblemInstance {
     public:
-        Problem() {}
+        ProblemInstance() {}
 
-        Problem(string datasetFilename) {
+        ProblemInstance(string datasetFilename) {
             create(datasetFilename);
-            initializeDistanceMatrix();
         }
 
         string name;
@@ -28,21 +27,21 @@ class Problem {
         
         Customer* customers = nullptr;
         int customerCount;
-        double** customerDistanceMatrix = nullptr;
-        double** depotDistanceMatrix = nullptr;
 
-    void create(string datasetFilename);
-    void print();
-    void finalize();
+        int vertexCount;
+        double** distanceMatrix = nullptr;
 
-    int loadGeneralInfo(string key, string value);
-    int loadObjectInfo(string key, string value);
-    int loadVehicleInfo(string object, string info, string value);
-    int loadCustomerInfo(string object, string info, string value);
+        void initializeDistanceMatrix();
+        void printDistanceMatrix();
 
-    void initializeDistanceMatrix();
-    void initializeDepotDistanceMatrix();
-    void printDistanceMatrix();
+        void create(string datasetFilename);
+        void print();
+        void finalize();
+
+        int loadGeneralInfo(string key, string value);
+        int loadObjectInfo(string key, string value);
+        int loadVehicleInfo(string object, string info, string value);
+        int loadCustomerInfo(string object, string info, string value);
 };
 
 int extractIndex(istringstream& stream);

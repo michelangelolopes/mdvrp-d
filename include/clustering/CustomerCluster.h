@@ -2,27 +2,27 @@
 #define CUSTOMER_CLUSTER_H
 
 #include "Frame.h"
-#include "../problem/Problem.h"
+#include "../problem/ProblemInstance.h"
 
 class CustomerCluster {
     public:
-        CustomerCluster(int customerIndex, int subClusterSize) {
-            this->customerIndex = customerIndex;
+        CustomerCluster(int vertexIndex, int subClusterSize) {
+            this->vertexIndex = vertexIndex;
             this->subClusterSize = subClusterSize;
         }
-        int neighborCount;
+        int neighborCustomerCount;
         int clusterSize;
-        int customerIndex;
+        int vertexIndex;
         int subClusterSize;
         int** clusters;
 
-        void create(Problem problem, Frame frame);
+        void create(ProblemInstance problemInstance, Frame frame);
         void print();
         void finalize();
 };
 
-int findClosestCustomerInSector(Problem problem, int currentCustomerIndex, int currentSectorIndex, int* visitedCustomersIndexes, int* customerSectorMap);
-int findClosestCustomer(Problem problem, int currentCustomerIndex, int* visitedCustomersIndexes);
-void createCluster(Problem problem, int currentCustomerIndex, int subClusterSize, int clusterSectionCount);
+int findClosestCustomerInSector(ProblemInstance problemInstance, int currentVertexIndex, int currentSectorIndex, int* visitedCustomersIndexes, int* customerSectorMap);
+int findClosestCustomer(ProblemInstance problemInstance, int currentVertexIndex, int* visitedCustomersIndexes);
+void createCluster(ProblemInstance problemInstance, int currentVertexIndex, int subClusterSize, int clusterSectionCount);
 
 #endif
