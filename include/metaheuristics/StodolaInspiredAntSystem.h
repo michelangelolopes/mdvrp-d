@@ -26,6 +26,11 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         void createCustomerClusters(int subClusterSize);
         void initializePheromoneMatrix();
 
+        void run();
+        Solution buildAntSolution();
+
+        int selectDepot(int vertexIndex, int* visitedCustomerIndexes);
+
         void printCluster();
 };
 
