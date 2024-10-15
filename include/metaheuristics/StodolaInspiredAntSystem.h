@@ -8,12 +8,9 @@
 
 class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnnealing {
     public:
-        StodolaInspiredAntSystem(Problem problem) {
-            this->problem = problem;
-        }
+        StodolaInspiredAntSystem(ProblemInstance problemInstance) : MaxMinAntSystem(problemInstance) {}
 
-        StodolaInspiredAntSystem(Problem problem, int sectorsCount, int subClusterSize) {
-            this->problem = problem;
+        StodolaInspiredAntSystem(ProblemInstance problemInstance, int sectorsCount, int subClusterSize) : MaxMinAntSystem(problemInstance) {
             createFrame(sectorsCount);
             createCustomerClusters(subClusterSize);
         }
@@ -21,7 +18,6 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         int localOptimizationFrequency;
         int primaryClustersCount;
         CustomerCluster* customerClusters = nullptr;
-        Problem problem;
         Frame frame;
 
         void finalize();

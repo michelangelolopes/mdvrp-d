@@ -5,6 +5,8 @@
 
 class MaxMinAntSystem : public AntSystem {
     public:
+        MaxMinAntSystem(ProblemInstance problemInstance) : AntSystem(problemInstance) {}
+
         double pheromoneEvaporationCoefMax;
         double pheromoneEvaporationCoefMin;
 };

@@ -5,7 +5,7 @@
 
 class Solution {
     public:
-        Route* bestRoutes;
+        int** routes;
 };
 
 #endif

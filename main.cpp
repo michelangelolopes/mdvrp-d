@@ -2,7 +2,7 @@
 #include <string>
 
 #include "include/metaheuristics/StodolaInspiredAntSystem.h"
-#include "include/problem/Problem.h"
+#include "include/problem/ProblemInstance.h"
 
 using namespace std;
 
@@ -19,10 +19,10 @@ int main(int argc, char** argv) {
     int sectorsCount = 7;
     int subClusterSize = 7;
 
-    Problem problem(datasetFilePath);
-    StodolaInspiredAntSystem antSystem(problem, sectorsCount, subClusterSize);
+    ProblemInstance problemInstance(datasetFilePath);
+    StodolaInspiredAntSystem antSystem(problemInstance, sectorsCount, subClusterSize);
 
-    problem.finalize();
+    problemInstance.finalize();
     antSystem.finalize();
 
     return 0;

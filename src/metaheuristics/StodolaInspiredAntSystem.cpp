@@ -1,21 +1,21 @@
 #include "../../include/metaheuristics/StodolaInspiredAntSystem.h"
 
-#include <cmath>
+#include <cmath>    // ceil()
 #include <iostream>
 
 #include "../../include/utils/ArrayUtils.h"
 
 void StodolaInspiredAntSystem::createFrame(int sectorsCount) {
-    this->frame = Frame(this->problem, sectorsCount);
+    this->frame = Frame(this->problemInstance, sectorsCount);
 }
 
 void StodolaInspiredAntSystem::createCustomerClusters(int subClusterSize) {
     std::cout << "StodolaInspiredAntSystem::createCustomerClusters() -- start\n";
-    customerClusters = (CustomerCluster*) initialize(this->problem.customerCount, sizeof(CustomerCluster));
+    customerClusters = (CustomerCluster*) initialize(this->problemInstance.vertexCount, sizeof(CustomerCluster));
 
-    for(int customerIndex = 0; customerIndex < this->problem.customerCount; customerIndex++) {
-        customerClusters[customerIndex] = CustomerCluster(customerIndex, subClusterSize);
-        customerClusters[customerIndex].create(this->problem, this->frame);
+    for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
+        customerClusters[vertexIndex] = CustomerCluster(vertexIndex, subClusterSize);
+        customerClusters[vertexIndex].create(this->problemInstance, this->frame);
     }
 
     std::cout << "StodolaInspiredAntSystem::createCustomerClusters() -- end\n";
@@ -24,7 +24,7 @@ void StodolaInspiredAntSystem::createCustomerClusters(int subClusterSize) {
 void StodolaInspiredAntSystem::finalize() {
     
     if(this->customerClusters != nullptr) {
-        for(int customerIndex = 0; customerIndex < this->problem.customerCount; customerIndex++) {
+        for(int customerIndex = 0; customerIndex < this->problemInstance.customerCount; customerIndex++) {
             customerClusters[customerIndex].finalize();
             std::cout << "free - customerClusters - " << customerIndex << '\n';
         }
@@ -39,10 +39,10 @@ void StodolaInspiredAntSystem::finalize() {
 void StodolaInspiredAntSystem::printCluster() {
 
     int subClusterSize = this->customerClusters[0].subClusterSize;
-    int freeCustomersCount = this->problem.customerCount - 1;
-    int clusterCount = std::ceil((float) freeCustomersCount / (float) subClusterSize);
+    int unvisitedCustomersCount = this->problemInstance.customerCount - 1;
+    int clusterCount = std::ceil((float) unvisitedCustomersCount / (float) subClusterSize);
 
-    for(int customerIndex = 0; customerIndex < this->problem.customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < this->problemInstance.customerCount; customerIndex++) {
         std::cout << "--------------------------------\n";
         std::cout << "Cluster for Customer " << customerIndex << "\n";
         for(int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
@@ -51,7 +51,7 @@ void StodolaInspiredAntSystem::printCluster() {
 
             for(int subClusterIndex = 0; subClusterIndex < subClusterSize; subClusterIndex++) {
                 int neighborIndex = this->customerClusters[customerIndex].clusters[clusterIndex][subClusterIndex];
-                int neighborDistance = this->problem.customerDistanceMatrix[customerIndex][neighborIndex];
+                int neighborDistance = this->problemInstance.distanceMatrix[customerIndex][neighborIndex];
                 int neighborSector = this->frame.customerSectorMap[neighborIndex];
 
                 std::cout << "--------\n";
