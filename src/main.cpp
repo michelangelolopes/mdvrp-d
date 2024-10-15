@@ -18,9 +18,16 @@ int main(int argc, char** argv) {
 
     int sectorsCount = 7;
     int subClusterSize = 7;
+    int vehicleCount = 1;
+    int printDistanceMatrix = 0;
 
-    ProblemInstance problemInstance(datasetFilePath);
+    ProblemInstance problemInstance(datasetFilePath, vehicleCount);
     StodolaInspiredAntSystem antSystem(problemInstance, sectorsCount, subClusterSize);
+
+    antSystem.customerClusters[0].print();
+    antSystem.customerClusters[problemInstance.customerCount].print();
+    antSystem.frame.print();
+    problemInstance.print(printDistanceMatrix);
 
     problemInstance.finalize();
     antSystem.finalize();

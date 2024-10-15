@@ -13,18 +13,14 @@ using namespace std;
 
 class ProblemInstance {
     public:
-        ProblemInstance() {}
-
-        ProblemInstance(string datasetFilename) {
-            create(datasetFilename);
-            initializeDistanceMatrix();
+        ProblemInstance(string datasetFilename, int vehicleCount) {
+            create(datasetFilename, vehicleCount);
         }
 
         string name;
         
         Depot* depots = nullptr;
         int depotCount;
-        int vehicleCount = 1;
         
         Customer* customers = nullptr;
         int customerCount;
@@ -32,17 +28,16 @@ class ProblemInstance {
         int vertexCount;
         double** distanceMatrix = nullptr;
 
-        void initializeDistanceMatrix();
-        void printDistanceMatrix();
-
-        void create(string datasetFilename);
-        void print();
+        void create(string datasetFilename, int vehicleCount);
         void finalize();
+        void print(int printDistanceMatrix);
 
-        int loadGeneralInfo(string key, string value);
+        int loadGeneralInfo(string key, string value, int vehicleCount);
         int loadObjectInfo(string key, string value);
-        int loadVehicleInfo(string object, string info, string value);
+        int loadDepotInfo(string object, string info, string value);
         int loadCustomerInfo(string object, string info, string value);
+
+        void initializeDistanceMatrix();
 };
 
 int extractIndex(istringstream& stream);

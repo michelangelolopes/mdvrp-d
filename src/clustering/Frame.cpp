@@ -11,7 +11,7 @@ void Frame::create(ProblemInstance problemInstance) {
     initializePositions();
 
     for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
-        updatePositions(problemInstance.customers[customerIndex]);
+        updatePositions(problemInstance.customers[customerIndex].position);
     }
 
     std::cout << "SectorsCount: " << sectorsCount << "\n";
@@ -42,8 +42,8 @@ void Frame::print() {
     std::cout << "-------------------------\n";
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         std::cout << "Sector[" << sectorIndex << "]: ";
-        std::cout << "(" << sectors[sectorIndex].min.x << ", " << sectors[sectorIndex].min.y << ") - "; 
-        std::cout << "(" << sectors[sectorIndex].max.x << ", " << sectors[sectorIndex].max.y << ")\n";
+        sectors[sectorIndex].print();
+        std::cout << '\n';
     }
 
     std::cout << "-------------------------\n";
@@ -138,7 +138,7 @@ void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
 
     for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
         for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
-            if( isCustomerInSector(sectors[sectorIndex], problemInstance.customers[customerIndex]) ) {
+            if( isPositionInSector(sectors[sectorIndex], problemInstance.customers[customerIndex].position) ) {
                 customerSectorMap[customerIndex] = sectorIndex;
                 break;
             }
@@ -146,9 +146,9 @@ void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
     }
 }
 
-int isCustomerInSector(Sector sector, Customer customer) {
-    return (customer.x >= sector.min.x) && 
-        (customer.x <= sector.max.x) && 
-        (customer.y >= sector.min.y) && 
-        (customer.y <= sector.max.y);
+int isPositionInSector(Sector sector, Position2D position) {
+    return (position.x >= sector.min.x) && 
+        (position.x <= sector.max.x) && 
+        (position.y >= sector.min.y) && 
+        (position.y <= sector.max.y);
 }

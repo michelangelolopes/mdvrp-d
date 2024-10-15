@@ -34,6 +34,6 @@ class Frame : public Sector {
         void assignSectorToCustomers(ProblemInstance problemInstance);
 };
 
-int isCustomerInSector(Sector sector, Customer customer);
+int isPositionInSector(Sector sector, Position2D position);
 
 #endif

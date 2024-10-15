@@ -1,6 +1,8 @@
 #ifndef POSITION_2D_H
 #define POSITION_2D_H
 
+#include <iostream>
+
 class Position2D {
     public:
         Position2D() {}
@@ -11,6 +13,10 @@ class Position2D {
 
         double x;
         double y;
+
+        void print() {
+            std::cout << "(x: " << x << ", y: " << y << ")"; 
+        }
 };
 
 #endif

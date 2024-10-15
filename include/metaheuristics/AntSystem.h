@@ -6,8 +6,9 @@
 
 class AntSystem {
     public:
-        AntSystem(ProblemInstance problemInstance) {
-            this->problemInstance = problemInstance;
+        AntSystem(ProblemInstance problemInstance) :
+        problemInstance(problemInstance)
+        {
             this->routeMaxLength = (problemInstance.customerCount * 2) + 1; //route worst case: (depot, customer), (depot, customer), ..., depot
         }
 
