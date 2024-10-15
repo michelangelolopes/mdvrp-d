@@ -1,6 +1,8 @@
 #ifndef MAX_MIN_ANT_SYSTEM_H
 #define MAX_MIN_ANT_SYSTEM_H
 
+#include "../problem/ProblemInstance.h"
+
 #include "AntSystem.h"
 
 class MaxMinAntSystem : public AntSystem {

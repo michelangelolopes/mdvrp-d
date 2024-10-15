@@ -26,14 +26,29 @@ void StodolaInspiredAntSystem::createCustomerClusters(int subClusterSize) {
 void StodolaInspiredAntSystem::finalize() {
     
     if(this->customerClusters != nullptr) {
-        for(int customerIndex = 0; customerIndex < this->problemInstance.customerCount; customerIndex++) {
-            customerClusters[customerIndex].finalize();
-            std::cout << "free - customerClusters - " << customerIndex << '\n';
+        for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
+            customerClusters[vertexIndex].finalize();
+            std::cout << "free - customerClusters - " << vertexIndex << '\n';
         }
         std::cout << "free - customerClusters - " << this->customerClusters << '\n';
         free(this->customerClusters);
         std::cout << "free - customerClusters" << '\n';
     }
+
+    for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
+        for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
+            for(int customerIndex = 0; customerIndex < this->problemInstance.customerCount; customerIndex++) {
+                std::cout << "[" << depotIndex << "]";
+                std::cout << "[" << vertexIndex << "]";
+                std::cout << "[" << customerIndex << "]";
+                std::cout << " = " << this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex] << '\n';
+            }
+        }
+        freeMatrix((void**) this->pheromoneMatrix[depotIndex], this->problemInstance.vertexCount);
+    }
+
+    free(this->pheromoneMatrix);
+
     
     frame.finalize();
 }
@@ -108,11 +123,13 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
 
     while(unvisitedCustomersCount > 0) {
         depotIndex = selectDepot(currentVertexIndex[depotIndex], visitedCustomersIndexes);
+        clusterIndex = selectCluster(depotIndex, currentVertexIndex[depotIndex], visitedCustomersIndexes);
         break;
-        // clusterIndex = selectCluster();
         // int* candidates;
         // int vertexIndex = selectCustomer();
     }
+
+    return Solution();
 }
 
 int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomersIndexes) {
@@ -125,31 +142,125 @@ int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomers
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         for(int clusterIndex = 0; clusterIndex < this->primaryClustersCount; clusterIndex++) {
             for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
-                int closestCustomerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+                int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
 
-                if(visitedCustomersIndexes[closestCustomerIndex] != 1) {
-                    depotSelectionProbability[depotIndex] += this->pheromoneMatrix[depotIndex][vertexIndex][closestCustomerIndex];
+                if(visitedCustomersIndexes[customerIndex] != 1) {
+                    depotSelectionProbability[depotIndex] += this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex];
                 }
             }
         }
 
     }
 
-    double selectionProbabilitySum = 0;
+    double totalDepotSelectionProbabilitySum = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-        selectionProbabilitySum += depotSelectionProbability[depotIndex];
+        totalDepotSelectionProbabilitySum += depotSelectionProbability[depotIndex];
     }
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-        depotSelectionProbability[depotIndex] /= selectionProbabilitySum;
+        depotSelectionProbability[depotIndex] /= totalDepotSelectionProbabilitySum;
     }
 
-    double randomValue = ((double)rand() / RAND_MAX) * selectionProbabilitySum;
-    double cumulativeProbability = 0;
-    for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-        cumulativeProbability += depotSelectionProbability[depotIndex];
-        if (randomValue <= cumulativeProbability) {
-            return depotIndex;
+    int depotIndex = rouletteWheelSelection(
+        this->problemInstance.depotCount,
+        depotSelectionProbability,
+        totalDepotSelectionProbabilitySum
+    );
+
+    free(depotSelectionProbability);
+
+    return depotIndex;
+}
+
+int StodolaInspiredAntSystem::selectCluster(int depotIndex, int vertexIndex, int* visitedCustomersIndexes) {
+    double* heuristicInformationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
+    double* clusterSelectionProbability = (double*) initialize(problemInstance.depotCount, sizeof(double));
+
+    int unvisitedCustomersCountSum = 0;
+    int selectedClusterIndex = 0;
+
+    for(int clusterIndex = 0; clusterIndex < this->primaryClustersCount; clusterIndex++) {
+        int unvisitedCustomersCount = 0;
+        double heuristicInformationSum = 0;
+        double pheromoneConcentrationSum = 0;
+
+        for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
+            int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+            if(visitedCustomersIndexes[customerIndex] != 1) {
+                heuristicInformationSum += this->problemInstance.distanceMatrix[vertexIndex][customerIndex];
+                pheromoneConcentrationSum += this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex];
+                unvisitedCustomersCount++;
+            }
+        }
+
+        unvisitedCustomersCountSum += unvisitedCustomersCount;
+
+        if(unvisitedCustomersCount > 0) {
+            heuristicInformationAverage[clusterIndex] = unvisitedCustomersCount * heuristicInformationSum;
+            pheromoneConcentrationAverage[clusterIndex] = pheromoneConcentrationSum / unvisitedCustomersCount;
         }
     }
+
+    if(unvisitedCustomersCountSum >= 0) {
+        double totalHeuristicInformationSum = 0;
+        double totalPheromoneConcentrationSum = 0;
+
+        for(int clusterIndex = 0; clusterIndex < this->primaryClustersCount; clusterIndex++) {
+            totalHeuristicInformationSum += pow(heuristicInformationAverage[clusterIndex], this->distanceProbabilityCoef);
+            totalPheromoneConcentrationSum += pow(pheromoneConcentrationAverage[clusterIndex], this->pheromoneProbabilityCoef);
+        }
+
+        for(int clusterIndex = 0; clusterIndex < this->primaryClustersCount; clusterIndex++) {
+            clusterSelectionProbability[clusterIndex] = 1;
+            clusterSelectionProbability[clusterIndex] *= pow(heuristicInformationAverage[clusterIndex], this->distanceProbabilityCoef);
+            clusterSelectionProbability[clusterIndex] *= pow(pheromoneConcentrationAverage[clusterIndex], this->pheromoneProbabilityCoef);
+            clusterSelectionProbability[clusterIndex] /= (totalHeuristicInformationSum * totalPheromoneConcentrationSum);
+        }
+
+        selectedClusterIndex = rouletteWheelSelection(
+            this->primaryClustersCount,
+            clusterSelectionProbability,
+            (totalHeuristicInformationSum * totalPheromoneConcentrationSum)
+        );
+    } else { //if there is no customer unvisited for all primary clusters, choose other cluster
+        selectedClusterIndex = selectClusterNonPrimary(vertexIndex, visitedCustomersIndexes);
+    }
+
+    free(heuristicInformationAverage);
+    free(pheromoneConcentrationAverage);
+    free(clusterSelectionProbability);
+
+    return selectedClusterIndex;
+}
+
+int StodolaInspiredAntSystem::selectClusterNonPrimary(int vertexIndex, int* visitedCustomersIndexes) {
+    for(int clusterIndex = this->primaryClustersCount; clusterIndex < this->customerClusters[vertexIndex].clusterSize; clusterIndex++) {
+        int unvisitedCustomersCount = 0;
+        for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
+            int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+            if(visitedCustomersIndexes[customerIndex] != 1) {
+                unvisitedCustomersCount++;
+            }
+        }
+
+        if(unvisitedCustomersCount > 0) {
+            return clusterIndex;
+        }
+    }
+
+    return -1;
+}
+
+int rouletteWheelSelection(int candidatesCount, double* selectionProbability, double selectionProbabilitySum) {
+    double randomValue = ((double)rand() / RAND_MAX) * selectionProbabilitySum;
+    double cumulativeProbability = 0;
+    for(int candidateIndex = 0; candidateIndex < candidatesCount; candidateIndex++) {
+        cumulativeProbability += selectionProbability[candidateIndex];
+        if (randomValue <= cumulativeProbability) {
+            return candidateIndex;
+        }
+    }
+
+    return -1;
 }

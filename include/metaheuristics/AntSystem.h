@@ -1,6 +1,7 @@
 #ifndef ANT_SYSTEM_H
 #define ANT_SYSTEM_H
 
+#include "../problem/ProblemInstance.h"
 #include "../solution/Solution.h"
 
 class AntSystem {
@@ -13,8 +14,6 @@ class AntSystem {
         int antsCount;
         int routeMaxLength;
         double pheromoneUpdateCoef;
-        double pheromoneProbabilityCoef;
-        double distanceProbabilityCoef;
         double*** pheromoneMatrix;
 
         ProblemInstance problemInstance;
