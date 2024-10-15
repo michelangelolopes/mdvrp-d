@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "include/metaheuristics/StodolaInspiredAntSystem.h"
-#include "include/problem/ProblemInstance.h"
+#include "../include/metaheuristics/StodolaInspiredAntSystem.h"
+#include "../include/problem/ProblemInstance.h"
 
 using namespace std;
 

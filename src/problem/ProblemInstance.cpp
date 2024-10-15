@@ -299,7 +299,7 @@ void ProblemInstance::initializeDistanceMatrix() {
     for(int depotIndex = customerCount; depotIndex < vertexCount; depotIndex++) {
         for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
             distanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
-                depots[depotIndex],
+                depots[depotIndex - customerCount],
                 customers[customerIndex]
             );
         }

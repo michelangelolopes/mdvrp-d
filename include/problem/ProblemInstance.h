@@ -17,6 +17,7 @@ class ProblemInstance {
 
         ProblemInstance(string datasetFilename) {
             create(datasetFilename);
+            initializeDistanceMatrix();
         }
 
         string name;
