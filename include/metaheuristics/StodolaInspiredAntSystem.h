@@ -12,8 +12,7 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         MaxMinAntSystem(problemInstance), 
         frame(problemInstance, sectorsCount)
         {
-            createCustomerClusters(subClusterSize);
-            initializePheromoneMatrix();
+            create(subClusterSize);
         }
 
         int localOptimizationFrequency;
@@ -23,8 +22,11 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         CustomerCluster* customerClusters = nullptr;
         Frame frame;
 
+        void create(int subClusterSize);
         void finalize();
-        void createCustomerClusters(int subClusterSize);
+        void print();
+
+        void initializeCustomerClusters(int subClusterSize);
         void initializePheromoneMatrix();
 
         void run();
@@ -32,10 +34,7 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
 
         int selectDepot(int vertexIndex, int* visitedCustomerIndexes);
         int selectCluster(int depotIndex, int vertexIndex, int* visitedCustomersIndexes);
-
         int selectClusterNonPrimary(int vertexIndex, int* visitedCustomersIndexes);
-
-        void printCluster();
 };
 
 int rouletteWheelSelection(int candidatesCount, double* selectionProbability, double selectionProbabilitySum);
