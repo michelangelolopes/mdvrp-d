@@ -1,25 +1,25 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "../problem/Problem.h"
+#include "../problem/ProblemInstance.h"
 #include "Sector.h"
 
 class Frame : public Sector {
     public:
         Frame() {}
 
-        Frame(Problem problem, int sectorsCount) {
+        Frame(ProblemInstance problemInstance, int sectorsCount) {
             this->sectorsCount = sectorsCount;
-            create(problem);
+            create(problemInstance);
             initializeSectors();
-            assignSectorToCustomers(problem);
+            assignSectorToCustomers(problemInstance);
         }
 
         int sectorsCount;
         int* customerSectorMap = nullptr;
         Sector* sectors = nullptr;
 
-        void create(Problem problem);
+        void create(ProblemInstance problemInstance);
         void print();
         void finalize();
         
@@ -29,7 +29,7 @@ class Frame : public Sector {
         void initializeSectors();
         void splitSectorsHorizontally(double xTotal);
         void splitSectorsVertically(double yTotal);
-        void assignSectorToCustomers(Problem problem);
+        void assignSectorToCustomers(ProblemInstance problemInstance);
 };
 
 int isCustomerInSector(Sector sector, Customer customer);

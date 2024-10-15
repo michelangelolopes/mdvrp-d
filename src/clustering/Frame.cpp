@@ -4,16 +4,16 @@
 #include <iostream>
 #include "../../include/utils/ArrayUtils.h"
 
-void Frame::create(Problem problem) {
+void Frame::create(ProblemInstance problemInstance) {
 
     initializePositions();
 
-    // for(int depotIndex = 0; depotIndex < problem.depotCount; depotIndex++) {
-    //     updateFramePositions(frame, problem.depots[depotIndex]);
+    // for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
+    //     updateFramePositions(frame, problemInstance.depots[depotIndex]);
     // }
 
-    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
-        updatePositions(problem.customers[customerIndex]);
+    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+        updatePositions(problemInstance.customers[customerIndex]);
     }
 
     #ifndef NDEBUG
@@ -130,20 +130,20 @@ void Frame::splitSectorsVertically(double yTotal) {
     }
 }
 
-void Frame::assignSectorToCustomers(Problem problem) {
+void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
 
-    customerSectorMap = (int*) initialize(problem.customerCount, sizeof(int));
+    customerSectorMap = (int*) initialize(problemInstance.customerCount, sizeof(int));
 
-    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
         for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
-            if( isCustomerInSector(sectors[sectorIndex], problem.customers[customerIndex]) ) {
+            if( isCustomerInSector(sectors[sectorIndex], problemInstance.customers[customerIndex]) ) {
                 customerSectorMap[customerIndex] = sectorIndex;
                 break;
             }
         }
     }
 
-    for(int customerIndex = 0; customerIndex < problem.customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
         std::cout << "customerIndex " << customerIndex << " sectorIndex " << customerSectorMap[customerIndex] << '\n';
     }
 }

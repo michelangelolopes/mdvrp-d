@@ -1,4 +1,4 @@
-#include "../../include/problem/Problem.h"
+#include "../../include/problem/ProblemInstance.h"
 
 #include <fstream>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
-void Problem::create(string filename) {
+void ProblemInstance::create(string filename) {
 
     // Problem problem;
 
@@ -36,7 +36,7 @@ void Problem::create(string filename) {
     // fscanf(file, "Problem = %s", name);
 }
 
-void Problem::finalize() {
+void ProblemInstance::finalize() {
     if(this->customers != nullptr) {
         free(this->customers);
     }
@@ -57,7 +57,7 @@ void Problem::finalize() {
     }
 }
 
-void Problem::print() {
+void ProblemInstance::print() {
 
     std::cout << "----------------------------\n";
     std::cout << name << '\n';
@@ -94,7 +94,7 @@ void Problem::print() {
     std::cout << "----------------------------\n";
 }
 
-int Problem::loadGeneralInfo(string key, string value) {
+int ProblemInstance::loadGeneralInfo(string key, string value) {
     // int isProblem = ;
     // int isDepotCount = ;
     // int isCustomerCount = ;
@@ -130,7 +130,7 @@ int Problem::loadGeneralInfo(string key, string value) {
     return 0;
 }
 
-int Problem::loadObjectInfo(string key, string value) {
+int ProblemInstance::loadObjectInfo(string key, string value) {
 
     int delimiterIndex = key.find('_');
     string object = key.substr(0, delimiterIndex);
@@ -169,7 +169,7 @@ int Problem::loadObjectInfo(string key, string value) {
     return 0;
 }
 
-int Problem::loadVehicleInfo(string object, string info, string value) {
+int ProblemInstance::loadVehicleInfo(string object, string info, string value) {
 
     istringstream objectStream;
     objectStream.str(object);
@@ -253,7 +253,7 @@ int Problem::loadVehicleInfo(string object, string info, string value) {
     return 0;
 }
 
-int Problem::loadCustomerInfo(string object, string info, string value) {
+int ProblemInstance::loadCustomerInfo(string object, string info, string value) {
 
     istringstream objectStream;
     objectStream.str(object);
@@ -287,7 +287,7 @@ int Problem::loadCustomerInfo(string object, string info, string value) {
     return 0;
 }
 
-void Problem::initializeDistanceMatrix() {
+void ProblemInstance::initializeDistanceMatrix() {
     customerDistanceMatrix = (double**) initialize(customerCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
@@ -304,7 +304,7 @@ void Problem::initializeDistanceMatrix() {
     #endif
 }
 
-void Problem::initializeDepotDistanceMatrix() {
+void ProblemInstance::initializeDepotDistanceMatrix() {
     depotDistanceMatrix = (double**) initialize(depotCount, customerCount, sizeof(double*), sizeof(double));
 
     for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
@@ -317,7 +317,7 @@ void Problem::initializeDepotDistanceMatrix() {
     }
 }
 
-void Problem::printDistanceMatrix() {
+void ProblemInstance::printDistanceMatrix() {
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
         for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
             std::cout << "[" << customerIndex << "]" << "[" << neighborIndex << "] = " << customerDistanceMatrix[customerIndex][neighborIndex] << '\n';
