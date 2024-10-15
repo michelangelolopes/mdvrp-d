@@ -66,3 +66,11 @@ void StodolaInspiredAntSystem::printCluster() {
         std::cout << "--------------------------------\n";
     }
 }
+
+void StodolaInspiredAntSystem::initializePheromoneMatrix() {
+    this->pheromoneMatrix = (double***) initialize(this->problemInstance.depotCount, sizeof(double**));
+
+    for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
+        this->pheromoneMatrix[depotIndex] = (double**) initialize(this->problemInstance.vertexCount, this->problemInstance.customerCount, sizeof(double*), sizeof(double));
+    }
+}

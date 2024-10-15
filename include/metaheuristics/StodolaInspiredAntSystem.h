@@ -13,6 +13,7 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         StodolaInspiredAntSystem(ProblemInstance problemInstance, int sectorsCount, int subClusterSize) : MaxMinAntSystem(problemInstance) {
             createFrame(sectorsCount);
             createCustomerClusters(subClusterSize);
+            initializePheromoneMatrix();
         }
 
         int localOptimizationFrequency;
@@ -23,6 +24,7 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         void finalize();
         void createFrame(int sectorsCount);
         void createCustomerClusters(int subClusterSize);
+        void initializePheromoneMatrix();
 
         void printCluster();
 };
