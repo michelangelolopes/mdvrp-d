@@ -23,6 +23,13 @@ void StodolaInspiredAntSystem::finalize() {
         free(this->customerClusters);
     }
 
+    if(this->antsSolution != nullptr) {
+        for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
+            antsSolution[antIndex].finalize();
+        }
+        free(this->antsSolution);
+    }
+
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         freeMatrix((void**) this->pheromoneMatrix[depotIndex], this->problemInstance.vertexCount);
     }
@@ -104,38 +111,61 @@ void StodolaInspiredAntSystem::run() {
 Solution StodolaInspiredAntSystem::buildAntSolution() {
 
     int* visitedCustomersIndexes = (int*) initialize(problemInstance.customerCount, sizeof(int));
-    int* currentVertexIndex = (int*) initialize(problemInstance.customerCount, sizeof(int));
-    double* currentTruckLoad = (double*) initialize(problemInstance.customerCount, sizeof(double));
+    int* currentVertexIndex = (int*) initialize(problemInstance.depotCount, sizeof(int));
+    int* currentRouteIndex = (int*) initialize(problemInstance.depotCount, sizeof(int));
+    double* currentTruckLoad = (double*) initialize(problemInstance.depotCount, sizeof(double));
 
     int unvisitedCustomersCount = problemInstance.customerCount;
 
-    Solution antSolution;
-    antSolution.routes = (int**) initialize(problemInstance.depotCount, routeMaxLength, sizeof(int*), sizeof(int));
+    Solution antSolution(problemInstance.depotCount, routeMaxLength);
 
-    for(int depotIndex = problemInstance.customerCount; depotIndex < problemInstance.vertexCount; depotIndex++) {
-        antSolution.routes[depotIndex][0] = depotIndex; //first vertex visited
-        currentVertexIndex[depotIndex] = depotIndex;
+    for(int vertexIndex = problemInstance.customerCount; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+        int depotIndex = vertexIndex - problemInstance.customerCount;
+        antSolution.routes[depotIndex][0] = vertexIndex; //first vertex visited
+        currentVertexIndex[depotIndex] = vertexIndex;
+        currentRouteIndex[depotIndex] = 0;
         currentTruckLoad[depotIndex] = 0;
     }
 
-    int depotIndex = 0;
-    int clusterIndex = -1;
-
+    int depotIndex = 0; //can select a depot randomly
     while(unvisitedCustomersCount > 0) {
         depotIndex = selectDepot(currentVertexIndex[depotIndex], visitedCustomersIndexes);
-        clusterIndex = selectCluster(depotIndex, currentVertexIndex[depotIndex], visitedCustomersIndexes);
-        break;
-        // int* candidates;
-        // int vertexIndex = selectCustomer();
+        int clusterIndex = selectCluster(currentVertexIndex[depotIndex], visitedCustomersIndexes, depotIndex);
+        int customerIndex = selectCustomer(currentVertexIndex[depotIndex], visitedCustomersIndexes, depotIndex, clusterIndex);
+
+        if(currentTruckLoad[depotIndex] + problemInstance.customers[customerIndex].demand > problemInstance.depots[depotIndex].trucks[0].capacity) {
+            int vertexIndex = depotIndex + problemInstance.customerCount;
+            currentRouteIndex[depotIndex]++;
+            antSolution.routes[depotIndex][currentRouteIndex[depotIndex]] = vertexIndex;
+            currentTruckLoad[depotIndex] = 0;
+        }
+
+        currentRouteIndex[depotIndex]++;
+        antSolution.routes[depotIndex][currentRouteIndex[depotIndex]] = customerIndex;
+        currentTruckLoad[depotIndex] += problemInstance.customers[customerIndex].demand;
+        visitedCustomersIndexes[customerIndex] = 1;
+        currentVertexIndex[depotIndex] = customerIndex;
     }
 
-    return Solution();
+    for(int vertexIndex = problemInstance.customerCount; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+        int depotIndex = vertexIndex - problemInstance.customerCount;
+        currentRouteIndex[depotIndex]++;
+        antSolution.routes[depotIndex][currentRouteIndex[depotIndex]] = vertexIndex;
+    }
+
+    free(visitedCustomersIndexes);
+    free(currentVertexIndex);
+    free(currentRouteIndex);
+    free(currentTruckLoad);
+
+    return antSolution;
 }
 
 int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomersIndexes) {
 
     double* depotSelectionProbability = (double*) initialize(problemInstance.depotCount, sizeof(double));
 
+    double totalDepotSelectionProbabilitySum = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         for(int clusterIndex = 0; clusterIndex < this->primaryClustersCount; clusterIndex++) {
             for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
@@ -146,15 +176,10 @@ int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomers
                 }
             }
         }
-
+        totalDepotSelectionProbabilitySum += depotSelectionProbability[depotIndex];
     }
 
     //TODO: consider non primary clusters
-
-    double totalDepotSelectionProbabilitySum = 0;
-    for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-        totalDepotSelectionProbabilitySum += depotSelectionProbability[depotIndex];
-    }
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         depotSelectionProbability[depotIndex] /= totalDepotSelectionProbabilitySum;
