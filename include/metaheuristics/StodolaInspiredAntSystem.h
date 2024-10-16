@@ -33,8 +33,9 @@ class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnneali
         Solution buildAntSolution();
 
         int selectDepot(int vertexIndex, int* visitedCustomerIndexes);
-        int selectCluster(int depotIndex, int vertexIndex, int* visitedCustomersIndexes);
+        int selectCluster(int vertexIndex, int* visitedCustomersIndexes, int depotIndex);
         int selectClusterNonPrimary(int vertexIndex, int* visitedCustomersIndexes);
+        int selectCustomer(int vertexIndex, int* visitedCustomersIndexes, int depotIndex, int clusterIndex);
 };
 
 int rouletteWheelSelection(int candidatesCount, double* selectionProbability, double selectionProbabilitySum);

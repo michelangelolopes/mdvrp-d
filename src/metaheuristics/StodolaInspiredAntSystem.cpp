@@ -171,7 +171,7 @@ int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomers
     return depotIndex;
 }
 
-int StodolaInspiredAntSystem::selectCluster(int depotIndex, int vertexIndex, int* visitedCustomersIndexes) {
+int StodolaInspiredAntSystem::selectCluster(int vertexIndex, int* visitedCustomersIndexes, int depotIndex) {
 
     double* heuristicInformationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
     double* pheromoneConcentrationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
@@ -255,6 +255,33 @@ int StodolaInspiredAntSystem::selectClusterNonPrimary(int vertexIndex, int* visi
     }
 
     return -1;
+}
+
+int StodolaInspiredAntSystem::selectCustomer(int vertexIndex, int* visitedCustomersIndexes, int depotIndex, int clusterIndex) {
+    
+    double* customerSelectionProbability = (double*) initialize(this->customerClusters[vertexIndex].subClusterSize, sizeof(double));
+    double totalCustomerSelectionProbabilitySum = 0;
+    for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
+            int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+
+            if(visitedCustomersIndexes[customerIndex] != 1) {
+                customerSelectionProbability[subClusterIndex] += pow(this->problemInstance.distanceMatrix[vertexIndex][customerIndex], -this->distanceProbabilityCoef);
+                customerSelectionProbability[subClusterIndex] *= pow(this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex], this->pheromoneProbabilityCoef);
+                totalCustomerSelectionProbabilitySum += customerSelectionProbability[subClusterIndex];
+            }
+    }
+
+    for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
+        customerSelectionProbability[subClusterIndex] /= totalCustomerSelectionProbabilitySum;
+    }
+
+    int subClusterIndex = rouletteWheelSelection(
+        this->customerClusters[vertexIndex].subClusterSize,
+        customerSelectionProbability,
+        totalCustomerSelectionProbabilitySum
+    );
+
+    return this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
 }
 
 int rouletteWheelSelection(int candidatesCount, double* selectionProbability, double selectionProbabilitySum) {
