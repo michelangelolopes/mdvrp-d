@@ -9,7 +9,8 @@ class AntSystem {
         AntSystem(ProblemInstance problemInstance, int antsCount, double pheromoneUpdateCoef) :
         problemInstance(problemInstance) 
         {
-            create(antsCount, pheromoneUpdateCoef);
+            this->antsCount = antsCount;
+            this->pheromoneUpdateCoef = pheromoneUpdateCoef;
         } 
 
         int antsCount;
@@ -19,11 +20,6 @@ class AntSystem {
 
         ProblemInstance problemInstance;
         Solution* bestSolution = nullptr;
-
-        void create(int antsCount, double pheromoneUpdateCoef) {
-            this->antsCount = antsCount;
-            this->pheromoneUpdateCoef = pheromoneUpdateCoef;
-        }
 
         void finalize() {
             problemInstance.finalize();

@@ -9,15 +9,15 @@
 class Solution {
     public:
         Solution(int routesCount, int routeMaxLength) {
-            create(routesCount, routeMaxLength);    
+            this->routesCount = routesCount;
+            create(routeMaxLength);    
         }
 
         int routesCount;
         double fitness;
         Route* routes;
 
-        void create(int routesCount, int routeMaxLength) {
-            this->routesCount = routesCount;
+        void create(int routeMaxLength) {
 
             this->routes = (Route*) calloc(this->routesCount, sizeof(Route));
 
