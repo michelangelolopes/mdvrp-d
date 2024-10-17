@@ -98,13 +98,13 @@ int ProblemInstance::loadGeneralInfo(string key, string value) {
     
     if(key.compare("NumberOfDepots") == 0) {
         valueStream >> depotCount;
-        depots = (Depot*) initialize(depotCount, sizeof(Depot));
+        depots = (Depot*) calloc(depotCount, sizeof(Depot));
         return 1;
     } 
     
     if(key.compare("NumberOfNodes") == 0) {
         valueStream >> customerCount;
-        customers = (Customer*) initialize(customerCount, sizeof(Customer));
+        customers = (Customer*) calloc(customerCount, sizeof(Customer));
         return 1;
     }
 
@@ -241,7 +241,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::initializeDistanceMatrix() {
     this->vertexCount = customerCount + depotCount;
-    this->distanceMatrix = (double**) initialize(vertexCount, vertexCount, sizeof(double*), sizeof(double));
+    this->distanceMatrix = (double**) callocMatrix(vertexCount, vertexCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
         for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {

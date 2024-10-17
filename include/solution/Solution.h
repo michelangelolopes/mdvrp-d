@@ -19,7 +19,7 @@ class Solution {
         void create(int routesCount, int routeMaxLength) {
             this->routesCount = routesCount;
 
-            this->routes = (Route*) initialize(this->routesCount, sizeof(Route));
+            this->routes = (Route*) calloc(this->routesCount, sizeof(Route));
 
             for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
                 this->routes[routeIndex] = Route(routeMaxLength);

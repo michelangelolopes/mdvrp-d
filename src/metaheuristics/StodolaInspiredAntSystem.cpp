@@ -81,7 +81,7 @@ void StodolaInspiredAntSystem::print() {
 
 void StodolaInspiredAntSystem::initializeCustomerClusters(int subClusterSize) {
 
-    customerClusters = (CustomerCluster*) initialize(this->problemInstance.vertexCount, sizeof(CustomerCluster));
+    customerClusters = (CustomerCluster*) calloc(this->problemInstance.vertexCount, sizeof(CustomerCluster));
 
     for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
         customerClusters[vertexIndex] = CustomerCluster(this->problemInstance, this->frame, vertexIndex, subClusterSize);
@@ -90,10 +90,10 @@ void StodolaInspiredAntSystem::initializeCustomerClusters(int subClusterSize) {
 
 void StodolaInspiredAntSystem::initializePheromoneMatrix() {
 
-    this->pheromoneMatrix = (double***) initialize(this->problemInstance.depotCount, sizeof(double**));
+    this->pheromoneMatrix = (double***) malloc(this->problemInstance.depotCount * sizeof(double**));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-        this->pheromoneMatrix[depotIndex] = (double**) initialize(this->problemInstance.vertexCount, this->problemInstance.customerCount, sizeof(double*), sizeof(double));
+        this->pheromoneMatrix[depotIndex] = (double**) callocMatrix(this->problemInstance.vertexCount, this->problemInstance.customerCount, sizeof(double*), sizeof(double));
 
         for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
             for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
@@ -170,7 +170,7 @@ void StodolaInspiredAntSystem::run() {
     while(iterIndex < maxIter) { //TODO: adjust termination condition
         Solution* generationBestSolution = nullptr;
         int generationEdgesSum = 0;
-        int** generationEdgesOcurrenceSum = (int**) initialize(problemInstance.vertexCount, problemInstance.customerCount, sizeof(int*), sizeof(int));
+        int** generationEdgesOcurrenceSum = (int**) callocMatrix(problemInstance.vertexCount, problemInstance.customerCount, sizeof(int*), sizeof(int));
         for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
             Solution antSolution = buildAntSolution();
 
@@ -236,10 +236,10 @@ void StodolaInspiredAntSystem::run() {
 
 Solution StodolaInspiredAntSystem::buildAntSolution() {
 
-    int* visitedCustomersIndexes = (int*) initialize(problemInstance.customerCount, sizeof(int));
-    int* currentVertexIndex = (int*) initialize(problemInstance.depotCount, sizeof(int));
-    int* currentRouteIndex = (int*) initialize(problemInstance.depotCount, sizeof(int));
-    double* currentTruckLoad = (double*) initialize(problemInstance.depotCount, sizeof(double));
+    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customerCount, sizeof(int));
+    int* currentVertexIndex = (int*) calloc(problemInstance.depotCount, sizeof(int));
+    int* currentRouteIndex = (int*) calloc(problemInstance.depotCount, sizeof(int));
+    double* currentTruckLoad = (double*) calloc(problemInstance.depotCount, sizeof(double));
 
     int unvisitedCustomersCount = problemInstance.customerCount;
 
@@ -295,7 +295,7 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
 
 int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomersIndexes) {
 
-    double* depotSelectionProbability = (double*) initialize(problemInstance.depotCount, sizeof(double));
+    double* depotSelectionProbability = (double*) calloc(problemInstance.depotCount, sizeof(double));
 
     int unvisitedCustomersCountSum = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
@@ -328,9 +328,9 @@ int StodolaInspiredAntSystem::selectDepot(int vertexIndex, int* visitedCustomers
 
 int StodolaInspiredAntSystem::selectCluster(int vertexIndex, int* visitedCustomersIndexes, int depotIndex) {
 
-    double* heuristicInformationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) initialize(this->primaryClustersCount, sizeof(double));
-    double* clusterSelectionProbability = (double*) initialize(problemInstance.depotCount, sizeof(double));
+    double* heuristicInformationAverage = (double*) calloc(this->primaryClustersCount, sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) calloc(this->primaryClustersCount, sizeof(double));
+    double* clusterSelectionProbability = (double*) calloc(problemInstance.depotCount, sizeof(double));
 
     int unvisitedCustomersCountSum = 0;
     int selectedClusterIndex = -1;
@@ -407,7 +407,7 @@ int StodolaInspiredAntSystem::selectClusterNonPrimary(int vertexIndex, int* visi
 
 int StodolaInspiredAntSystem::selectCustomer(int vertexIndex, int* visitedCustomersIndexes, int depotIndex, int clusterIndex) {
     
-    double* customerSelectionProbability = (double*) initialize(this->customerClusters[vertexIndex].subClusterSize, sizeof(double));
+    double* customerSelectionProbability = (double*) calloc(this->customerClusters[vertexIndex].subClusterSize, sizeof(double));
     double totalCustomerSelectionProbabilitySum = 0;
     for(int subClusterIndex = 0; subClusterIndex < this->customerClusters[vertexIndex].subClusterSize; subClusterIndex++) {
             int customerIndex = this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];

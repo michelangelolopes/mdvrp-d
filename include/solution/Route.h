@@ -17,7 +17,7 @@ class Route {
         void create(int routeMaxLength) {
             this->routeMaxLength = routeMaxLength;
 
-            this->visitedVertices = (int*) initialize(this->routeMaxLength, sizeof(int));
+            this->visitedVertices = (int*) calloc(this->routeMaxLength, sizeof(int));
         }
 
         void finalize() {

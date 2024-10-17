@@ -88,7 +88,7 @@ void Frame::initializeSectors() {
     double xTotal = abs(min.x) + abs(max.x);
     double yTotal = abs(min.y) + abs(max.y);
 
-    sectors = (Sector*) initialize(sectorsCount, sizeof(Sector));
+    sectors = (Sector*) calloc(sectorsCount, sizeof(Sector));
 
     if(xTotal >= yTotal) {
         splitSectorsHorizontally(xTotal);
@@ -132,7 +132,7 @@ void Frame::splitSectorsVertically(double yTotal) {
 
 void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
 
-    customerSectorMap = (int*) initialize(problemInstance.customerCount, sizeof(int));
+    customerSectorMap = (int*) calloc(problemInstance.customerCount, sizeof(int));
 
     for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
         for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {

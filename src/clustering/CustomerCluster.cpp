@@ -9,7 +9,7 @@
 
 void CustomerCluster::create(ProblemInstance problemInstance, Frame frame) {
     
-    int* visitedCustomersIndexes = (int*) initialize(problemInstance.customerCount, sizeof(int));
+    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customerCount, sizeof(int));
 
     this->neighborCustomerCount = problemInstance.customerCount;
     this->isCustomerVertex = (this->vertexIndex < problemInstance.customerCount);
@@ -18,7 +18,7 @@ void CustomerCluster::create(ProblemInstance problemInstance, Frame frame) {
         visitedCustomersIndexes[this->vertexIndex] = 1; //mark itself as visited
     }
     this->clusterSize = std::ceil((float) this->neighborCustomerCount / (float) this->subClusterSize);
-    this->clusters = (int**) initialize(this->clusterSize, this->subClusterSize, sizeof(int*), sizeof(int));
+    this->clusters = (int**) callocMatrix(this->clusterSize, this->subClusterSize, sizeof(int*), sizeof(int));
     
     int unvisitedCustomersCount = this->neighborCustomerCount;
     int closestCustomerIndex;
