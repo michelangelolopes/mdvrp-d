@@ -16,9 +16,7 @@ int main(int argc, char** argv) {
         datasetFilePath += "p01-D.mdvrp-d";
     }
 
-
-    int vehicleCount = 1;
-    ProblemInstance problemInstance(datasetFilePath, vehicleCount);
+    ProblemInstance problemInstance(datasetFilePath);
 
     int antsCount = 5; //192;
     double pheromoneUpdateCoef = 3; 

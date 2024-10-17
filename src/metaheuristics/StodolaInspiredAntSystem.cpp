@@ -260,7 +260,7 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
         int clusterIndex = selectCluster(currentVertexIndex[depotIndex], visitedCustomersIndexes, depotIndex);
         int customerIndex = selectCustomer(currentVertexIndex[depotIndex], visitedCustomersIndexes, depotIndex, clusterIndex);
 
-        if(currentTruckLoad[depotIndex] + problemInstance.customers[customerIndex].demand > problemInstance.depots[depotIndex].trucks[0].capacity) {
+        if(currentTruckLoad[depotIndex] + problemInstance.customers[customerIndex].demand > problemInstance.depots[depotIndex].truck.capacity) {
             int vertexIndex = depotIndex + problemInstance.customerCount;
             currentRouteIndex[depotIndex]++;
             antSolution.routes[depotIndex].visitedVertices[currentRouteIndex[depotIndex]] = vertexIndex;

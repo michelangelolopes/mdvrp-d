@@ -13,8 +13,8 @@ using namespace std;
 
 class ProblemInstance {
     public:
-        ProblemInstance(string datasetFilename, int vehicleCount) {
-            create(datasetFilename, vehicleCount);
+        ProblemInstance(string datasetFilename) {
+            create(datasetFilename);
         }
 
         string name;
@@ -28,11 +28,11 @@ class ProblemInstance {
         int vertexCount;
         double** distanceMatrix = nullptr;
 
-        void create(string datasetFilename, int vehicleCount);
+        void create(string datasetFilename);
         void finalize();
         void print(int printDistanceMatrix);
 
-        int loadGeneralInfo(string key, string value, int vehicleCount);
+        int loadGeneralInfo(string key, string value);
         int loadObjectInfo(string key, string value);
         int loadDepotInfo(string object, string info, string value);
         int loadCustomerInfo(string object, string info, string value);

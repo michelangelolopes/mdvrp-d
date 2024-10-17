@@ -7,7 +7,7 @@
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
-void ProblemInstance::create(string filename, int vehicleCount) {
+void ProblemInstance::create(string filename) {
 
     ifstream file;
     file.open(filename);
@@ -20,7 +20,7 @@ void ProblemInstance::create(string filename, int vehicleCount) {
             string key = line.substr(0, delimiterIndex - 1);
             string value = line.substr(delimiterIndex + 2, line.length());
 
-            if(!loadGeneralInfo(key, value, vehicleCount)) {
+            if(!loadGeneralInfo(key, value)) {
                 loadObjectInfo(key, value);
             }
         }
@@ -35,9 +35,6 @@ void ProblemInstance::finalize() {
     }
 
     if(this->depots != nullptr) {
-        for(int depotIndex = 0; depotIndex < this->depotCount; depotIndex++) {
-            this->depots[depotIndex].finalize();
-        }
         free(this->depots);
     }
 
@@ -89,7 +86,7 @@ void ProblemInstance::print(int printDistanceMatrix) {
     }
 }
 
-int ProblemInstance::loadGeneralInfo(string key, string value, int vehicleCount) {
+int ProblemInstance::loadGeneralInfo(string key, string value) {
 
     istringstream valueStream;
     valueStream.str(value);
@@ -102,11 +99,6 @@ int ProblemInstance::loadGeneralInfo(string key, string value, int vehicleCount)
     if(key.compare("NumberOfDepots") == 0) {
         valueStream >> depotCount;
         depots = (Depot*) initialize(depotCount, sizeof(Depot));
-
-        for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
-            depots[depotIndex] = Depot(vehicleCount);
-        }
-
         return 1;
     } 
     
@@ -157,52 +149,52 @@ int ProblemInstance::loadDepotInfo(string object, string info, string value) {
     valueStream.str(value);
 
     if(info.compare("TruckVelocity") == 0) {
-        valueStream >> depots[depotIndex].trucks[0].speed;
+        valueStream >> depots[depotIndex].truck.speed;
         return 1;
     }
 
     if(info.compare("DroneVelocity") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].speed;
+        valueStream >> depots[depotIndex].uav.speed;
         return 1;
     }
 
     if(info.compare("TruckCapacity") == 0) {
-        valueStream >> depots[depotIndex].trucks[0].capacity;
+        valueStream >> depots[depotIndex].truck.capacity;
         return 1;
     }
 
     if(info.compare("DroneCapacity") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].capacity;
+        valueStream >> depots[depotIndex].uav.capacity;
         return 1;
     }
 
     if(info.compare("RouteMaxDuration") == 0) {
-        valueStream >> depots[depotIndex].trucks[0].routeMaxDuration;
+        valueStream >> depots[depotIndex].truck.routeMaxDuration;
         return 1;
     }
     
     if(info.compare("DroneEndurance") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].endurance;
+        valueStream >> depots[depotIndex].uav.endurance;
         return 1;
     }
 
     if(info.compare("TruckServiceTime") == 0) {
-        valueStream >> depots[depotIndex].trucks[0].serviceTime;
+        valueStream >> depots[depotIndex].truck.serviceTime;
         return 1;
     }
 
     if(info.compare("DroneServiceTime") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].serviceTime;
+        valueStream >> depots[depotIndex].uav.serviceTime;
         return 1;
     }
 
     if(info.compare("DroneLaunchTime") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].launchTime;
+        valueStream >> depots[depotIndex].uav.launchTime;
         return 1;
     }
 
     if(info.compare("DroneRecoveryTime") == 0) {
-        valueStream >> depots[depotIndex].uavs[0].recoveryTime;
+        valueStream >> depots[depotIndex].uav.recoveryTime;
         return 1;
     }
 
