@@ -1,6 +1,9 @@
 #ifndef SOLUTION_H
 #define SOLUTION_H
 
+#include <cstdlib>
+#include <iostream>
+#include "../utils/ArrayUtils.h"
 #include "Route.h"
 
 class Solution {
@@ -10,18 +13,38 @@ class Solution {
         }
 
         int routesCount;
-        int routeMaxLength;
-        int** routes;
+        double fitness;
+        Route* routes;
 
         void create(int routesCount, int routeMaxLength) {
             this->routesCount = routesCount;
-            this->routeMaxLength = routeMaxLength;
 
-            this->routes = (int**) initialize(this->routesCount, this->routeMaxLength, sizeof(int*), sizeof(int));
+            this->routes = (Route*) initialize(this->routesCount, sizeof(Route));
+
+            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
+                this->routes[routeIndex] = Route(routeMaxLength);
+            }
         }
 
         void finalize() {
-            freeMatrix((void**) routes, routesCount);
+            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
+                this->routes[routeIndex].finalize();
+            }
+
+            free(routes);
+        }
+
+        void print() {
+            std::cout << "--------------------------------------------------\n";
+            std::cout << "Fitness: " << fitness << "\n";
+            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
+                std::cout << "Route[" << routeIndex << "]: ";
+                for(int visitedVertexIndex = 0; visitedVertexIndex < this->routes[routeIndex].routeRealLength; visitedVertexIndex++) {
+                    std::cout << this->routes[routeIndex].visitedVertices[visitedVertexIndex] << " ";
+                }
+                std::cout << "\n";
+            }
+            std::cout << "--------------------------------------------------\n";
         }
 };
 

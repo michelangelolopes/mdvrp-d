@@ -1,9 +1,28 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
+#include <cstdlib>
+#include "../utils/ArrayUtils.h"
+
 class Route {
     public:
-        int* visitedCustomers;
+        Route(int routeMaxLength) {
+            create(routeMaxLength);
+        }
+
+        int* visitedVertices;
+        int routeRealLength;
+        int routeMaxLength;
+
+        void create(int routeMaxLength) {
+            this->routeMaxLength = routeMaxLength;
+
+            this->visitedVertices = (int*) initialize(this->routeMaxLength, sizeof(int));
+        }
+
+        void finalize() {
+            free(visitedVertices);
+        }
 };
 
 #endif
