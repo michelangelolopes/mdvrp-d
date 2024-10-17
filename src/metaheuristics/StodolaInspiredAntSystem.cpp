@@ -94,6 +94,49 @@ void StodolaInspiredAntSystem::initializePheromoneMatrix() {
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
         this->pheromoneMatrix[depotIndex] = (double**) initialize(this->problemInstance.vertexCount, this->problemInstance.customerCount, sizeof(double*), sizeof(double));
+
+        for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
+            for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+                this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex] = 1;
+            }
+        }
+    }
+}
+
+void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolution) {
+    
+    //obs: checking precedence is not needed, because only the pheromone of visitedVertices from the route will be updated
+    for(int depotIndex = 0; depotIndex < consideredSolution->routesCount; depotIndex++) {
+        for(int routeIndex = 0; routeIndex < consideredSolution->routes[depotIndex].routeRealLength - 1; routeIndex++) {
+            int vertexIndex = consideredSolution->routes[depotIndex].visitedVertices[routeIndex];
+            int neighborVertexIndex = consideredSolution->routes[depotIndex].visitedVertices[routeIndex] + 1;
+            
+            if(neighborVertexIndex >= problemInstance.customerCount) {//neighbor vertex is a depot
+                continue;
+            }
+
+            double pheromoneUpdateSum = pheromoneUpdateCoef * (bestSolution->fitness / consideredSolution->fitness);
+            pheromoneMatrix[depotIndex][vertexIndex][neighborVertexIndex] += pheromoneUpdateSum;
+        }
+    }
+    
+    temperatureUpdateCoef *= temperatureCoolingCoef;
+}
+
+void StodolaInspiredAntSystem::updatePheromoneMatrixWithProbability(Solution* generationBestSolution) {
+    double bestSolutionProbability = generationBestSolution->fitness - bestSolution->fitness;
+    bestSolutionProbability /= bestSolution->fitness;
+    bestSolutionProbability /= temperatureUpdateCoef;
+    bestSolutionProbability *= -1;
+    bestSolutionProbability = exp(bestSolutionProbability);
+
+    double generationBestSolutionProbability = 1 - bestSolutionProbability;
+    double randomValue = ((double)rand() / RAND_MAX);
+
+    if(randomValue <= generationBestSolutionProbability) {
+        updatePheromoneMatrix(generationBestSolution);
+    } else {
+        updatePheromoneMatrix(bestSolution);
     }
 }
 
@@ -115,7 +158,6 @@ void StodolaInspiredAntSystem::run() {
                 delete generationBestSolution;
 
                 generationBestSolution = new Solution(antSolution);
-
             }
             antSolution.finalize();
         }
@@ -124,7 +166,11 @@ void StodolaInspiredAntSystem::run() {
             std::cout << "generation " << iterIndex << " - best solution\n";
             bestSolution = generationBestSolution;
             bestSolution->print();
+
+            updatePheromoneMatrix(bestSolution);
         } else if(generationBestSolution->fitness > bestSolution->fitness){
+            updatePheromoneMatrixWithProbability(generationBestSolution);
+
             generationBestSolution->finalize();
             delete generationBestSolution;
         }

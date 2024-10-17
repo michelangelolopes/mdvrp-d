@@ -52,7 +52,10 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void print();
 
         void initializeCustomerClusters(int subClusterSize);
+
         void initializePheromoneMatrix();
+        void updatePheromoneMatrix(Solution* consideredSolution);
+        void updatePheromoneMatrixWithProbability(Solution* generationBestSolution);
 
         void run();
         Solution buildAntSolution();
