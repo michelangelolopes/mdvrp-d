@@ -101,9 +101,35 @@ void StodolaInspiredAntSystem::run() {
 
     srand((unsigned int)time(0));
 
-    for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
-        Solution antSolution = buildAntSolution();
-        break; //test
+    int maxIter = 1000;
+    int iterIndex = 0;
+    while(iterIndex < maxIter) { //TODO: adjust termination condition
+        Solution* generationBestSolution = nullptr;
+        for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
+            Solution antSolution = buildAntSolution();
+
+            if(generationBestSolution == nullptr) {
+                generationBestSolution = new Solution(antSolution);
+            } else if(antSolution.fitness <= generationBestSolution->fitness) {
+                generationBestSolution->finalize();
+                delete generationBestSolution;
+
+                generationBestSolution = new Solution(antSolution);
+
+            }
+            antSolution.finalize();
+        }
+
+        if(bestSolution == nullptr || generationBestSolution->fitness <= bestSolution->fitness) {
+            std::cout << "generation " << iterIndex << " - best solution\n";
+            bestSolution = generationBestSolution;
+            bestSolution->print();
+        } else if(generationBestSolution->fitness > bestSolution->fitness){
+            generationBestSolution->finalize();
+            delete generationBestSolution;
+        }
+
+        iterIndex += 1;
     }
 }
 
@@ -155,6 +181,8 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
         antSolution.routes[depotIndex].visitedVertices[currentRouteIndex[depotIndex]] = vertexIndex;
         antSolution.routes[depotIndex].routeRealLength = currentRouteIndex[depotIndex];
     }
+
+    antSolution.calculateFitness(problemInstance);
 
     free(visitedCustomersIndexes);
     free(currentVertexIndex);

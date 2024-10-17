@@ -46,6 +46,18 @@ class Solution {
             }
             std::cout << "--------------------------------------------------\n";
         }
+
+        void calculateFitness(ProblemInstance problemInstance) {
+            double fitness = 0;
+            for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
+                for(int routeIndex = 0; routeIndex < routes[depotIndex].routeRealLength - 1; routeIndex++) {
+                    int sourceVertexIndex = routes[depotIndex].visitedVertices[routeIndex];
+                    int destVertexIndex = routes[depotIndex].visitedVertices[routeIndex + 1];
+                    fitness += problemInstance.distanceMatrix[sourceVertexIndex][destVertexIndex];
+                }
+            }
+            this->fitness = fitness;
+        }
 };
 
 #endif
