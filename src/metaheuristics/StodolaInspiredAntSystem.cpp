@@ -142,6 +142,23 @@ void StodolaInspiredAntSystem::updatePheromoneMatrixWithProbability(Solution* ge
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(int** generationEdgesOcurrenceSum, int generationEdgesSum) {
     double informationEntropy = calculateInformationEntropy(generationEdgesOcurrenceSum, generationEdgesSum);
+    double informationEntropyMin = -1 * log((double)antsCount / generationEdgesSum);
+    double informationEntropyMax = -1 * log(1.00 / generationEdgesSum);
+
+    double relevantInformationEntropy = (informationEntropy - informationEntropyMin) / (informationEntropyMax - informationEntropyMin);
+
+    this->pheromoneEvaporationCoef = pheromoneEvaporationCoefMin;
+    this->pheromoneEvaporationCoef += (pheromoneEvaporationCoefMax - pheromoneEvaporationCoefMin) * relevantInformationEntropy;
+}
+
+void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
+    for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
+        for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+            for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+                this->pheromoneMatrix[depotIndex][vertexIndex][customerIndex] *= (1 - pheromoneEvaporationCoef);
+            }
+        }
+    }
 }
 
 void StodolaInspiredAntSystem::run() {
@@ -182,6 +199,10 @@ void StodolaInspiredAntSystem::run() {
             antSolution.finalize();
         }
 
+        //TODO: local optimization
+        // if(iterIndex % localOptimizationFrequency == 0) {
+        // }
+
         if(bestSolution == nullptr || generationBestSolution->fitness <= bestSolution->fitness) {
             std::cout << "generation " << iterIndex << " - best solution\n";
             bestSolution = generationBestSolution;
@@ -196,6 +217,7 @@ void StodolaInspiredAntSystem::run() {
         }
 
         updateEvaporationCoef(generationEdgesOcurrenceSum, generationEdgesSum);
+        evaporatePheromoneMatrix();
 
         iterIndex += 1;
         freeMatrix((void**) generationEdgesOcurrenceSum, problemInstance.vertexCount);

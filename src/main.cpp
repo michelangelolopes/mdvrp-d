@@ -57,6 +57,8 @@ int main(int argc, char** argv) {
         antSystem.frame.print();
     #endif
 
+    antSystem.run();
+
     antSystem.finalize();
 
     return 0;

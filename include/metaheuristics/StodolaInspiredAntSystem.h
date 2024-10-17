@@ -58,6 +58,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void updatePheromoneMatrixWithProbability(Solution* generationBestSolution);
 
         void updateEvaporationCoef(int** populationEdgesOcurrenceSum, int populationEdgesSum);
+        void evaporatePheromoneMatrix();
 
         void run();
         Solution buildAntSolution();
