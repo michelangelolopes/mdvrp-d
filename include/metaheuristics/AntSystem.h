@@ -6,19 +6,33 @@
 
 class AntSystem {
     public:
-        AntSystem(ProblemInstance problemInstance) :
-        problemInstance(problemInstance)
+        AntSystem(ProblemInstance problemInstance, int antsCount, double pheromoneUpdateCoef) :
+        problemInstance(problemInstance) 
         {
-            this->routeMaxLength = (problemInstance.customerCount * 2) + 1; //route worst case: (depot, customer), (depot, customer), ..., depot
-        }
+            create(antsCount, pheromoneUpdateCoef);
+        } 
 
         int antsCount;
-        int routeMaxLength;
         double pheromoneUpdateCoef;
+        double pheromoneEvaporationCoef = 0;
         double*** pheromoneMatrix;
 
         ProblemInstance problemInstance;
-        Solution* antsSolution;
+        Solution* bestSolution = nullptr;
+
+        void create(int antsCount, double pheromoneUpdateCoef) {
+            this->antsCount = antsCount;
+            this->pheromoneUpdateCoef = pheromoneUpdateCoef;
+        }
+
+        void finalize() {
+            problemInstance.finalize();
+            
+            if(bestSolution != nullptr) {
+                bestSolution->finalize();
+                delete bestSolution;
+            }
+        }
 };
 
 #endif

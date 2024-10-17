@@ -16,22 +16,47 @@ int main(int argc, char** argv) {
         datasetFilePath += "p01-D.mdvrp-d";
     }
 
-    int sectorsCount = 7;
-    int subClusterSize = 7;
-    int vehicleCount = 1;
-    int printDistanceMatrix = 0;
 
+    int vehicleCount = 1;
     ProblemInstance problemInstance(datasetFilePath, vehicleCount);
-    StodolaInspiredAntSystem antSystem(problemInstance, sectorsCount, subClusterSize);
+
+    int antsCount = 5; //192;
+    double pheromoneUpdateCoef = 3; 
+    double temperatureUpdateCoef = 0.1;
+    double temperatureCoolingCoef = 1;
+    int sectorsCount = 5; //16;
+    int subClusterSize = 5;//24;
+    int localOptimizationFrequency = 10;
+    int primaryClustersCount = 4;
+    double pheromoneEvaporationCoefMin = 0.001;
+    double pheromoneEvaporationCoefMax = 0.1;
+    double pheromoneProbabilityCoef = 1;
+    double distanceProbabilityCoef = 1;
+    StodolaInspiredAntSystem antSystem(
+            problemInstance, 
+            antsCount, 
+            pheromoneUpdateCoef, 
+            temperatureUpdateCoef,
+            temperatureCoolingCoef,
+            sectorsCount, 
+            primaryClustersCount,
+            subClusterSize,
+            localOptimizationFrequency,
+            pheromoneEvaporationCoefMin,
+            pheromoneEvaporationCoefMax,
+            distanceProbabilityCoef,
+            pheromoneProbabilityCoef
+    );
 
     #ifdef DEBUG
+        int printDistanceMatrix = 0;
         problemInstance.print(printDistanceMatrix);
         antSystem.customerClusters[0].print();
         antSystem.customerClusters[problemInstance.customerCount].print();
+        antSystem.customerClusters[problemInstance.customerCount + 1].print();
         antSystem.frame.print();
     #endif
 
-    problemInstance.finalize();
     antSystem.finalize();
 
     return 0;

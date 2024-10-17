@@ -3,22 +3,47 @@
 
 #include "../clustering/CustomerCluster.h"
 #include "../clustering/Frame.h"
-#include "MaxMinAntSystem.h"
+#include "AntSystem.h"
 #include "SimulatedAnnealing.h"
 
-class StodolaInspiredAntSystem : public MaxMinAntSystem, public SimulatedAnnealing {
+class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
     public:
-        StodolaInspiredAntSystem(ProblemInstance problemInstance, int sectorsCount, int subClusterSize) : 
-        MaxMinAntSystem(problemInstance), 
+        StodolaInspiredAntSystem(
+            ProblemInstance problemInstance, 
+            int antsCount, 
+            double pheromoneUpdateCoef, 
+            double temperatureUpdateCoef,
+            double temperatureCoolingCoef,
+            int sectorsCount, 
+            int primaryClustersCount,
+            int subClusterSize,
+            int localOptimizationFrequency,
+            double pheromoneEvaporationCoefMin,
+            double pheromoneEvaporationCoefMax,
+            double distanceProbabilityCoef,
+            double pheromoneProbabilityCoef
+        ) : 
+        AntSystem(problemInstance, antsCount, pheromoneUpdateCoef), 
+        SimulatedAnnealing(temperatureUpdateCoef, temperatureCoolingCoef),
         frame(problemInstance, sectorsCount)
         {
+            this->primaryClustersCount = primaryClustersCount;
+            this->localOptimizationFrequency = localOptimizationFrequency;
+            this->pheromoneEvaporationCoefMin = pheromoneEvaporationCoefMin;
+            this->pheromoneEvaporationCoefMax = pheromoneEvaporationCoefMax;
+            this->distanceProbabilityCoef = distanceProbabilityCoef;
+            this->pheromoneProbabilityCoef = pheromoneProbabilityCoef;
             create(subClusterSize);
         }
 
         int localOptimizationFrequency;
         int primaryClustersCount;
-        double pheromoneProbabilityCoef;
+        double pheromoneEvaporationCoefMin;
+        double pheromoneEvaporationCoefMax;
+
         double distanceProbabilityCoef;
+        double pheromoneProbabilityCoef;
+
         CustomerCluster* customerClusters = nullptr;
         Frame frame;
 

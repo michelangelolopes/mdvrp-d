@@ -14,6 +14,13 @@ void StodolaInspiredAntSystem::create(int subClusterSize) {
 
 void StodolaInspiredAntSystem::finalize() {
     
+    problemInstance.finalize();
+
+    if(bestSolution != nullptr) {
+        bestSolution->finalize();
+        delete bestSolution;
+    }
+
     frame.finalize();
 
     if(this->customerClusters != nullptr) {
@@ -21,13 +28,6 @@ void StodolaInspiredAntSystem::finalize() {
             customerClusters[vertexIndex].finalize();
         }
         free(this->customerClusters);
-    }
-
-    if(this->antsSolution != nullptr) {
-        for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
-            antsSolution[antIndex].finalize();
-        }
-        free(this->antsSolution);
     }
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
@@ -100,10 +100,9 @@ void StodolaInspiredAntSystem::initializePheromoneMatrix() {
 void StodolaInspiredAntSystem::run() {
 
     srand((unsigned int)time(0));
-    this->antsSolution = (Solution*) initialize(antsCount, sizeof(Solution));
 
     for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
-        this->antsSolution[antIndex] = buildAntSolution();
+        Solution antSolution = buildAntSolution();
         break; //test
     }
 }
