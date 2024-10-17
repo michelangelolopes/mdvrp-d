@@ -11,7 +11,7 @@ class Route {
         }
 
         int* visitedVertices;
-        int routeRealLength;
+        int routeRealLength = -1;
         int routeMaxLength;
 
         void create(int routeMaxLength) {

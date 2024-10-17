@@ -39,6 +39,12 @@ class Solution {
             std::cout << "Fitness: " << fitness << "\n";
             for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
                 std::cout << "Route[" << routeIndex << "]: ";
+
+                if(this->routes[routeIndex].routeRealLength == -1) {
+                    std::cout << "not constructed\n";
+                    continue;
+                }
+
                 for(int visitedVertexIndex = 0; visitedVertexIndex < this->routes[routeIndex].routeRealLength; visitedVertexIndex++) {
                     std::cout << this->routes[routeIndex].visitedVertices[visitedVertexIndex] << " ";
                 }
@@ -49,10 +55,10 @@ class Solution {
 
         void calculateFitness(ProblemInstance problemInstance) {
             double fitness = 0;
-            for(int depotIndex = 0; depotIndex < problemInstance.depotCount; depotIndex++) {
-                for(int routeIndex = 0; routeIndex < routes[depotIndex].routeRealLength - 1; routeIndex++) {
-                    int sourceVertexIndex = routes[depotIndex].visitedVertices[routeIndex];
-                    int destVertexIndex = routes[depotIndex].visitedVertices[routeIndex + 1];
+            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
+                for(int visitedVertexIndex = 0; visitedVertexIndex < routes[routeIndex].routeRealLength - 1; visitedVertexIndex++) {
+                    int sourceVertexIndex = routes[routeIndex].visitedVertices[visitedVertexIndex];
+                    int destVertexIndex = routes[routeIndex].visitedVertices[visitedVertexIndex + 1];
                     fitness += problemInstance.distanceMatrix[sourceVertexIndex][destVertexIndex];
                 }
             }

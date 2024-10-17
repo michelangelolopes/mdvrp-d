@@ -190,26 +190,36 @@ void StodolaInspiredAntSystem::run() {
 
             if(generationBestSolution == nullptr) {
                 generationBestSolution = new Solution(antSolution);
-            } else if(antSolution.fitness <= generationBestSolution->fitness) {
+            } else if(antSolution.fitness < generationBestSolution->fitness) {
                 generationBestSolution->finalize();
                 delete generationBestSolution;
 
                 generationBestSolution = new Solution(antSolution);
+            } else {
+                antSolution.finalize();
             }
-            antSolution.finalize();
         }
 
         //TODO: local optimization
         // if(iterIndex % localOptimizationFrequency == 0) {
         // }
 
-        if(bestSolution == nullptr || generationBestSolution->fitness <= bestSolution->fitness) {
+        if(bestSolution == nullptr) {
             std::cout << "generation " << iterIndex << " - best solution\n";
             bestSolution = generationBestSolution;
             bestSolution->print();
 
             updatePheromoneMatrix(bestSolution);
-        } else if(generationBestSolution->fitness > bestSolution->fitness){
+        } else if(generationBestSolution->fitness < bestSolution->fitness) {
+            bestSolution->finalize();
+            delete bestSolution;
+
+            std::cout << "generation " << iterIndex << " - best solution\n";
+            bestSolution = generationBestSolution;
+            bestSolution->print();
+
+            updatePheromoneMatrix(bestSolution);
+        } else {
             updatePheromoneMatrixWithProbability(generationBestSolution);
 
             generationBestSolution->finalize();
@@ -270,7 +280,7 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
         int depotIndex = vertexIndex - problemInstance.customerCount;
         currentRouteIndex[depotIndex]++;
         antSolution.routes[depotIndex].visitedVertices[currentRouteIndex[depotIndex]] = vertexIndex;
-        antSolution.routes[depotIndex].routeRealLength = currentRouteIndex[depotIndex];
+        antSolution.routes[depotIndex].routeRealLength = currentRouteIndex[depotIndex] + 1;
     }
 
     antSolution.calculateFitness(problemInstance);
@@ -421,6 +431,8 @@ int StodolaInspiredAntSystem::selectCustomer(int vertexIndex, int* visitedCustom
         this->customerClusters[vertexIndex].subClusterSize,
         customerSelectionProbability
     );
+
+    free(customerSelectionProbability);
 
     return this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
 }
