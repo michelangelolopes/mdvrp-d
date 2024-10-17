@@ -249,7 +249,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::initializeDistanceMatrix() {
     this->vertexCount = customerCount + depotCount;
-    this->distanceMatrix = (double**) initialize(vertexCount, customerCount, sizeof(double*), sizeof(double));
+    this->distanceMatrix = (double**) initialize(vertexCount, vertexCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
         for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
@@ -260,11 +260,33 @@ void ProblemInstance::initializeDistanceMatrix() {
         }
     }
 
-    for(int depotIndex = customerCount; depotIndex < vertexCount; depotIndex++) {
+    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+        for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
+            int depotVertexIndex = depotIndex + customerCount;
+            distanceMatrix[customerIndex][depotVertexIndex] = calculateEuclidianDistance(
+                customers[customerIndex].position,
+                depots[depotIndex].position
+            );
+        }
+    }
+
+    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
+        int depotVertexIndex = depotIndex + customerCount;
         for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-            distanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
-                depots[depotIndex - customerCount].position,
+            distanceMatrix[depotVertexIndex][customerIndex] = calculateEuclidianDistance(
+                depots[depotIndex].position,
                 customers[customerIndex].position
+            );
+        }
+    }
+
+    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
+        int depotVertexIndex = depotIndex + customerCount;
+        for(int neighborIndex = 0; neighborIndex < depotCount; neighborIndex++) {
+            int neighborDepotVertexIndex = neighborIndex + customerCount;
+            distanceMatrix[depotVertexIndex][neighborDepotVertexIndex] = calculateEuclidianDistance(
+                depots[depotIndex].position,
+                customers[neighborIndex].position
             );
         }
     }
