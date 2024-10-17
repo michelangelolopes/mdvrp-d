@@ -57,6 +57,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void updatePheromoneMatrix(Solution* consideredSolution);
         void updatePheromoneMatrixWithProbability(Solution* generationBestSolution);
 
+        void updateEvaporationCoef(int** populationEdgesOcurrenceSum, int populationEdgesSum);
+
         void run();
         Solution buildAntSolution();
 
@@ -64,6 +66,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int selectCluster(int vertexIndex, int* visitedCustomersIndexes, int depotIndex);
         int selectClusterNonPrimary(int vertexIndex, int* visitedCustomersIndexes);
         int selectCustomer(int vertexIndex, int* visitedCustomersIndexes, int depotIndex, int clusterIndex);
+
+        double calculateInformationEntropy(int** populationEdgesOcurrenceSum, int populationEdgesSum);
 };
 
 void normalizeValues(int candidatesCount, double* selectionProbability);

@@ -140,6 +140,10 @@ void StodolaInspiredAntSystem::updatePheromoneMatrixWithProbability(Solution* ge
     }
 }
 
+void StodolaInspiredAntSystem::updateEvaporationCoef(int** generationEdgesOcurrenceSum, int generationEdgesSum) {
+    double informationEntropy = calculateInformationEntropy(generationEdgesOcurrenceSum, generationEdgesSum);
+}
+
 void StodolaInspiredAntSystem::run() {
 
     srand((unsigned int)time(0));
@@ -148,8 +152,24 @@ void StodolaInspiredAntSystem::run() {
     int iterIndex = 0;
     while(iterIndex < maxIter) { //TODO: adjust termination condition
         Solution* generationBestSolution = nullptr;
+        int generationEdgesSum = 0;
+        int** generationEdgesOcurrenceSum = (int**) initialize(problemInstance.vertexCount, problemInstance.customerCount, sizeof(int*), sizeof(int));
         for(int antIndex = 0; antIndex < this->antsCount; antIndex++) {
             Solution antSolution = buildAntSolution();
+
+            for(int depotIndex = 0; depotIndex < antSolution.routesCount; depotIndex++) {
+                for(int routeIndex = 0; routeIndex < antSolution.routes[depotIndex].routeRealLength - 1; routeIndex++) {
+                    int vertexIndex = antSolution.routes[depotIndex].visitedVertices[routeIndex];
+                    int neighborVertexIndex = antSolution.routes[depotIndex].visitedVertices[routeIndex] + 1;
+                    
+                    if(neighborVertexIndex >= problemInstance.customerCount) {//neighbor vertex is a depot
+                        continue;
+                    }
+
+                    generationEdgesOcurrenceSum[vertexIndex][neighborVertexIndex] += 1;
+                    generationEdgesSum += 1;
+                }
+            }
 
             if(generationBestSolution == nullptr) {
                 generationBestSolution = new Solution(antSolution);
@@ -175,7 +195,10 @@ void StodolaInspiredAntSystem::run() {
             delete generationBestSolution;
         }
 
+        updateEvaporationCoef(generationEdgesOcurrenceSum, generationEdgesSum);
+
         iterIndex += 1;
+        freeMatrix((void**) generationEdgesOcurrenceSum, problemInstance.vertexCount);
     }
 }
 
@@ -378,6 +401,25 @@ int StodolaInspiredAntSystem::selectCustomer(int vertexIndex, int* visitedCustom
     );
 
     return this->customerClusters[vertexIndex].clusters[clusterIndex][subClusterIndex];
+}
+
+double StodolaInspiredAntSystem::calculateInformationEntropy(int** generationEdgesOcurrenceSum, int generationEdgesSum) {
+    double informationEntropy = 0;
+
+    for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+        for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+            double edgeOcurrenceProbability = generationEdgesOcurrenceSum[vertexIndex][customerIndex];
+
+            if(edgeOcurrenceProbability > 0) {
+                edgeOcurrenceProbability /= generationEdgesSum;
+                informationEntropy += (edgeOcurrenceProbability * log(edgeOcurrenceProbability));
+            }
+        }
+    }
+
+    informationEntropy *= -1;
+
+    return informationEntropy;
 }
 
 void normalizeValues(int candidatesCount, double* selectionProbability) {
