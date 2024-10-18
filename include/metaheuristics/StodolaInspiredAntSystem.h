@@ -1,7 +1,7 @@
 #ifndef STODOLA_INSPIRED_ANT_SYSTEM_H
 #define STODOLA_INSPIRED_ANT_SYSTEM_H
 
-#include "../clustering/CustomerCluster.h"
+#include "../clustering/Cluster.h"
 #include "../clustering/Frame.h"
 #include "AntSystem.h"
 #include "SimulatedAnnealing.h"
@@ -44,7 +44,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         double distanceProbabilityCoef;
         double pheromoneProbabilityCoef;
 
-        CustomerCluster* customerClusters = nullptr;
+        Cluster* customerClusters = nullptr;
         Frame frame;
 
         void create(int subClusterSize);

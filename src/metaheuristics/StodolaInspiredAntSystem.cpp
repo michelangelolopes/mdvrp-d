@@ -81,10 +81,10 @@ void StodolaInspiredAntSystem::print() {
 
 void StodolaInspiredAntSystem::initializeCustomerClusters(int subClusterSize) {
 
-    customerClusters = (CustomerCluster*) calloc(this->problemInstance.vertexCount, sizeof(CustomerCluster));
+    customerClusters = (Cluster*) calloc(this->problemInstance.vertexCount, sizeof(Cluster));
 
     for(int vertexIndex = 0; vertexIndex < this->problemInstance.vertexCount; vertexIndex++) {
-        customerClusters[vertexIndex] = CustomerCluster(this->problemInstance, this->frame, vertexIndex, subClusterSize);
+        customerClusters[vertexIndex] = Cluster(this->problemInstance, this->frame, vertexIndex, subClusterSize);
     }
 }
 

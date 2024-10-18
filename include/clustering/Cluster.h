@@ -1,18 +1,18 @@
-#ifndef CUSTOMER_CLUSTER_H
-#define CUSTOMER_CLUSTER_H
+#ifndef CLUSTER_H
+#define CLUSTER_H
 
 #include "../problem/ProblemInstance.h"
 #include "Frame.h"
 
-class CustomerCluster {
+class Cluster {
     public:
-        CustomerCluster(int vertexIndex, int subClusterSize) {
+        Cluster(int vertexIndex, int subClusterSize) {
             this->vertexIndex = vertexIndex;
             this->subClusterSize = subClusterSize;
         }
 
-        CustomerCluster(ProblemInstance problemInstance, Frame frame, int vertexIndex, int subClusterSize) : 
-        CustomerCluster(vertexIndex, subClusterSize)
+        Cluster(ProblemInstance problemInstance, Frame frame, int vertexIndex, int subClusterSize) : 
+        Cluster(vertexIndex, subClusterSize)
         {
             create(problemInstance, frame);
         }

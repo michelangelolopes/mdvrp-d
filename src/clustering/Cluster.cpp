@@ -1,4 +1,4 @@
-#include "../../include/clustering/CustomerCluster.h"
+#include "../../include/clustering/Cluster.h"
 
 #include <cmath>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
-void CustomerCluster::create(ProblemInstance problemInstance, Frame frame) {
+void Cluster::create(ProblemInstance problemInstance, Frame frame) {
     
     int* visitedCustomersIndexes = (int*) calloc(problemInstance.customerCount, sizeof(int));
 
@@ -64,17 +64,17 @@ void CustomerCluster::create(ProblemInstance problemInstance, Frame frame) {
     free(visitedCustomersIndexes);
 }
 
-void CustomerCluster::finalize() {
+void Cluster::finalize() {
     if(this->clusters != nullptr) {
         freeMatrix((void**) this->clusters, this->clusterSize);
     }
 }
 
-void CustomerCluster::print() {
+void Cluster::print() {
 
     std::cout << "\n--------------------------------------------------\n";
 
-    std::cout << "CustomerCluster - ";
+    std::cout << "Cluster - ";
     if(isCustomerVertex) {
         std::cout << "Customer[" << vertexIndex << "] - ";
     } else {
