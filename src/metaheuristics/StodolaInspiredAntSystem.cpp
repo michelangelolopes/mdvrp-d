@@ -330,9 +330,9 @@ void StodolaInspiredAntSystem::run() {
         if(iterIndex % 1000 == 0 && intervalImprovementsCount > 0) {
             globalImprovementsCount += intervalImprovementsCount;
 
-            std::cout << "--- generation: " << iterIndex << " - ";
-            std::cout << "--- globalImprovements: " << globalImprovementsCount << " - ";
-            std::cout << "--- intervalImprovements: " << intervalImprovementsCount << "\n";
+            std::cout << "generation: " << iterIndex << " - ";
+            std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
+            std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
             
             bestSolution->print();
             
@@ -356,7 +356,7 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
     int unvisitedCustomersCount = problemInstance.customersCount;
     int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
 
-    Solution antSolution(problemInstance.depotsCount, problemInstance.customersCount);
+    Solution antSolution(problemInstance.depotsCount, MinimizationType::MAX_TIME_SPENT, problemInstance.customersCount);
 
     while(unvisitedCustomersCount > 0) {
 

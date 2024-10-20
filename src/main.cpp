@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     ProblemInstance problemInstance(datasetFilePath);
 
     int antsCount = 192; //192;
-    double pheromoneUpdateCoef = 3; 
+    double pheromoneUpdateCoef = 3;
     double temperatureUpdateCoef = 0.1;
     double temperatureCoolingCoef = 1;
     int sectorsCount = 16; //16;

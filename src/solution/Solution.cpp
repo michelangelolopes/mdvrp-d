@@ -20,18 +20,44 @@ void Solution::finalize() {
 
 void Solution::updateFitness(ProblemInstance problemInstance) {
 
-    distanceTraveled = 0;
-    timeSpent = 0;
+    totalDistanceTraveled = 0;
+    totalTimeSpent = 0;
+    maxDistanceTraveled = -1;
+    maxTimeSpent = -1;
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
 
         routes[depotIndex].updateTimeSpent(problemInstance, depotIndex);
 
-        distanceTraveled += routes[depotIndex].distanceTraveled;
-        timeSpent += routes[depotIndex].timeSpent;
+        double distanceTraveledInRoute = routes[depotIndex].distanceTraveled;
+        double timeSpentInRoute = routes[depotIndex].timeSpent;
+
+        if(maxDistanceTraveled == -1 || maxDistanceTraveled < distanceTraveledInRoute) {
+            maxDistanceTraveled = distanceTraveledInRoute;
+        }
+
+        if(maxTimeSpent == -1 || maxTimeSpent < timeSpentInRoute) {
+            maxTimeSpent = timeSpentInRoute;
+        }
+
+        totalDistanceTraveled += distanceTraveledInRoute;
+        totalTimeSpent += timeSpentInRoute;
     }
 
-    fitness = timeSpent;
+    switch(minimizationType) {
+        case TOTAL_DISTANCE_TRAVELED:
+            fitness = totalDistanceTraveled;
+            break;
+        case TOTAL_TIME_SPENT:
+            fitness = totalTimeSpent;
+            break;
+        case MAX_DISTANCE_TRAVELED:
+            fitness = maxDistanceTraveled;
+            break;
+        case MAX_TIME_SPENT:
+            fitness = maxTimeSpent;
+            break;
+    }
 }
 
 void Solution::print() const {
@@ -40,13 +66,10 @@ void Solution::print() const {
     
     if(fitness != -1) {
 
-        std::cout << "Time Spent: " << timeSpent << "\n";
-
-        if(fitness != timeSpent) {
-            std::cout << "Fitness: " << fitness << "\n";
-        }
-
-        std::cout << "Distance Traveled: " << distanceTraveled << "\n";
+        std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
+        std::cout << "Max Distance Traveled: " << maxDistanceTraveled << "\n";
+        std::cout << "Total Time Spent: " << totalTimeSpent << "\n";
+        std::cout << "Max Time Spent: " << maxTimeSpent << "\n";
     }
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {

@@ -6,18 +6,26 @@
 
 #include "../problem/ProblemInstance.h"
 
+#include "MinimizationTypeEnum.h"
 #include "Route.h"
 
 class Solution {
     public:
-        Solution(int depotsCount, int subRouteMaxLength) : depotsCount(depotsCount) {
+        Solution(int depotsCount, MinimizationType minimizationType, int subRouteMaxLength) : 
+        depotsCount(depotsCount),
+        minimizationType(minimizationType) 
+        {
             initialize(subRouteMaxLength);
         }
 
-        int depotsCount;
         double fitness = -1;
-        double distanceTraveled = -1;
-        double timeSpent = -1;
+        double totalDistanceTraveled = -1;
+        double totalTimeSpent = -1;
+        double maxDistanceTraveled = -1;
+        double maxTimeSpent = -1;
+        
+        int depotsCount;
+        MinimizationType minimizationType;
         Route* routes;
 
         void finalize();
