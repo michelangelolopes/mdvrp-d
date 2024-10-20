@@ -2,6 +2,22 @@
 
 #include <cstdlib>
 
+void fillArray(double* array, int count, int value) {
+
+    for(int i = 0; i < count; i++) {
+        array[i] = value;
+    }
+}
+
+void fillMatrix(int** matrix, int count, int value) {
+
+    for(int i = 0; i < count; i++) {
+        for(int j = 0; j < count; j++) {
+            matrix[i][j] = value;
+        }
+    }
+}
+
 void** callocMatrix(int count, int pointerSize, int objectSize) {
 
     void** matrix = (void**) malloc(count * pointerSize);
