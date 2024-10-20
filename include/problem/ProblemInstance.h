@@ -20,13 +20,13 @@ class ProblemInstance {
         string name;
         
         Depot* depots = nullptr;
-        int depotCount;
+        int depotsCount;
         
         Customer* customers = nullptr;
-        int customerCount;
+        int customersCount;
 
-        int vertexCount;
-        double** distanceMatrix = nullptr;
+        double** depotToCustomerDistanceMatrix = nullptr;
+        double** customerToCustomerDistanceMatrix = nullptr;
 
         void create(string datasetFilename);
         void finalize();
@@ -37,7 +37,7 @@ class ProblemInstance {
         int loadDepotInfo(string object, string info, string value);
         int loadCustomerInfo(string object, string info, string value);
 
-        void initializeDistanceMatrix();
+        void createDistanceMatrix();
 };
 
 int extractIndex(istringstream& stream);

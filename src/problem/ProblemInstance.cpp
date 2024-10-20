@@ -26,7 +26,7 @@ void ProblemInstance::create(string filename) {
         }
     }
 
-    initializeDistanceMatrix();
+    createDistanceMatrix();
 }
 
 void ProblemInstance::finalize() {
@@ -38,8 +38,12 @@ void ProblemInstance::finalize() {
         free(this->depots);
     }
 
-    if(this->distanceMatrix != nullptr) {
-        freeMatrix((void**)this->distanceMatrix, this->vertexCount);
+    if(this->customerToCustomerDistanceMatrix != nullptr) {
+        freeMatrix((void**)this->customerToCustomerDistanceMatrix, this->customersCount);
+    }
+
+    if(this->depotToCustomerDistanceMatrix != nullptr) {
+        freeMatrix((void**)this->depotToCustomerDistanceMatrix, this->depotsCount);
     }
 }
 
@@ -48,39 +52,47 @@ void ProblemInstance::print(int printDistanceMatrix) {
     std::cout << "\n--------------------------------------------------\n";
 
     std::cout << name << " - ";
-    std::cout << "DepotCount: " << depotCount << " - ";
-    std::cout << "CustomerCount: " << customerCount << "\n";
+    std::cout << "depotsCount: " << depotsCount << " - ";
+    std::cout << "customersCount: " << customersCount << "\n";
 
     std::cout << "-------------------------\n";
-    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         std::cout << "Depot[" << depotIndex << "] - ";
         depots[depotIndex].print();
 
-        if(depotIndex < depotCount - 1) {
+        if(depotIndex < depotsCount - 1) {
             std::cout << "------------\n";
         }
     }
 
     std::cout << "-------------------------\n";
-    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         std::cout << "Customer[" << customerIndex << "] - ";
         customers[customerIndex].print();
+
+        if(customerIndex < customersCount - 1) {
+            std::cout << "------------\n";
+        }
     }
 
     if(printDistanceMatrix) {
         std::cout << "-------------------------\n";
-        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-            for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
-                if(neighborIndex > customerIndex) {
-                    std::cout << "Distance Customer-Customer: [" << customerIndex << "]" << "[" << neighborIndex << "] = " << distanceMatrix[customerIndex][neighborIndex] << '\n';
-                }
+        for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+            for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
+                std::cout << "Distance Customer-Customer: ";
+                std::cout << "[" << customerIndex << "]";
+                std::cout << "[" << neighborCustomerIndex << "]";
+                std::cout << " = " << customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] << '\n';
             }
         }
 
         std::cout << "-------------------------\n";
-        for(int depotIndex = customerCount; depotIndex < vertexCount; depotIndex++) {
-            for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-                std::cout << "Distance Depot-Customer: [" << depotIndex - customerCount << "]" << "[" << customerIndex << "] = " << distanceMatrix[depotIndex][customerIndex] << '\n';
+        for(int depotIndex = customersCount; depotIndex < depotsCount; depotIndex++) {
+            for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+                std::cout << "Distance Depot-Customer: ";
+                std::cout << "[" << depotIndex << "]";
+                std::cout << "[" << customerIndex << "]";
+                std::cout << " = " << depotToCustomerDistanceMatrix[depotIndex][customerIndex] << '\n';
             }
         }
     }
@@ -97,14 +109,14 @@ int ProblemInstance::loadGeneralInfo(string key, string value) {
     } 
     
     if(key.compare("NumberOfDepots") == 0) {
-        valueStream >> depotCount;
-        depots = (Depot*) calloc(depotCount, sizeof(Depot));
+        valueStream >> depotsCount;
+        depots = (Depot*) calloc(depotsCount, sizeof(Depot));
         return 1;
     } 
     
     if(key.compare("NumberOfNodes") == 0) {
-        valueStream >> customerCount;
-        customers = (Customer*) calloc(customerCount, sizeof(Customer));
+        valueStream >> customersCount;
+        customers = (Customer*) calloc(customersCount, sizeof(Customer));
         return 1;
     }
 
@@ -239,46 +251,24 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
     return 0;
 }
 
-void ProblemInstance::initializeDistanceMatrix() {
-    this->vertexCount = customerCount + depotCount;
-    this->distanceMatrix = (double**) callocMatrix(vertexCount, vertexCount, sizeof(double*), sizeof(double));
+void ProblemInstance::createDistanceMatrix() {
 
-    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-        for(int neighborIndex = 0; neighborIndex < customerCount; neighborIndex++) {
-            distanceMatrix[customerIndex][neighborIndex] = calculateEuclidianDistance(
+    this->customerToCustomerDistanceMatrix = (double**) callocMatrix(customersCount, customersCount, sizeof(double*), sizeof(double));
+    for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+        for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
+            customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
                 customers[customerIndex].position,
-                customers[neighborIndex].position
+                customers[neighborCustomerIndex].position
             );
         }
     }
 
-    for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-        for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
-            int depotVertexIndex = depotIndex + customerCount;
-            distanceMatrix[customerIndex][depotVertexIndex] = calculateEuclidianDistance(
-                customers[customerIndex].position,
-                depots[depotIndex].position
-            );
-        }
-    }
-
-    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
-        int depotVertexIndex = depotIndex + customerCount;
-        for(int customerIndex = 0; customerIndex < customerCount; customerIndex++) {
-            distanceMatrix[depotVertexIndex][customerIndex] = calculateEuclidianDistance(
+    this->depotToCustomerDistanceMatrix = (double**) callocMatrix(depotsCount, customersCount, sizeof(double*), sizeof(double));
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+            depotToCustomerDistanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
                 depots[depotIndex].position,
                 customers[customerIndex].position
-            );
-        }
-    }
-
-    for(int depotIndex = 0; depotIndex < depotCount; depotIndex++) {
-        int depotVertexIndex = depotIndex + customerCount;
-        for(int neighborIndex = 0; neighborIndex < depotCount; neighborIndex++) {
-            int neighborDepotVertexIndex = neighborIndex + customerCount;
-            distanceMatrix[depotVertexIndex][neighborDepotVertexIndex] = calculateEuclidianDistance(
-                depots[depotIndex].position,
-                customers[neighborIndex].position
             );
         }
     }
