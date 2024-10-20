@@ -1,13 +1,21 @@
 INCLUDE=include/clustering/* include/metaheuristics/* include/problem/* include/solution/* include/utils/*
-SRC=src/clustering/* src/metaheuristics/* src/problem/* src/utils/* src/solution/*
+SRC=src/clustering/* src/metaheuristics/* src/problem/* src/solution/* src/utils/*
 
 compile:
 	@echo "compiling..."
 	@g++ -o ./bin/mdvrp-d $(INCLUDE) $(SRC) src/main.cpp
 
+compile_opt:
+	@echo "compiling with optimization..."
+	@g++ -O3 -o ./bin/mdvrp-d $(INCLUDE) $(SRC) src/main.cpp
+
 compile_debug:
 	@echo "compiling in debug mode..."
 	@g++ -g -DDEBUG -o ./bin/mdvrp-d $(INCLUDE) $(SRC) src/main.cpp
+
+compile_opt_debug:
+	@echo "compiling with optimization in debug mode..."
+	@g++ -O3 -g -DDEBUG -o ./bin/mdvrp-d $(INCLUDE) $(SRC) src/main.cpp
 
 run:
 	@echo "running..."
