@@ -7,127 +7,167 @@
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
-void Cluster::create(ProblemInstance problemInstance, Frame frame) {
+void Cluster::create(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex) {
     
-    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customerCount, sizeof(int));
+    int neighborCustomersCount = problemInstance.customersCount;
+    int* consideredCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
 
-    this->neighborCustomerCount = problemInstance.customerCount;
-    this->isCustomerVertex = (this->vertexIndex < problemInstance.customerCount);
-    if(this->isCustomerVertex) {
-        this->neighborCustomerCount--; //customer vertex does not consider itself
-        visitedCustomersIndexes[this->vertexIndex] = 1; //mark itself as visited
+    if(isCustomerToCustomerCluster()) {
+        neighborCustomersCount--;
+        consideredCustomersIndexes[baseIndex] = 1; //mark itself as visited
     }
-    this->clusterSize = std::ceil((float) this->neighborCustomerCount / (float) this->subClusterSize);
-    this->clusters = (int**) callocMatrix(this->clusterSize, this->subClusterSize, sizeof(int*), sizeof(int));
-    
-    int unvisitedCustomersCount = this->neighborCustomerCount;
-    int closestCustomerIndex;
 
-    for(int sectionIndex = 0; sectionIndex < frame.sectorsCount; sectionIndex++) {
-        closestCustomerIndex = findClosestCustomerInSector(problemInstance, this->vertexIndex, sectionIndex, visitedCustomersIndexes, frame.customerSectorMap);
-        
-        if(closestCustomerIndex != -1) {
-            this->clusters[0][sectionIndex] = closestCustomerIndex;
-            visitedCustomersIndexes[closestCustomerIndex] = 1; //visited
-            unvisitedCustomersCount--;
+    initializeSubClusters(primarySubClustersMaxCount, subClusterMaxSize, neighborCustomersCount);
+    createFirstSubCluster(problemInstance, frame, baseIndex, consideredCustomersIndexes);
+    createOthersSubClusters(problemInstance, baseIndex, consideredCustomersIndexes);
+
+    free(consideredCustomersIndexes);
+}
+
+void Cluster::initializeSubClusters(int primarySubClustersMaxCount, int subClusterMaxSize, int neighborCustomersCount) {
+
+    int fullSubClustersCount = neighborCustomersCount / subClusterMaxSize;
+    int incompleteSubClusterSize = (neighborCustomersCount % subClusterMaxSize); //last subcluster may not be full
+
+    size = fullSubClustersCount + (incompleteSubClusterSize > 0);
+    primariesCount = (primarySubClustersMaxCount <= size) ? primarySubClustersMaxCount : size;
+
+    // std::cout << "primarySubClustersMaxCount: " << primarySubClustersMaxCount << "\n";
+    // std::cout << "subClusterMaxSize: " << subClusterMaxSize << "\n";
+    // std::cout << "neighborCustomersCount: " << neighborCustomersCount << "\n";
+    // std::cout << "fullSubClustersCount: " << fullSubClustersCount << "\n";
+    // std::cout << "incompleteSubClusterSize: " << incompleteSubClusterSize << "\n";
+    // std::cout << "size: " << size << "\n";
+    // std::cout << "primariesCount: " << primariesCount << "\n";
+
+    subClusters = (SubCluster*) calloc(size, sizeof(SubCluster));
+
+    for(int subClusterIndex = 0; subClusterIndex < fullSubClustersCount; subClusterIndex++) {
+        subClusters[subClusterIndex] = SubCluster(subClusterMaxSize);
+    }
+
+    if(fullSubClustersCount < size) {
+        subClusters[size - 1] = SubCluster(incompleteSubClusterSize);
+    }
+}
+
+void Cluster::createFirstSubCluster(ProblemInstance problemInstance, Frame frame, int baseIndex, int* consideredCustomersIndexes) {
+
+    int consideredCustomersCount = 0;
+
+    //fill the first subcluster with the closest customer in each sector
+    if(frame.sectorsCount <= subClusters[0].size) {
+
+        for(int sectionIndex = 0; sectionIndex < frame.sectorsCount; sectionIndex++) {
+            int closestCustomerIndex = findClosestCustomerInSector(problemInstance, baseIndex, sectionIndex, consideredCustomersIndexes, frame.customerSectorMap);
+            
+            //when the sector is not empty
+            if(closestCustomerIndex != -1) {
+                consideredCustomersIndexes[closestCustomerIndex] = 1; //visited
+                subClusters[0].elements[consideredCustomersCount++] = closestCustomerIndex;
+            }
         }
     }
 
-    for(int subClusterIndex = this->neighborCustomerCount - unvisitedCustomersCount; subClusterIndex < this->subClusterSize; subClusterIndex++) {
-        closestCustomerIndex = findClosestCustomer(problemInstance, this->vertexIndex, visitedCustomersIndexes);
-        this->clusters[0][subClusterIndex] = closestCustomerIndex;
-        visitedCustomersIndexes[closestCustomerIndex] = 1; //visited
-        unvisitedCustomersCount--;
+    for(int elementIndex = consideredCustomersCount; elementIndex < subClusters[0].size; elementIndex++) {
+        int closestCustomerIndex = findClosestCustomer(problemInstance, baseIndex, consideredCustomersIndexes);
+        consideredCustomersIndexes[closestCustomerIndex] = 1; //visited
+        subClusters[0].elements[elementIndex] = closestCustomerIndex;
     }
 
-    int clusterIndex = 1;
-    int subClusterIndex = 0;
-    while(unvisitedCustomersCount > 0) {
-        if(subClusterIndex == subClusterSize) {
-            subClusterIndex = 0;
-            clusterIndex++;
+    // if(baseIndex == 0) {
+    //     for(int elementIndex = 0; elementIndex < subClusters[0].size; elementIndex++) {
+    //         std::cout << subClusters[0].elements[elementIndex] << " ";
+    //     }
+    //     std::cout << "\n";
+    // }
+}
+
+void Cluster::createOthersSubClusters(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes) {
+
+    int subClusterIndex = 1;
+    while(subClusterIndex < size) {
+
+        int elementIndex = 0;
+        while(elementIndex < subClusters[subClusterIndex].size) {
+
+            int closestCustomerIndex = findClosestCustomer(problemInstance, baseIndex, consideredCustomersIndexes);
+
+            subClusters[subClusterIndex].elements[elementIndex++] = closestCustomerIndex;
+            consideredCustomersIndexes[closestCustomerIndex] = 1; //visited
         }
 
-        closestCustomerIndex = findClosestCustomer(problemInstance, this->vertexIndex, visitedCustomersIndexes);
-        this->clusters[clusterIndex][subClusterIndex] = closestCustomerIndex;
-        visitedCustomersIndexes[closestCustomerIndex] = 1; //visited
-        
-        subClusterIndex++;
-        unvisitedCustomersCount--;
-    }
-
-    while(subClusterIndex < subClusterSize) {
-        this->clusters[clusterIndex][subClusterIndex] = -1;
         subClusterIndex++;
     }
 
-    free(visitedCustomersIndexes);
+    // if(baseIndex == 0) {
+    //     for(int subClusterIndex = 0; subClusterIndex < size; subClusterIndex++) {
+    //         for(int elementIndex = 0; elementIndex < subClusters[subClusterIndex].size; elementIndex++) {
+    //             std::cout << subClusters[subClusterIndex].elements[elementIndex] << " ";
+    //         }
+    //         std::cout << "\n";
+    //     }
+    // }
 }
 
 void Cluster::finalize() {
-    if(this->clusters != nullptr) {
-        freeMatrix((void**) this->clusters, this->clusterSize);
+
+    if(subClusters != nullptr) {
+
+        for(int index = 0; index < size; index++) {
+            subClusters[index].finalize();
+        }
+
+        free(subClusters);
     }
 }
 
 void Cluster::print() {
 
-    std::cout << "\n--------------------------------------------------\n";
+    // std::cout << "--------------------------------------------------\n";
 
-    std::cout << "Cluster - ";
-    if(isCustomerVertex) {
-        std::cout << "Customer[" << vertexIndex << "] - ";
-    } else {
-        std::cout << "Depot[" << vertexIndex - neighborCustomerCount << "] - ";
+    // for(int subClusterIndex = 0; subClusterIndex < size; subClusterIndex++) {
+
+    //     std::cout << "SubCluster[" << subClusterIndex << "]: ";
+    //     subClusters[subClusterIndex].print();
+    //     std::cout << '\n';
+    // }
+
+    // std::cout << "--------------------------------------------------\n";
+    for(int subClusterIndex = 0; subClusterIndex < size; subClusterIndex++) {
+
+        std::cout << "| ";
+        subClusters[subClusterIndex].print();
+        std::cout << " ";
     }
 
-    std::cout << "SubClusterSize: " << subClusterSize << '\n';
-
-    std::cout << "-------------------------\n";
-
-    for(int clusterIndex = 0; clusterIndex < clusterSize; clusterIndex++) {
-        std::cout << "Cluster[" << clusterIndex << "]: ";
-        for(int subClusterIndex = 0; subClusterIndex < this->subClusterSize; subClusterIndex++) {
-            std::cout << clusters[clusterIndex][subClusterIndex] << "\t";
-        }
-        std::cout << '\n';
-    }
-
-    std::cout << "--------------------------------------------------\n";
+    std::cout << "|";
 }
 
-int findClosestCustomer(ProblemInstance problemInstance, int vertexIndex, int* visitedCustomersIndexes) {
+void Cluster::print(int* visitedCustomersIndexes) {
 
-    int closestCustomerIndex = -1;
-    double closestCustomerDistance = -1;
-    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
-        if(visitedCustomersIndexes[customerIndex] != 1) {
-            double neighborCustomerDistance = problemInstance.distanceMatrix[vertexIndex][customerIndex];
+    // std::cout << "--------------------------------------------------\n";
 
-            if(closestCustomerDistance == -1 || closestCustomerDistance > neighborCustomerDistance) {
-                closestCustomerIndex = customerIndex;
-                closestCustomerDistance = neighborCustomerDistance;
-            }
-        }
+    // for(int subClusterIndex = 0; subClusterIndex < size; subClusterIndex++) {
+
+    //     std::cout << "SubCluster[" << subClusterIndex << "]: ";
+    //     subClusters[subClusterIndex].print(consideredCustomersIndexes);
+    //     std::cout << '\n';
+    // }
+
+    // std::cout << "--------------------------------------------------\n";
+    // std::cout << "--------------------Size:" << size << "-------------------------\n";
+
+    for(int subClusterIndex = 0; subClusterIndex < size; subClusterIndex++) {
+
+        std::cout << "| ";
+        subClusters[subClusterIndex].print(visitedCustomersIndexes);
+        std::cout << " ";
     }
 
-    return closestCustomerIndex;
-}
+    std::cout << "|";
 
-int findClosestCustomerInSector(ProblemInstance problemInstance, int vertexIndex, int currentSectorIndex, int* visitedCustomersIndexes, int* customerSectorMap) {
 
-    int closestCustomerIndex = -1;
-    double closestCustomerDistance = -1;
-    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
-        if(visitedCustomersIndexes[customerIndex] != 1 && customerSectorMap[customerIndex] == currentSectorIndex) {
-            double neighborCustomerDistance = problemInstance.distanceMatrix[vertexIndex][customerIndex];
 
-            if(closestCustomerDistance == -1 || closestCustomerDistance > neighborCustomerDistance) {
-                closestCustomerIndex = customerIndex;
-                closestCustomerDistance = neighborCustomerDistance;
-            }
-        }
-    }
-
-    return closestCustomerIndex;
+    // std::cout << "--------------------------------------------------\n";       
 }
