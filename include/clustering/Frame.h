@@ -16,7 +16,7 @@ class Frame : public Sector {
             create(problemInstance);
         }
 
-        int customerCount;
+        int customersCount;
         int sectorsCount;
         int* customerSectorMap = nullptr;
         Sector* sectors = nullptr;

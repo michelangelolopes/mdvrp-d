@@ -6,11 +6,11 @@
 
 void Frame::create(ProblemInstance problemInstance) {
 
-    this->customerCount = problemInstance.customerCount;
+    this->customersCount = problemInstance.customersCount;
 
     initializePositions();
 
-    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
         updatePositions(problemInstance.customers[customerIndex].position);
     }
 
@@ -47,7 +47,7 @@ void Frame::print() {
     std::cout << "-------------------------\n";
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         std::cout << "Sector[" << sectorIndex << "]: ";
-        for(int customerIndex = 0; customerIndex < this->customerCount; customerIndex++) {
+        for(int customerIndex = 0; customerIndex < this->customersCount; customerIndex++) {
             if(customerSectorMap[customerIndex] == sectorIndex) {
                 std::cout << customerIndex << "\t";
             }
@@ -132,9 +132,9 @@ void Frame::splitSectorsVertically(double yTotal) {
 
 void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
 
-    customerSectorMap = (int*) calloc(problemInstance.customerCount, sizeof(int));
+    customerSectorMap = (int*) calloc(problemInstance.customersCount, sizeof(int));
 
-    for(int customerIndex = 0; customerIndex < problemInstance.customerCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
         for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
             if( isPositionInSector(sectors[sectorIndex], problemInstance.customers[customerIndex].position) ) {
                 customerSectorMap[customerIndex] = sectorIndex;
