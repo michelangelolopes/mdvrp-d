@@ -2,26 +2,41 @@
 #define ROUTE_H
 
 #include <cstdlib>
-#include "../utils/ArrayUtils.h"
+#include <iostream>
+
+#include "../problem/ProblemInstance.h"
+
+#include "SubRoute.h"
 
 class Route {
     public:
-        Route(int routeMaxLength) {
-            this->routeMaxLength = routeMaxLength;
-            create();
+        Route(int subRouteMaxLength) {
+            initialize(subRouteMaxLength);
         }
 
-        int* visitedVertices;
-        int routeRealLength = -1;
-        int routeMaxLength;
+        int size = 1;
 
-        void create() {
-            this->visitedVertices = (int*) calloc(this->routeMaxLength, sizeof(int));
-        }
+        double distanceTraveled = -1;
+        double timeSpent = -1;
 
-        void finalize() {
-            free(visitedVertices);
-        }
+        SubRoute* subRoutes;
+
+        void finalize();
+        void expand();
+        void shrink();
+        void insert(int customerIndex);
+        int last();
+
+        double getCurrentLoad();
+        void updateCurrentLoad(double demand);
+
+        void print() const;
+        void updateDistanceTraveled(ProblemInstance problemInstance, int depotIndex);
+        void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
+
+    private:
+        void initialize(int subRouteMaxLength);
+        void initializeNextSubRoute(int subRouteMaxLength);
 };
 
 #endif

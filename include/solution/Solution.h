@@ -3,67 +3,30 @@
 
 #include <cstdlib>
 #include <iostream>
-#include "../utils/ArrayUtils.h"
+
+#include "../problem/ProblemInstance.h"
+
 #include "Route.h"
 
 class Solution {
     public:
-        Solution(int routesCount, int routeMaxLength) {
-            this->routesCount = routesCount;
-            create(routeMaxLength);    
+        Solution(int depotsCount, int subRouteMaxLength) : depotsCount(depotsCount) {
+            initialize(subRouteMaxLength);
         }
 
-        int routesCount;
-        double fitness;
+        int depotsCount;
+        double fitness = -1;
+        double distanceTraveled = -1;
+        double timeSpent = -1;
         Route* routes;
 
-        void create(int routeMaxLength) {
+        void finalize();
+        void updateFitness(ProblemInstance problemInstance);
 
-            this->routes = (Route*) calloc(this->routesCount, sizeof(Route));
+        void print() const;
 
-            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
-                this->routes[routeIndex] = Route(routeMaxLength);
-            }
-        }
-
-        void finalize() {
-            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
-                this->routes[routeIndex].finalize();
-            }
-
-            free(routes);
-        }
-
-        void print() {
-            std::cout << "--------------------------------------------------\n";
-            std::cout << "Fitness: " << fitness << "\n";
-            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
-                std::cout << "Route[" << routeIndex << "]: ";
-
-                if(this->routes[routeIndex].routeRealLength == -1) {
-                    std::cout << "not constructed\n";
-                    continue;
-                }
-
-                for(int visitedVertexIndex = 0; visitedVertexIndex < this->routes[routeIndex].routeRealLength; visitedVertexIndex++) {
-                    std::cout << this->routes[routeIndex].visitedVertices[visitedVertexIndex] << " ";
-                }
-                std::cout << "\n";
-            }
-            std::cout << "--------------------------------------------------\n";
-        }
-
-        void calculateFitness(ProblemInstance problemInstance) {
-            double fitness = 0;
-            for(int routeIndex = 0; routeIndex < routesCount; routeIndex++) {
-                for(int visitedVertexIndex = 0; visitedVertexIndex < routes[routeIndex].routeRealLength - 1; visitedVertexIndex++) {
-                    int sourceVertexIndex = routes[routeIndex].visitedVertices[visitedVertexIndex];
-                    int destVertexIndex = routes[routeIndex].visitedVertices[visitedVertexIndex + 1];
-                    fitness += problemInstance.distanceMatrix[sourceVertexIndex][destVertexIndex];
-                }
-            }
-            this->fitness = fitness;
-        }
+    private:
+        void initialize(int subRouteMaxLength);
 };
 
 #endif
