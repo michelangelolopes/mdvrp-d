@@ -22,7 +22,7 @@ void SubRoute::insert(int customerIndex) {
     members[length++] = customerIndex;
 }
 
-void SubRoute::updateLoad(double demand) {
+void SubRoute::incrementLoad(double demand) {
 
     load += demand;
 }

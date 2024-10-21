@@ -56,7 +56,7 @@ double Route::getCurrentLoad() {
 
 void Route::incrementCurrentLoad(double demand) {
 
-    subRoutes[size - 1].updateLoad(demand);
+    subRoutes[size - 1].incrementLoad(demand);
 }
 
 void Route::updateDistanceTraveled(ProblemInstance problemInstance, int depotIndex) {

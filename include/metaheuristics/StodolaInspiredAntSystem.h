@@ -94,8 +94,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
         int isInformationEntropySufficient(double informationEntropyCoef);
 
-        Solution buildAntSolutionDebug();
-        Solution buildAntSolution();
+        Solution buildAntSolutionDebug(int* visitedCustomersIndexes);
+        Solution buildAntSolution(int* visitedCustomersIndexes);
 
         int selectDepot(int* visitedCustomersIndexes, Route* routes);
         int updateDepotSelectionProbabilityFromDepotSource(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex);

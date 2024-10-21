@@ -25,7 +25,7 @@ class SubRoute {
         void shrink();
         void insert(int customerIndex);
         
-        void updateLoad(double demand);
+        void incrementLoad(double demand);
         void updateDistanceTraveled(ProblemInstance problemInstance);
         void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
 

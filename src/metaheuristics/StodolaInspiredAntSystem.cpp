@@ -280,6 +280,10 @@ void StodolaInspiredAntSystem::run() {
     int generationEdgesCount = 0;
     Solution* generationBestSolution = nullptr;
     int** generationEdgesOccurrenceCount = (int**) callocMatrix(problemInstance.customersCount, sizeof(int*), sizeof(int));
+    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
+
+    // std::cout << "visitedCustomersIndexes (equals 0): \n";
+    // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
     
     int globalImprovementsCount = 0;
     int intervalImprovementsCount = 0;
@@ -304,12 +308,28 @@ void StodolaInspiredAntSystem::run() {
     )) 
     {
 
-        // std::cout << "--- generation: " << iterIndex << "\n";
+        // std::cout << "--- generation: " << iterationsCount << "\n";
+
+        // std::cout << "visitedCustomersIndexes (equals 0): \n";
+        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
+        // std::cout << "visitedCustomersIndexes (equals 1): \n";
+        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 1);
         
         for(int antIndex = 0; antIndex < antsCount; antIndex++) {
 
+            // std::cout << "------ ant: " << antIndex << "\n";
+
+            fillArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
+            // std::cout << "visitedCustomersIndexes (equals 0): \n";
+            // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
+            // std::cout << "visitedCustomersIndexes (equals 1): \n";
+            // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 1);
+
             Solution* antSolution = nullptr;
-            Solution solution = buildAntSolution();
+            Solution solution = buildAntSolution(visitedCustomersIndexes);
             antSolution = &solution;
             // if( (iterationsCount + 1) % 1000 == 0) {
             //     Solution solution = buildAntSolutionDebug();
@@ -319,7 +339,6 @@ void StodolaInspiredAntSystem::run() {
             //     antSolution = &solution;
             // }
             
-            // std::cout << "------ ant: " << antIndex << " - ";
             // std::cout << antSolution.fitness << "\n";
 
             //TODO: it could be needed to use the depot-customer edges
@@ -399,6 +418,10 @@ void StodolaInspiredAntSystem::run() {
             std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
             std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
             std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
+
+            for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+                bestSolution->routes[depotIndex].shrink();
+            }
             
             bestSolution->print();
             
@@ -416,11 +439,18 @@ void StodolaInspiredAntSystem::run() {
     std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
     std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
 
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        bestSolution->routes[depotIndex].shrink();
+    }
+
+    bestSolution->print();
+
     freeMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount);
+    free(visitedCustomersIndexes);
 }
 
 
-Solution StodolaInspiredAntSystem::buildAntSolutionDebug() {
+Solution StodolaInspiredAntSystem::buildAntSolutionDebug(int* visitedCustomersIndexes) {
 
     // int* currentVertexIndex = (int*) calloc(problemInstance.depotsCount, sizeof(int));
     // int* currentTruckLoad = (int*) calloc(problemInstance.depotsCount, sizeof(int));
@@ -431,7 +461,6 @@ Solution StodolaInspiredAntSystem::buildAntSolutionDebug() {
     // }
 
     int unvisitedCustomersCount = problemInstance.customersCount;
-    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
 
     Solution antSolution(problemInstance.depotsCount, MinimizationType::MAX_TIME_SPENT, problemInstance.customersCount);
 
@@ -490,21 +519,20 @@ Solution StodolaInspiredAntSystem::buildAntSolutionDebug() {
         unvisitedCustomersCount--;
     }
 
-    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        antSolution.routes[depotIndex].shrink();
-    }
+    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+    //     antSolution.routes[depotIndex].shrink();
+    // }
 
     // antSolution.print();
     antSolution.updateFitness(problemInstance);
 
     // free(currentVertexIndex);
     // free(currentTruckLoad);
-    free(visitedCustomersIndexes);
 
     return antSolution;
 }
 
-Solution StodolaInspiredAntSystem::buildAntSolution() {
+Solution StodolaInspiredAntSystem::buildAntSolution(int* visitedCustomersIndexes) {
 
     // int* currentVertexIndex = (int*) calloc(problemInstance.depotsCount, sizeof(int));
     // int* currentTruckLoad = (int*) calloc(problemInstance.depotsCount, sizeof(int));
@@ -515,7 +543,6 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
     // }
 
     int unvisitedCustomersCount = problemInstance.customersCount;
-    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
 
     Solution antSolution(problemInstance.depotsCount, MinimizationType::MAX_TIME_SPENT, problemInstance.customersCount);
 
@@ -574,16 +601,15 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
         unvisitedCustomersCount--;
     }
 
-    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        antSolution.routes[depotIndex].shrink();
-    }
+    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+    //     antSolution.routes[depotIndex].shrink();
+    // }
 
     // antSolution.print();
     antSolution.updateFitness(problemInstance);
 
     // free(currentVertexIndex);
     // free(currentTruckLoad);
-    free(visitedCustomersIndexes);
 
     return antSolution;
 }
