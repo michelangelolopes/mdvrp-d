@@ -23,22 +23,29 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             double pheromoneEvaporationCoefMin,
             double pheromoneEvaporationCoefMax,
             double distanceProbabilityCoef,
-            double pheromoneProbabilityCoef
+            double pheromoneProbabilityCoef,
+            int maxIterations,
+            int maxIterationsWithoutImprovement,
+            double maxOptimizationTime,
+            double minInformationEntropyCoef
         ) : 
         AntSystem(problemInstance, antsCount, pheromoneUpdateCoef), 
         SimulatedAnnealing(temperatureUpdateCoef, temperatureCoolingCoef),
-        frame(problemInstance, sectorsCount)
+        frame(problemInstance, sectorsCount),
+        localOptimizationFrequency(localOptimizationFrequency),
+        pheromoneEvaporationCoefMin(pheromoneEvaporationCoefMin),
+        pheromoneEvaporationCoefMax(pheromoneEvaporationCoefMax),
+        distanceProbabilityCoef(distanceProbabilityCoef),
+        pheromoneProbabilityCoef(pheromoneProbabilityCoef),
+        maxIterations(maxIterations),
+        maxIterationsWithoutImprovement(maxIterationsWithoutImprovement),
+        maxOptimizationTime(maxOptimizationTime),
+        minInformationEntropyCoef(minInformationEntropyCoef)
         {
             if(sectorsCount > subClusterMaxSize) {
                 std::cout << "Sectors will not be used when clustering\n";
             }
 
-            // this->primarySubClustersCount = primarySubClustersCount;
-            this->localOptimizationFrequency = localOptimizationFrequency;
-            this->pheromoneEvaporationCoefMin = pheromoneEvaporationCoefMin;
-            this->pheromoneEvaporationCoefMax = pheromoneEvaporationCoefMax;
-            this->distanceProbabilityCoef = distanceProbabilityCoef;
-            this->pheromoneProbabilityCoef = pheromoneProbabilityCoef;
             create(primarySubClustersMaxCount, subClusterMaxSize);
         }
 
@@ -49,6 +56,11 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         double distanceProbabilityCoef;
         double pheromoneProbabilityCoef;
+
+        int maxIterations;
+        int maxIterationsWithoutImprovement;
+        double maxOptimizationTime;
+        double minInformationEntropyCoef;
 
         double** depotPheromoneMatrix;
 
@@ -77,8 +89,12 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void evaporatePheromoneMatrixInRoute(const Route& route, int depotIndex, double pheromoneEvaporatingValue);
         void evaporatePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneEvaporatingValue);
 
-        void updateEvaporationCoef(int** populationEdgesOcurrenceSum, int populationEdgesSum);
+        void updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax);
 
+        int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
+        int isInformationEntropySufficient(double informationEntropyCoef);
+
+        Solution buildAntSolutionDebug();
         Solution buildAntSolution();
 
         int selectDepot(int* visitedCustomersIndexes, Route* routes);

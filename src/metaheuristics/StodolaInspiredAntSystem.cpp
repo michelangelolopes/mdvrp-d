@@ -1,5 +1,6 @@
 #include "../../include/metaheuristics/StodolaInspiredAntSystem.h"
 
+#include <chrono>
 #include <cmath>    // ceil()
 #include <cstdlib>  // rand(), srand()
 #include <ctime>    // time()
@@ -24,7 +25,7 @@ void StodolaInspiredAntSystem::finalize() {
     if(pheromoneMatrix != nullptr) {
 
         for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-            freeMatrix((void**) pheromoneMatrix[depotIndex], problemInstance.customersCount);
+            freeMatrix(pheromoneMatrix[depotIndex], problemInstance.customersCount);
         }
 
         free(pheromoneMatrix);
@@ -33,7 +34,7 @@ void StodolaInspiredAntSystem::finalize() {
     frame.finalize();
 
     if(depotPheromoneMatrix != nullptr) {
-        freeMatrix((void**) depotPheromoneMatrix, problemInstance.depotsCount);
+        freeMatrix( depotPheromoneMatrix, problemInstance.depotsCount);
     }
 
     if(customerClusters != nullptr) {
@@ -132,7 +133,7 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
     pheromoneMatrix = (double***) malloc(problemInstance.depotsCount * sizeof(double**));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        pheromoneMatrix[depotIndex] = (double**) callocMatrix(problemInstance.customersCount, problemInstance.customersCount, sizeof(double*), sizeof(double));
+        pheromoneMatrix[depotIndex] = (double**) callocMatrix(problemInstance.customersCount, sizeof(double*), sizeof(double));
 
         for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
             for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
@@ -238,24 +239,44 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrixInSubRoute(const SubRoute
     depotPheromoneMatrix[depotIndex][lastCustomerIndex] *= pheromoneEvaporatingValue;
 }
 
-void StodolaInspiredAntSystem::updateEvaporationCoef(int** generationEdgesOcurrenceSum, int generationEdgesSum) {
+void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
 
-    double informationEntropy = calculateInformationEntropy(generationEdgesOcurrenceSum, generationEdgesSum);
-    double informationEntropyMin = -1 * log((double)antsCount / generationEdgesSum);
-    double informationEntropyMax = -1 * log(1.00 / generationEdgesSum);
-
-    double relevantInformationEntropy = (informationEntropy - informationEntropyMin) / (informationEntropyMax - informationEntropyMin);
+    double relevantInformationEntropyCoef = (informationEntropy - informationEntropyMin) / (informationEntropyMax - informationEntropyMin);
 
     pheromoneEvaporationCoef = pheromoneEvaporationCoefMin;
-    pheromoneEvaporationCoef += (pheromoneEvaporationCoefMax - pheromoneEvaporationCoefMin) * relevantInformationEntropy;
+    pheromoneEvaporationCoef += (pheromoneEvaporationCoefMax - pheromoneEvaporationCoefMin) * relevantInformationEntropyCoef;
+}
+
+int StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef) {
+
+    // std::cout << "iterationsCount: " << iterationsCount << " - ";
+    // std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
+    // std::cout << "currentOptimizationTime: " << currentOptimizationTime << "\n";
+    // std::cout << "informationEntropy: " << informationEntropy << " - ";
+    // std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
+
+    // double informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
+    // std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
+
+    return (iterationsCount >= maxIterations) ||
+        (iterationsWithoutImprovementCount >= maxIterationsWithoutImprovement) ||
+        (currentOptimizationTime >= maxOptimizationTime) ||
+        (!isInformationEntropySufficient(informationEntropyCoef));
+}
+
+int StodolaInspiredAntSystem::isInformationEntropySufficient(double informationEntropyCoef) {
+
+    if(informationEntropyCoef == -1) {
+        return 1;
+    }
+
+    return (informationEntropyCoef >= minInformationEntropyCoef);
 }
 
 void StodolaInspiredAntSystem::run() {
 
     srand((unsigned int)time(0));
 
-    int maxIter = 10000;
-    int iterIndex = 0;
     int generationEdgesCount = 0;
     Solution* generationBestSolution = nullptr;
     int** generationEdgesOccurrenceCount = (int**) callocMatrix(problemInstance.customersCount, sizeof(int*), sizeof(int));
@@ -263,31 +284,56 @@ void StodolaInspiredAntSystem::run() {
     int globalImprovementsCount = 0;
     int intervalImprovementsCount = 0;
 
-    while(iterIndex < maxIter) { //TODO: adjust termination condition
+    std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point endOptimizationTime = startOptimizationTime;
+
+    int iterationsCount = 0;
+    int iterationsWithoutImprovementCount = 0;
+    std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+
+    double informationEntropy = -1;
+    double informationEntropyMin = -1;
+    double informationEntropyMax = -1;
+    double informationEntropyCoef = -1;
+
+    while(!hasAchievedTerminationCondition(
+        iterationsCount, 
+        iterationsWithoutImprovementCount,
+        currentOptimizationTime.count(),
+        informationEntropyCoef
+    )) 
+    {
 
         // std::cout << "--- generation: " << iterIndex << "\n";
         
-        fillMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount, 0);
-        
         for(int antIndex = 0; antIndex < antsCount; antIndex++) {
 
-            Solution antSolution = buildAntSolution();
+            Solution* antSolution = nullptr;
+            Solution solution = buildAntSolution();
+            antSolution = &solution;
+            // if( (iterationsCount + 1) % 1000 == 0) {
+            //     Solution solution = buildAntSolutionDebug();
+            //     antSolution = &solution;
+            // } else {
+            //     Solution solution = buildAntSolution();
+            //     antSolution = &solution;
+            // }
             
             // std::cout << "------ ant: " << antIndex << " - ";
             // std::cout << antSolution.fitness << "\n";
 
             //TODO: it could be needed to use the depot-customer edges
-            generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
+            generationEdgesCount += updateGenerationEdgesOccurrenceCount(*antSolution, generationEdgesOccurrenceCount);
 
             if(generationBestSolution == nullptr) {
-                generationBestSolution = new Solution(antSolution);
-            } else if(antSolution.fitness < generationBestSolution->fitness) {
+                generationBestSolution = new Solution(*antSolution);
+            } else if(antSolution->fitness < generationBestSolution->fitness) {
                 generationBestSolution->finalize();
                 delete generationBestSolution;
 
-                generationBestSolution = new Solution(antSolution);
+                generationBestSolution = new Solution(*antSolution);
             } else {
-                antSolution.finalize();
+                antSolution->finalize();
             }
         }
 
@@ -299,6 +345,7 @@ void StodolaInspiredAntSystem::run() {
             // //std::cout << "generation " << iterIndex << " - best solution\n";
             bestSolution = generationBestSolution;
             intervalImprovementsCount += 1;
+            iterationsWithoutImprovementCount = 0;
             // bestSolution->print();
 
             reinforcePheromoneMatrix(bestSolution);
@@ -309,6 +356,7 @@ void StodolaInspiredAntSystem::run() {
             // //std::cout << "generation " << iterIndex << " - best solution\n";
             bestSolution = generationBestSolution;
             intervalImprovementsCount += 1;
+            iterationsWithoutImprovementCount = 0;
             // bestSolution->print();
 
             reinforcePheromoneMatrix(bestSolution);
@@ -319,20 +367,38 @@ void StodolaInspiredAntSystem::run() {
             delete generationBestSolution;
         }
 
-        updateEvaporationCoef(generationEdgesOccurrenceCount, generationEdgesCount);
+        informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
+        informationEntropyMin = -1 * log((double)antsCount / generationEdgesCount);
+        informationEntropyMax = -1 * log(1.00 / generationEdgesCount);
+        informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
+
+        updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
         evaporatePheromoneMatrix();
 
-        iterIndex += 1;
+        iterationsCount += 1;
+        iterationsWithoutImprovementCount += 1;
 
         generationBestSolution = nullptr;
         generationEdgesCount = 0;
 
-        if(iterIndex % 1000 == 0 && intervalImprovementsCount > 0) {
+        fillMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount, 0);
+
+        endOptimizationTime = std::chrono::high_resolution_clock::now();
+        currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+
+        if(iterationsCount % 1000 == 0 && intervalImprovementsCount > 0) {
+
             globalImprovementsCount += intervalImprovementsCount;
 
-            std::cout << "generation: " << iterIndex << " - ";
+            std::cout << "iterationsCount: " << iterationsCount << "\n";
+            std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
+            std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
             std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
             std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
+            std::cout << "informationEntropy: " << informationEntropy << " - ";
+            std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
+            std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
+            std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
             
             bestSolution->print();
             
@@ -340,7 +406,102 @@ void StodolaInspiredAntSystem::run() {
         }
     }
 
-    freeMatrix((void**) generationEdgesOccurrenceCount, problemInstance.customersCount);
+    std::cout << "iterationsCount: " << iterationsCount << "\n";
+    std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
+    std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
+    std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
+    std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
+    std::cout << "informationEntropy: " << informationEntropy << " - ";
+    std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
+    std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
+    std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
+
+    freeMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount);
+}
+
+
+Solution StodolaInspiredAntSystem::buildAntSolutionDebug() {
+
+    // int* currentVertexIndex = (int*) calloc(problemInstance.depotsCount, sizeof(int));
+    // int* currentTruckLoad = (int*) calloc(problemInstance.depotsCount, sizeof(int));
+
+    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+    //     currentVertexIndex[depotIndex] = -1; //when it is a depot
+    //     // currentTruckLoad[depotIndex] = 0;
+    // }
+
+    int unvisitedCustomersCount = problemInstance.customersCount;
+    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
+
+    Solution antSolution(problemInstance.depotsCount, MinimizationType::MAX_TIME_SPENT, problemInstance.customersCount);
+
+    while(unvisitedCustomersCount > 0) {
+
+        std::cout << "--------- unvisitedCustomersCount: " << unvisitedCustomersCount << "\n";
+        std::cout << "--------- unvisitedCustomers: ";
+        printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
+        int depotIndex = selectDepot(visitedCustomersIndexes, antSolution.routes);
+        std::cout << "------------ depotIndex: " << depotIndex << "\n";
+
+        Route* currentRoute = &antSolution.routes[depotIndex];
+
+        std::cout << "------------ currentRoute: ";
+        currentRoute->print();
+        std::cout << "\n";
+
+        int currentVertexIndex = currentRoute->last();
+        std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
+        
+        if(currentVertexIndex != -1) {
+            std::cout << "------------ currentCluster: ";
+            customerClusters[currentVertexIndex].print(visitedCustomersIndexes);
+
+            std::cout << "------------ fullCluster: ";
+            customerClusters[currentVertexIndex].print();
+        } else {
+            std::cout << "------------ currentCluster: ";
+            depotClusters[depotIndex].print(visitedCustomersIndexes);
+
+            std::cout << "------------ fullCluster: ";
+            depotClusters[depotIndex].print();
+        }
+
+        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, currentRoute->last(), depotIndex);
+        std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
+
+        // if(subClusterIndex == -1) {
+        // }
+        int customerIndex = selectCustomer(visitedCustomersIndexes, currentRoute->last(), depotIndex, subClusterIndex);
+        std::cout << "------------ customerIndex: " << customerIndex << "\n";
+
+        Customer* nextCustomer = &problemInstance.customers[customerIndex];
+        Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
+
+        if( ( currentRoute->getCurrentLoad() + nextCustomer->demand ) > currentTruck->capacity ) {
+            currentRoute->expand();
+        }
+
+        currentRoute->insert(customerIndex);
+        currentRoute->incrementCurrentLoad(nextCustomer->demand);
+        // antSolution.print();
+
+        visitedCustomersIndexes[customerIndex] = 1;
+        unvisitedCustomersCount--;
+    }
+
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        antSolution.routes[depotIndex].shrink();
+    }
+
+    // antSolution.print();
+    antSolution.updateFitness(problemInstance);
+
+    // free(currentVertexIndex);
+    // free(currentTruckLoad);
+    free(visitedCustomersIndexes);
+
+    return antSolution;
 }
 
 Solution StodolaInspiredAntSystem::buildAntSolution() {
@@ -362,43 +523,52 @@ Solution StodolaInspiredAntSystem::buildAntSolution() {
 
         // std::cout << "--------- unvisitedCustomersCount: " << unvisitedCustomersCount << "\n";
         // std::cout << "--------- unvisitedCustomers: ";
-        // for(int i = 0; i < problemInstance.customersCount; i++) {
-        //     if(visitedCustomersIndexes[i] != 1) {
-        //         std::cout << i << " ";
-        //     }
-        // }
-        // std::cout << "\n";
+        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
         int depotIndex = selectDepot(visitedCustomersIndexes, antSolution.routes);
         // std::cout << "------------ depotIndex: " << depotIndex << "\n";
-        // std::cout << "------------ currentVertexIndex: " << antSolution.routes[depotIndex].last() << "\n";
-        // if(antSolution.routes[depotIndex].last() != -1) {
+
+        Route* currentRoute = &antSolution.routes[depotIndex];
+
+        // std::cout << "------------ currentRoute: ";
+        // currentRoute->print();
+        // std::cout << "\n";
+
+        // int currentVertexIndex = currentRoute->last();
+        // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
+        
+        // if(currentVertexIndex != -1) {
         //     std::cout << "------------ currentCluster: ";
-        //     customerClusters[antSolution.routes[depotIndex].last()].print(visitedCustomersIndexes);
-        //     std::cout << "\n";
+        //     customerClusters[currentVertexIndex].print(visitedCustomersIndexes);
 
         //     std::cout << "------------ fullCluster: ";
-        //     customerClusters[antSolution.routes[depotIndex].last()].print();
-        //     std::cout << "\n";
+        //     customerClusters[currentVertexIndex].print();
+        // } else {
+        //     std::cout << "------------ currentCluster: ";
+        //     depotClusters[depotIndex].print(visitedCustomersIndexes);
+
+        //     std::cout << "------------ fullCluster: ";
+        //     depotClusters[depotIndex].print();
         // }
-        // std::cout << "------------ currentRoute: ";
-        // antSolution.routes[depotIndex].print();
-        // std::cout << "\n";
-        Route* currentRoute = &antSolution.routes[depotIndex];
+
         int subClusterIndex = selectSubCluster(visitedCustomersIndexes, currentRoute->last(), depotIndex);
         // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
+
+        // if(subClusterIndex == -1) {
+        // }
         int customerIndex = selectCustomer(visitedCustomersIndexes, currentRoute->last(), depotIndex, subClusterIndex);
         // std::cout << "------------ customerIndex: " << customerIndex << "\n";
 
-        if(antSolution.routes[depotIndex].getCurrentLoad() + problemInstance.customers[customerIndex].demand > problemInstance.depots[depotIndex].truck.capacity) {
-            antSolution.routes[depotIndex].expand();
+        Customer* nextCustomer = &problemInstance.customers[customerIndex];
+        Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
+
+        if( ( currentRoute->getCurrentLoad() + nextCustomer->demand ) > currentTruck->capacity ) {
+            currentRoute->expand();
         }
 
-        antSolution.routes[depotIndex].insert(customerIndex);
-        antSolution.routes[depotIndex].updateCurrentLoad(problemInstance.customers[customerIndex].demand);
+        currentRoute->insert(customerIndex);
+        currentRoute->incrementCurrentLoad(nextCustomer->demand);
         // antSolution.print();
-
-        // currentVertexIndex[depotIndex] = customerIndex;
-        // currentTruckLoad[depotIndex] += problemInstance.customers[customerIndex].demand;
 
         visitedCustomersIndexes[customerIndex] = 1;
         unvisitedCustomersCount--;
@@ -514,6 +684,9 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int
         //     std::cout << primarySubClusterSelectionProbability[index] << "\n";
         // }
 
+        // double probabilitiesSum = sumArray(primarySubClusterSelectionProbability, cluster->primariesCount);
+        // std::cout << "probabilitiesSum: " << probabilitiesSum << "\n";
+
         selectedSubClusterIndex = rouletteWheelSelection(
             primarySubClusterSelectionProbability,
             cluster->primariesCount
@@ -548,13 +721,13 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int
 double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int primarySubClustersCount) {
     
     double* primarySubClusterSelectionProbability = (double*) calloc(primarySubClustersCount, sizeof(double));
-    fillArray(primarySubClusterSelectionProbability, primarySubClustersCount, 0);
+    fillArray(primarySubClusterSelectionProbability, primarySubClustersCount, 0.0);
 
     for(int subClusterIndex = 0; subClusterIndex < primarySubClustersCount; subClusterIndex++) {
         
         // std::cout << "subCluster[" << subClusterIndex << "]: ";
-        // std::cout << heuristicInformationAverage[subClusterIndex] << "]";
-        // std::cout << pheromoneConcentrationAverage[subClusterIndex] << "]\n";
+        // std::cout << heuristicInformationAverage[subClusterIndex] << " - ";
+        // std::cout << pheromoneConcentrationAverage[subClusterIndex] << "\n";
         primarySubClusterSelectionProbability[subClusterIndex] = 1;
         primarySubClusterSelectionProbability[subClusterIndex] *= pow(heuristicInformationAverage[subClusterIndex], distanceProbabilityCoef);
         primarySubClusterSelectionProbability[subClusterIndex] *= pow(pheromoneConcentrationAverage[subClusterIndex], pheromoneProbabilityCoef);
@@ -572,8 +745,8 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromDe
     double* heuristicInformationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
     double* pheromoneConcentrationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
     
-    fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0);
-    fillArray(heuristicInformationAverage, cluster->primariesCount, 0);
+    fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
+    fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
 
     int consideredCustomersCountSum = 0;
     for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
@@ -622,8 +795,8 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromCu
     double* heuristicInformationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
     double* pheromoneConcentrationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
     
-    fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0);
-    fillArray(heuristicInformationAverage, cluster->primariesCount, 0);
+    fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
+    fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
 
     int consideredCustomersCountSum = 0;
     for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
@@ -783,7 +956,7 @@ int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, int v
 double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex) {
 
     double* customerSelectionProbability = (double*) calloc(subCluster->size, sizeof(double));
-    fillArray(customerSelectionProbability, subCluster->size, 0);
+    fillArray(customerSelectionProbability, subCluster->size, 0.0);
 
     for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
 
@@ -801,7 +974,7 @@ double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource
 double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int customerIndex) {
   
     double* customerSelectionProbability = (double*) calloc(subCluster->size, sizeof(double));
-    fillArray(customerSelectionProbability, subCluster->size, 0);
+    fillArray(customerSelectionProbability, subCluster->size, 0.0);
 
     for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
         
@@ -840,12 +1013,21 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** generationEdg
 int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
 
     int edgesCount = 0;
+    // int depotEdges = 0;
     for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
         
         Route* route = &solution.routes[depotIndex];
         for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
 
             SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            
+            // int firstCustomerIndex = subRoute->first();
+            // int lastCustomerIndex = subRoute->last();
+
+            // edgesOccurrenceCount[depotIndex][firstCustomerIndex] += 1;
+            // edgesOccurrenceCount[depotIndex][lastCustomerIndex] += 1;
+            // depotEdges += 1;
+
             for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
                 int customerIndex = subRoute->members[memberIndex];
                 int neighborCustomerIndex = subRoute->members[memberIndex + 1];
@@ -856,18 +1038,17 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
         }
     }
 
+    // std::cout << "edgesCount: " << edgesCount << "\n";
+
     return edgesCount;
 }
 
 void normalizeValues(double* selectionProbability, int candidatesCount) {
     
-    double cumulativeProbability = 0;
-    for(int index = 0; index < candidatesCount; index++) {
-        cumulativeProbability += selectionProbability[index];
-    }
+    double probabilitiesSum = sumArray(selectionProbability, candidatesCount);
 
     for(int index = 0; index < candidatesCount; index++) {
-        selectionProbability[index] /= cumulativeProbability;
+        selectionProbability[index] /= probabilitiesSum;
     }
 }
 
