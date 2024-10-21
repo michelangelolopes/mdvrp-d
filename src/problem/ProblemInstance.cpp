@@ -39,11 +39,11 @@ void ProblemInstance::finalize() {
     }
 
     if(this->customerToCustomerDistanceMatrix != nullptr) {
-        freeMatrix((void**)this->customerToCustomerDistanceMatrix, this->customersCount);
+        freeMatrix(this->customerToCustomerDistanceMatrix, this->customersCount);
     }
 
     if(this->depotToCustomerDistanceMatrix != nullptr) {
-        freeMatrix((void**)this->depotToCustomerDistanceMatrix, this->depotsCount);
+        freeMatrix(this->depotToCustomerDistanceMatrix, this->depotsCount);
     }
 }
 
@@ -253,7 +253,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::createDistanceMatrix() {
 
-    this->customerToCustomerDistanceMatrix = (double**) callocMatrix(customersCount, customersCount, sizeof(double*), sizeof(double));
+    this->customerToCustomerDistanceMatrix = (double**) callocMatrix(customersCount, sizeof(double*), sizeof(double));
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
             customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
