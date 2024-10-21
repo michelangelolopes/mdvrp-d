@@ -141,7 +141,7 @@ void Cluster::print() {
         std::cout << " ";
     }
 
-    std::cout << "|";
+    std::cout << "|\n";
 }
 
 void Cluster::print(int* visitedCustomersIndexes) {
@@ -165,7 +165,7 @@ void Cluster::print(int* visitedCustomersIndexes) {
         std::cout << " ";
     }
 
-    std::cout << "|";
+    std::cout << "|\n";
 
 
 

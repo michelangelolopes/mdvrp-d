@@ -60,6 +60,15 @@ void SubRoute::print() const {
     }
 }
 
+int SubRoute::first() const {
+
+    if(length == 0) {
+        return -1;
+    }
+
+    return members[0];
+}
+
 int SubRoute::last() const {
 
     if(length == 0) {

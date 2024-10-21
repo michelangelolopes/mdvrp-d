@@ -28,7 +28,7 @@ class Route {
         int last();
 
         double getCurrentLoad();
-        void updateCurrentLoad(double demand);
+        void incrementCurrentLoad(double demand);
 
         void print() const;
         void updateDistanceTraveled(ProblemInstance problemInstance, int depotIndex);

@@ -54,7 +54,7 @@ double Route::getCurrentLoad() {
     return subRoutes[size - 1].load;
 }
 
-void Route::updateCurrentLoad(double demand) {
+void Route::incrementCurrentLoad(double demand) {
 
     subRoutes[size - 1].updateLoad(demand);
 }

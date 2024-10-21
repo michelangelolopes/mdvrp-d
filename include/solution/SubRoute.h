@@ -30,6 +30,7 @@ class SubRoute {
         void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
 
         void print() const;
+        int first() const;
         int last() const;
     
     private:
