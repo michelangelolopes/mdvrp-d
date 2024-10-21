@@ -1,6 +1,20 @@
 #include "../../include/solution/SubRoute.h"
 
-void SubRoute::initialize() {
+void SubRoute::init() {
+
+    initializeValues();
+    initializeMembers();
+}
+
+void SubRoute::initializeValues() {
+
+    length = 0;
+    load = 0;
+    distanceTraveled = -1;
+    timeSpent = -1;
+}
+
+void SubRoute::initializeMembers() {
 
     members = (int*) calloc(maxLength, sizeof(int));
 }
@@ -10,16 +24,27 @@ void SubRoute::finalize() {
     free(members);
 }
 
-void SubRoute::shrink() {
-
-    if(length > 0) {
-        members = (int*) realloc(members, length * sizeof(int));
-    }
-}
-
 void SubRoute::insert(int customerIndex) {
 
     members[length++] = customerIndex;
+}
+
+void SubRoute::reset() {
+
+    fillArray(members, length, 0);
+    initializeValues();
+}
+
+void SubRoute::copy(SubRoute subRouteToCopy) {
+
+    length = subRouteToCopy.length;
+    load = subRouteToCopy.load;
+    distanceTraveled = subRouteToCopy.distanceTraveled;
+    timeSpent = subRouteToCopy.timeSpent;
+
+    for(int memberIndex = 0; memberIndex < subRouteToCopy.length; memberIndex++) {
+        members[memberIndex] = subRouteToCopy.members[memberIndex];
+    }
 }
 
 void SubRoute::incrementLoad(double demand) {

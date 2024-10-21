@@ -9,21 +9,22 @@
 class SubRoute {
     public:
         SubRoute(int maxLength) : maxLength(maxLength) {
-            initialize();
+            init();
         }
 
-        int length = 0;
-        double load = 0;
+        int length;
+        double load;
 
-        double distanceTraveled = -1;
-        double timeSpent = -1;
+        double distanceTraveled;
+        double timeSpent;
 
         int maxLength;
         int* members;
 
         void finalize();
-        void shrink();
         void insert(int customerIndex);
+        void reset();
+        void copy(SubRoute subRouteToCopy);
         
         void incrementLoad(double demand);
         void updateDistanceTraveled(ProblemInstance problemInstance);
@@ -34,7 +35,9 @@ class SubRoute {
         int last() const;
     
     private:
-        void initialize();
+        void init();
+        void initializeValues();
+        void initializeMembers();
 };
 
 #endif

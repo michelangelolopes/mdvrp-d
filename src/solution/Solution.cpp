@@ -1,6 +1,21 @@
 #include "../../include/solution/Solution.h"
 
-void Solution::initialize(int subRouteMaxLength) {
+void Solution::init(int subRouteMaxLength) {
+
+    initializeValues();
+    initializeRoutes(subRouteMaxLength);
+}
+
+void Solution::initializeValues() {
+
+    fitness = -1;
+    totalDistanceTraveled = -1;
+    totalTimeSpent = -1;
+    maxDistanceTraveled = -1;
+    maxTimeSpent = -1;
+}
+
+void Solution::initializeRoutes(int subRouteMaxLength) {
 
     this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
 
@@ -16,6 +31,30 @@ void Solution::finalize() {
     }
 
     free(routes);
+}
+
+void Solution::reset() {
+
+    // this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        this->routes[depotIndex].reset();
+    }
+
+    initializeValues();
+}
+
+void Solution::copy(Solution solutionToCopy) {
+
+    fitness = solutionToCopy.fitness;
+    totalDistanceTraveled = solutionToCopy.totalDistanceTraveled;
+    totalTimeSpent = solutionToCopy.totalTimeSpent;
+    maxDistanceTraveled = solutionToCopy.maxDistanceTraveled;
+    maxTimeSpent = solutionToCopy.maxTimeSpent;
+
+    for(int depotIndex = 0; depotIndex < solutionToCopy.depotsCount; depotIndex++) {
+        routes[depotIndex].copy(solutionToCopy.routes[depotIndex]);
+    }
 }
 
 void Solution::updateFitness(ProblemInstance problemInstance) {

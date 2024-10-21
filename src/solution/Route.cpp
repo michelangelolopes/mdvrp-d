@@ -1,6 +1,20 @@
 #include "../../include/solution/Route.h"
 
-void Route::initialize(int subRouteMaxLength) {
+void Route::init(int subRouteMaxLength) {
+
+    maxSize = 1;
+    initializeValues();
+    initializeSubRoutes(subRouteMaxLength);
+}
+
+void Route::initializeValues() {
+
+    size = 1;
+    distanceTraveled = -1;
+    timeSpent = -1;
+}
+
+void Route::initializeSubRoutes(int subRouteMaxLength) {
 
     subRoutes = (SubRoute*) calloc(size, sizeof(SubRoute));
     initializeNextSubRoute(subRouteMaxLength);
@@ -26,16 +40,14 @@ void Route::finalize() {
 
 void Route::expand() {
 
-    subRoutes = (SubRoute*) realloc(subRoutes, ++size * sizeof(SubRoute));
+    size++;
 
-    int subRouteMaxLength = subRoutes[0].maxLength;
-    initializeNextSubRoute(subRouteMaxLength);
-}
+    if(size > maxSize) {
 
-void Route::shrink() {
-
-    for(int index = 0; index < size; index++) {
-        subRoutes[index].shrink();
+        subRoutes = (SubRoute*) realloc(subRoutes, size * sizeof(SubRoute));
+        
+        int subRouteMaxLength = subRoutes[0].maxLength;
+        initializeNextSubRoute(subRouteMaxLength);
     }
 }
 
@@ -47,6 +59,47 @@ void Route::insert(int customerIndex) {
 int Route::last() {
 
     return subRoutes[size - 1].last();
+}
+
+void Route::reset() {
+
+    // this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
+
+    if(size > maxSize) {
+        maxSize = size;
+    }
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        this->subRoutes[subRouteIndex].reset();
+    }
+
+    initializeValues();
+}
+
+void Route::copy(Route routeToCopy) {
+
+    if(routeToCopy.maxSize > maxSize) {
+        maxSize = routeToCopy.size;  
+    }
+
+    if(routeToCopy.size > size) {
+
+        subRoutes = (SubRoute*) realloc(subRoutes, routeToCopy.size * sizeof(SubRoute));
+
+        int subRouteMaxLength = subRoutes[0].maxLength;
+        for(int subRouteIndex = size; subRouteIndex < routeToCopy.size; subRouteIndex++) {
+            subRoutes[subRouteIndex] = SubRoute(subRouteMaxLength);
+        }
+
+        size = routeToCopy.size;
+    }
+
+    distanceTraveled = routeToCopy.distanceTraveled;
+    timeSpent = routeToCopy.timeSpent;
+
+    for(int subRouteIndex = 0; subRouteIndex < routeToCopy.size; subRouteIndex++) {
+        subRoutes[subRouteIndex].copy(routeToCopy.subRoutes[subRouteIndex]);
+    }
 }
 
 double Route::getCurrentLoad() {

@@ -31,9 +31,9 @@ int main(int argc, char** argv) {
     double pheromoneProbabilityCoef = 1; //1
     double distanceProbabilityCoef = 1; //1
     int maxIterations = 100000;
-    int maxIterationsWithoutImprovement = 8000; //4000
-    double maxOptimizationTime = 20000; //20000
-    double minInformationEntropyCoef = 0.65; //0.1
+    int maxIterationsWithoutImprovement = 10000; //4000
+    double maxOptimizationTime = 240; //20000
+    double minInformationEntropyCoef = 0.6; //0.1
 
     auto start = std::chrono::high_resolution_clock::now();
 
