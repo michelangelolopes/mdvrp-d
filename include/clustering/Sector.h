@@ -2,7 +2,7 @@
 #define SECTOR_H
 
 #include <iostream>
-#include "../problem/Position2D.h"
+#include "../general/Position2D.h"
 
 class Sector {
     public:

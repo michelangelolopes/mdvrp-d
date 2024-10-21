@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "../enum/MinimizationTypeEnum.h"
 #include "../problem/ProblemInstance.h"
 
-#include "MinimizationTypeEnum.h"
 #include "Route.h"
 
 class Solution {

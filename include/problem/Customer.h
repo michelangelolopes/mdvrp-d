@@ -2,7 +2,7 @@
 #define CUSTOMER_H
 
 #include <iostream>
-#include "Position2D.h"
+#include "../general/Position2D.h"
 
 class Customer {
     public:
