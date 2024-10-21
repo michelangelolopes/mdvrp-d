@@ -1,10 +1,10 @@
 #ifndef PROBLEM_INSTANCE_H
 #define PROBLEM_INSTANCE_H
 
-// #include <cstddef>
-// #include "../utils/FileUtils.h"
 #include <fstream>
 #include <string>
+
+#include "../enum/ProblemTypeEnum.h"
 
 #include "Customer.h"
 #include "Depot.h"
@@ -13,11 +13,13 @@ using namespace std;
 
 class ProblemInstance {
     public:
-        ProblemInstance(string datasetFilename) {
+        ProblemInstance(string datasetFilename, ProblemType problemType) : 
+        problemType(problemType)
+        {
             create(datasetFilename);
         }
 
-        string name;
+        ProblemType problemType;
         
         Depot* depots = nullptr;
         int depotsCount;
@@ -32,12 +34,13 @@ class ProblemInstance {
         void finalize();
         void print(int printDistanceMatrix);
 
+        void load_MDVRPD(string filename);
         int loadGeneralInfo(string key, string value);
         int loadObjectInfo(string key, string value);
         int loadDepotInfo(string object, string info, string value);
         int loadCustomerInfo(string object, string info, string value);
 
-        void createDistanceMatrix();
+        void createDistanceMatrices();
 };
 
 int extractIndex(istringstream& stream);

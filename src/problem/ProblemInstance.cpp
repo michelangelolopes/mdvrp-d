@@ -9,24 +9,22 @@
 
 void ProblemInstance::create(string filename) {
 
-    ifstream file;
-    file.open(filename);
-
-    string line;
-    while(std::getline(file, line)) {
-        int delimiterIndex = line.find('=');
-
-        if(delimiterIndex != -1) {
-            string key = line.substr(0, delimiterIndex - 1);
-            string value = line.substr(delimiterIndex + 2, line.length());
-
-            if(!loadGeneralInfo(key, value)) {
-                loadObjectInfo(key, value);
-            }
-        }
+    switch(problemType) {
+        case VRP:
+            std::cout << "VRP\n";
+            break;
+        case MDVRP:
+            std::cout << "MDVRP\n";
+            break;
+        case VRP_D:
+            std::cout << "VRP-D\n";
+            break;
+        case MDVRP_D:
+            load_MDVRPD(filename);
+            break;                                
     }
 
-    createDistanceMatrix();
+    createDistanceMatrices();
 }
 
 void ProblemInstance::finalize() {
@@ -51,7 +49,21 @@ void ProblemInstance::print(int printDistanceMatrix) {
 
     std::cout << "\n--------------------------------------------------\n";
 
-    std::cout << name << " - ";
+    switch(problemType) {
+        case VRP:
+            std::cout << "VRP - ";
+            break;
+        case MDVRP:
+            std::cout << "MDVRP - ";
+            break;
+        case VRP_D:
+            std::cout << "VRP-D - ";
+            break;
+        case MDVRP_D:
+            std::cout << "MDVRP-D - ";
+            break;                                
+    }
+    
     std::cout << "depotsCount: " << depotsCount << " - ";
     std::cout << "customersCount: " << customersCount << "\n";
 
@@ -98,15 +110,31 @@ void ProblemInstance::print(int printDistanceMatrix) {
     }
 }
 
+void ProblemInstance::load_MDVRPD(string filename) {
+
+    ifstream file;
+    file.open(filename);
+
+    string line;
+    while(std::getline(file, line)) {
+        int delimiterIndex = line.find('=');
+
+        if(delimiterIndex != -1) {
+            string key = line.substr(0, delimiterIndex - 1);
+            string value = line.substr(delimiterIndex + 2, line.length());
+
+            if(!loadGeneralInfo(key, value)) {
+                loadObjectInfo(key, value);
+            }
+        }
+    }
+}
+
 int ProblemInstance::loadGeneralInfo(string key, string value) {
 
     istringstream valueStream;
     valueStream.str(value);
     
-    if(key.compare("Problem") == 0) {
-        valueStream >> name;
-        return 1;
-    } 
     
     if(key.compare("NumberOfDepots") == 0) {
         valueStream >> depotsCount;
@@ -251,7 +279,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
     return 0;
 }
 
-void ProblemInstance::createDistanceMatrix() {
+void ProblemInstance::createDistanceMatrices() {
 
     this->customerToCustomerDistanceMatrix = (double**) callocMatrix(customersCount, sizeof(double*), sizeof(double));
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {

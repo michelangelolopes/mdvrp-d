@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     // }
 
 
-    ProblemInstance problemInstance(datasetFilePath);
+    ProblemInstance problemInstance(datasetFilePath, ProblemType::MDVRP_D);
 
     int antsCount = 192; //192;
     double pheromoneUpdateCoef = 3; //3
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     double pheromoneProbabilityCoef = 1; //1
     double distanceProbabilityCoef = 1; //1
     int maxIterations = 100000;
-    int maxIterationsWithoutImprovement = 4000; //4000
+    int maxIterationsWithoutImprovement = 8000; //4000
     double maxOptimizationTime = 20000; //20000
     double minInformationEntropyCoef = 0.65; //0.1
 
