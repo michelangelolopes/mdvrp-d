@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 
+#include "../enum/MinimizationTypeEnum.h"
 #include "../enum/ProblemTypeEnum.h"
 
 #include "Customer.h"
@@ -20,6 +21,7 @@ class ProblemInstance {
         }
 
         ProblemType problemType;
+        MinimizationType minimizationType;
         
         Depot* depots = nullptr;
         int depotsCount;
@@ -34,7 +36,10 @@ class ProblemInstance {
         void finalize();
         void print(int printDistanceMatrix);
 
-        void load_MDVRPD(string filename);
+    private:
+        void loadCordeauInstance(string filename);
+
+        void loadStodolaInstance(string filename);
         int loadGeneralInfo(string key, string value);
         int loadObjectInfo(string key, string value);
         int loadDepotInfo(string object, string info, string value);

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "../../include/enum/MinimizationTypeEnum.h"
 #include "../../include/utils/ArrayUtils.h"
 #include "../../include/utils/MathUtils.h"
 
@@ -14,13 +15,15 @@ void ProblemInstance::create(string filename) {
             std::cout << "VRP\n";
             break;
         case MDVRP:
-            std::cout << "MDVRP\n";
+            loadCordeauInstance(filename);
+            minimizationType = TOTAL_DISTANCE_TRAVELED;
             break;
         case VRP_D:
             std::cout << "VRP-D\n";
             break;
         case MDVRP_D:
-            load_MDVRPD(filename);
+            loadStodolaInstance(filename);
+            minimizationType = MAX_TIME_SPENT;
             break;                                
     }
 
@@ -81,10 +84,7 @@ void ProblemInstance::print(int printDistanceMatrix) {
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         std::cout << "Customer[" << customerIndex << "] - ";
         customers[customerIndex].print();
-
-        if(customerIndex < customersCount - 1) {
-            std::cout << "------------\n";
-        }
+        std::cout << "\n";
     }
 
     if(printDistanceMatrix) {
@@ -110,7 +110,73 @@ void ProblemInstance::print(int printDistanceMatrix) {
     }
 }
 
-void ProblemInstance::load_MDVRPD(string filename) {
+void ProblemInstance::loadCordeauInstance(string filename) {
+
+    ifstream file;
+    file.open(filename);
+
+    string line;
+    std::getline(file, line);
+    
+    istringstream valueStream(line);
+
+    int temp;
+    valueStream >> temp; //problem type
+    valueStream >> temp; //vehicle count
+    valueStream >> customersCount;
+    valueStream >> depotsCount;
+
+    depots = (Depot*) calloc(depotsCount, sizeof(Depot));
+    customers = (Customer*) calloc(customersCount, sizeof(Customer));
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        std::getline(file, line);
+        valueStream.str(line);
+
+        valueStream >> depots[depotIndex].truck.routeMaxDuration;
+        valueStream >> depots[depotIndex].truck.capacity;
+    }
+
+    for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+        std::getline(file, line);
+        valueStream.str(line);
+
+        valueStream >> temp; //customer number
+
+        int x;
+        int y;
+        valueStream >> x >> y;
+        customers[customerIndex].position = Position2D(x, y);
+
+        valueStream >> temp; //service duration
+        valueStream >> customers[customerIndex].demand;
+
+        valueStream >> temp; //frequency of visit
+        
+        int visitCombinationsCount;
+        valueStream >> visitCombinationsCount; //number of visit combinations
+
+        for(int i = 0; i < visitCombinationsCount; i++) {
+            valueStream >> temp;
+        }
+    }
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        std::getline(file, line);
+        valueStream.str(line);
+
+        valueStream >> temp; //depot number
+
+        int x;
+        int y;
+        valueStream >> x >> y;
+        depots[depotIndex].position = Position2D(x, y);
+
+        valueStream >> temp >> temp >> temp >> temp;
+    }
+}
+
+void ProblemInstance::loadStodolaInstance(string filename) {
 
     ifstream file;
     file.open(filename);
