@@ -1,12 +1,12 @@
-#ifndef ROUTE_H
-#define ROUTE_H
+#ifndef ROUTE_HPP
+#define ROUTE_HPP
 
 #include <cstdlib>
 #include <iostream>
 
-#include "../problem/ProblemInstance.h"
+#include "../problem/ProblemInstance.hpp"
 
-#include "SubRoute.h"
+#include "SubRoute.hpp"
 
 class Route {
     public:

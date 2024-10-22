@@ -1,8 +1,8 @@
-#include "../../include/clustering/Frame.h"
+#include "../../include/clustering/Frame.hpp"
 
 #include <cmath>
 #include <iostream>
-#include "../../include/utils/ArrayUtils.h"
+#include "../../include/utils/ArrayUtils.hpp"
 
 void Frame::create(ProblemInstance problemInstance) {
 

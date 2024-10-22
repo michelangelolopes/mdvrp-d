@@ -1,13 +1,13 @@
-#ifndef SOLUTION_H
-#define SOLUTION_H
+#ifndef SOLUTION_HPP
+#define SOLUTION_HPP
 
 #include <cstdlib>
 #include <iostream>
 
-#include "../enum/MinimizationTypeEnum.h"
-#include "../problem/ProblemInstance.h"
+#include "../enum/MinimizationTypeEnum.hpp"
+#include "../problem/ProblemInstance.hpp"
 
-#include "Route.h"
+#include "Route.hpp"
 
 class Solution {
     public:

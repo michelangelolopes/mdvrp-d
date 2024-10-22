@@ -1,8 +1,8 @@
-#ifndef CUSTOMER_H
-#define CUSTOMER_H
+#ifndef CUSTOMER_HPP
+#define CUSTOMER_HPP
 
 #include <iostream>
-#include "../general/Position2D.h"
+#include "../general/Position2D.hpp"
 
 class Customer {
     public:

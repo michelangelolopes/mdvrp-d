@@ -1,14 +1,14 @@
-#ifndef PROBLEM_INSTANCE_H
-#define PROBLEM_INSTANCE_H
+#ifndef PROBLEM_INSTANCE_HPP
+#define PROBLEM_INSTANCE_HPP
 
 #include <fstream>
 #include <string>
 
-#include "../enum/MinimizationTypeEnum.h"
-#include "../enum/ProblemTypeEnum.h"
+#include "../enum/MinimizationTypeEnum.hpp"
+#include "../enum/ProblemTypeEnum.hpp"
 
-#include "Customer.h"
-#include "Depot.h"
+#include "Customer.hpp"
+#include "Depot.hpp"
 
 using namespace std;
 

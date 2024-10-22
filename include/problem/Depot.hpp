@@ -1,14 +1,14 @@
-#ifndef DEPOT_H
-#define DEPOT_H
+#ifndef DEPOT_HPP
+#define DEPOT_HPP
 
 #include <cstdlib>
 #include <iostream>
 
-#include "../general/Position2D.h"
-#include "Truck.h"
-#include "Uav.h"
+#include "../general/Position2D.hpp"
+#include "Truck.hpp"
+#include "Uav.hpp"
 
-#include "../utils/ArrayUtils.h"
+#include "../utils/ArrayUtils.hpp"
 
 class Depot {
     public:

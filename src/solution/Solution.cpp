@@ -1,4 +1,4 @@
-#include "../../include/solution/Solution.h"
+#include "../../include/solution/Solution.hpp"
 
 void Solution::init(int subRouteMaxLength) {
 

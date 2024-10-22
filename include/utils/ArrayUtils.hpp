@@ -1,5 +1,5 @@
-#ifndef ARRAY_UTILS_H
-#define ARRAY_UTILS_H
+#ifndef ARRAY_UTILS_HPP
+#define ARRAY_UTILS_HPP
 
 #include <cstdlib>
 #include <iostream>

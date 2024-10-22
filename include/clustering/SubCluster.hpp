@@ -1,5 +1,5 @@
-#ifndef SUB_CLUSTER_H
-#define SUB_CLUSTER_H
+#ifndef SUB_CLUSTER_HPP
+#define SUB_CLUSTER_HPP
 
 class SubCluster {
     public:

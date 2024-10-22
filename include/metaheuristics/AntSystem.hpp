@@ -1,8 +1,8 @@
-#ifndef ANT_SYSTEM_H
-#define ANT_SYSTEM_H
+#ifndef ANT_SYSTEM_HPP
+#define ANT_SYSTEM_HPP
 
-#include "../problem/ProblemInstance.h"
-#include "../solution/Solution.h"
+#include "../problem/ProblemInstance.hpp"
+#include "../solution/Solution.hpp"
 
 class AntSystem {
     public:

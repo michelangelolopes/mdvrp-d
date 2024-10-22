@@ -1,5 +1,5 @@
-#ifndef POSITION_2D_H
-#define POSITION_2D_H
+#ifndef POSITION_2D_HPP
+#define POSITION_2D_HPP
 
 #include <iostream>
 

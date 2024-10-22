@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 
-#include "../include/metaheuristics/StodolaInspiredAntSystem.h"
-#include "../include/problem/ProblemInstance.h"
+#include "../include/metaheuristics/StodolaInspiredAntSystem.hpp"
+#include "../include/problem/ProblemInstance.hpp"
 
 using namespace std;
 

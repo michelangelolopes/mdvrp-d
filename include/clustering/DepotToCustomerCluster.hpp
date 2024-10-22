@@ -1,9 +1,9 @@
-#ifndef DEPOT_CUSTOMER_CLUSTER_H
-#define DEPOT_CUSTOMER_CLUSTER_H
+#ifndef DEPOT_CUSTOMER_CLUSTER_HPP
+#define DEPOT_CUSTOMER_CLUSTER_HPP
 
-#include "../problem/ProblemInstance.h"
-#include "Cluster.h"
-#include "Frame.h"
+#include "../problem/ProblemInstance.hpp"
+#include "Cluster.hpp"
+#include "Frame.hpp"
 
 class DepotToCustomerCluster : public Cluster {
     public:

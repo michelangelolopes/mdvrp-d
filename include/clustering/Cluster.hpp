@@ -1,12 +1,12 @@
-#ifndef CLUSTER_H
-#define CLUSTER_H
+#ifndef CLUSTER_HPP
+#define CLUSTER_HPP
 
 #include <cmath>
 
-#include "../problem/ProblemInstance.h"
+#include "../problem/ProblemInstance.hpp"
 
-#include "Frame.h"
-#include "SubCluster.h"
+#include "Frame.hpp"
+#include "SubCluster.hpp"
 
 class Cluster {
     public:

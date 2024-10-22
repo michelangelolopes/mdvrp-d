@@ -1,4 +1,4 @@
-#include "../../include/utils/ArrayUtils.h"
+#include "../../include/utils/ArrayUtils.hpp"
 
 void** callocMatrix(int count, int pointerSize, int objectSize) {
 

@@ -1,4 +1,4 @@
-#include "../../include/clustering/SubCluster.h"
+#include "../../include/clustering/SubCluster.hpp"
 
 #include <cstdlib>
 #include <iostream>

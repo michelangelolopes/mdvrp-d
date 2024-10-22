@@ -1,12 +1,12 @@
-#include "../../include/problem/ProblemInstance.h"
+#include "../../include/problem/ProblemInstance.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-#include "../../include/enum/MinimizationTypeEnum.h"
-#include "../../include/utils/ArrayUtils.h"
-#include "../../include/utils/MathUtils.h"
+#include "../../include/enum/MinimizationTypeEnum.hpp"
+#include "../../include/utils/ArrayUtils.hpp"
+#include "../../include/utils/MathUtils.hpp"
 
 void ProblemInstance::create(string filename) {
 

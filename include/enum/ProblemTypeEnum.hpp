@@ -1,5 +1,5 @@
-#ifndef PROBLEM_TYPE_ENUM_H
-#define PROBLEM_TYPE_ENUM_H
+#ifndef PROBLEM_TYPE_ENUM_HPP
+#define PROBLEM_TYPE_ENUM_HPP
 
 enum ProblemType {
     VRP,

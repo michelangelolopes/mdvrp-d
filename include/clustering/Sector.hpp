@@ -1,8 +1,8 @@
-#ifndef SECTOR_H
-#define SECTOR_H
+#ifndef SECTOR_HPP
+#define SECTOR_HPP
 
 #include <iostream>
-#include "../general/Position2D.h"
+#include "../general/Position2D.hpp"
 
 class Sector {
     public:

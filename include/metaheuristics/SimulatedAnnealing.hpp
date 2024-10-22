@@ -1,5 +1,5 @@
-#ifndef SIMULATED_ANNEALING_H
-#define SIMULATED_ANNEALING_H
+#ifndef SIMULATED_ANNEALING_HPP
+#define SIMULATED_ANNEALING_HPP
 
 class SimulatedAnnealing {
     public:

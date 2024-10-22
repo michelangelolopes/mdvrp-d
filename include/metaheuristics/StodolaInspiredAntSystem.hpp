@@ -1,12 +1,12 @@
-#ifndef STODOLA_INSPIRED_ANT_SYSTEM_H
-#define STODOLA_INSPIRED_ANT_SYSTEM_H
+#ifndef STODOLA_INSPIRED_ANT_SYSTEM_HPP
+#define STODOLA_INSPIRED_ANT_SYSTEM_HPP
 
-#include "../clustering/Cluster.h"
-#include "../clustering/CustomerToCustomerCluster.h"
-#include "../clustering/DepotToCustomerCluster.h"
-#include "../clustering/Frame.h"
-#include "AntSystem.h"
-#include "SimulatedAnnealing.h"
+#include "../clustering/Cluster.hpp"
+#include "../clustering/CustomerToCustomerCluster.hpp"
+#include "../clustering/DepotToCustomerCluster.hpp"
+#include "../clustering/Frame.hpp"
+#include "AntSystem.hpp"
+#include "SimulatedAnnealing.hpp"
 
 class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
     public:

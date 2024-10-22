@@ -1,4 +1,4 @@
-#include "../../include/clustering/CustomerToCustomerCluster.h"
+#include "../../include/clustering/CustomerToCustomerCluster.hpp"
 
 int CustomerToCustomerCluster::findClosestCustomer(ProblemInstance problemInstance, int customerIndex, int* consideredCustomersIndexes) {
 

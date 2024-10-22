@@ -1,9 +1,9 @@
-#ifndef CUSTOMER_CUSTOMER_CLUSTER_H
-#define CUSTOMER_CUSTOMER_CLUSTER_H
+#ifndef CUSTOMER_CUSTOMER_CLUSTER_HPP
+#define CUSTOMER_CUSTOMER_CLUSTER_HPP
 
-#include "../problem/ProblemInstance.h"
-#include "Cluster.h"
-#include "Frame.h"
+#include "../problem/ProblemInstance.hpp"
+#include "Cluster.hpp"
+#include "Frame.hpp"
 
 class CustomerToCustomerCluster : public Cluster {
     public:

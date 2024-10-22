@@ -1,11 +1,11 @@
-#include "../../include/clustering/Cluster.h"
+#include "../../include/clustering/Cluster.hpp"
 
 #include <cmath>
 #include <iostream>
 
-#include "../../include/clustering/Frame.h"
-#include "../../include/utils/ArrayUtils.h"
-#include "../../include/utils/MathUtils.h"
+#include "../../include/clustering/Frame.hpp"
+#include "../../include/utils/ArrayUtils.hpp"
+#include "../../include/utils/MathUtils.hpp"
 
 void Cluster::create(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex) {
     

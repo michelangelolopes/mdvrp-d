@@ -1,8 +1,8 @@
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef FRAME_HPP
+#define FRAME_HPP
 
-#include "../problem/ProblemInstance.h"
-#include "Sector.h"
+#include "../problem/ProblemInstance.hpp"
+#include "Sector.hpp"
 
 class Frame : public Sector {
     public:

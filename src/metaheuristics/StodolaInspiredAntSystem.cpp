@@ -1,4 +1,4 @@
-#include "../../include/metaheuristics/StodolaInspiredAntSystem.h"
+#include "../../include/metaheuristics/StodolaInspiredAntSystem.hpp"
 
 #include <chrono>
 #include <cmath>    // ceil()
@@ -6,7 +6,7 @@
 #include <ctime>    // time()
 #include <iostream>
 
-#include "../../include/utils/ArrayUtils.h"
+#include "../../include/utils/ArrayUtils.hpp"
 
 void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClusterMaxSize) {
     createClusters(primarySubClustersMaxCount, subClusterMaxSize);

@@ -1,8 +1,8 @@
-#ifndef TRUCK_H
-#define TRUCK_H
+#ifndef TRUCK_HPP
+#define TRUCK_HPP
 
 #include <iostream>
-#include "Vehicle.h"
+#include "Vehicle.hpp"
 
 class Truck : public Vehicle {
     public:

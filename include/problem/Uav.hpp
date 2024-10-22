@@ -1,8 +1,8 @@
-#ifndef UAV_H
-#define UAV_H
+#ifndef UAV_HPP
+#define UAV_HPP
 
 #include <iostream>
-#include "Vehicle.h"
+#include "Vehicle.hpp"
 
 class Uav : public Vehicle {
     public:
