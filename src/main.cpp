@@ -9,15 +9,11 @@ using namespace std;
 
 int main(int argc, char** argv) {
 
-    string datasetFilePath = "../Dataset/2_MDVRP-D/MDVRP-D-Benchmarks/p01-D.mdvrp-d";
-    // if(argc >= 2) {
-    //     datasetFilePath += argv[1];
-    //     std::cout << datasetFilePath << '\n';
-    // }
-    string mdvrpInstance = "../p01";
+    string mdvrpdInstance = "./dataset/mdvrpd/p01-D.mdvrp-d";
+    ProblemInstance problemInstanceMDVRPD(mdvrpdInstance, ProblemType::MDVRP_D);
+    
+    string mdvrpInstance = "./dataset/mdvrp/p01";
     ProblemInstance problemInstanceMDVRP(mdvrpInstance, ProblemType::MDVRP);
-
-    ProblemInstance problemInstance(datasetFilePath, ProblemType::MDVRP_D);
 
     int antsCount = 192; //192;
     double pheromoneUpdateCoef = 3; //3
@@ -39,7 +35,7 @@ int main(int argc, char** argv) {
     auto start = std::chrono::high_resolution_clock::now();
 
     StodolaInspiredAntSystem antSystem(
-            problemInstanceMDVRP, 
+            problemInstanceMDVRPD, 
             antsCount, 
             pheromoneUpdateCoef, 
             temperatureUpdateCoef,
