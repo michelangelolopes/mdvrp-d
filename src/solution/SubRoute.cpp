@@ -31,7 +31,6 @@ void SubRoute::insert(int customerIndex) {
 
 void SubRoute::reset() {
 
-    fillArray(members, length, 0);
     initializeValues();
 }
 

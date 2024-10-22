@@ -42,8 +42,9 @@ void Route::expand() {
 
     size++;
 
-    if(size > maxSize) {
-
+    if(size > maxSize) { //realloc only if its is not allocatted yet
+        
+        maxSize = size;
         subRoutes = (SubRoute*) realloc(subRoutes, size * sizeof(SubRoute));
         
         int subRouteMaxLength = subRoutes[0].maxLength;
@@ -63,14 +64,8 @@ int Route::last() {
 
 void Route::reset() {
 
-    // this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
-
-    if(size > maxSize) {
-        maxSize = size;
-    }
-
-    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
-        this->subRoutes[subRouteIndex].reset();
+    for(int subRouteIndex = 0; subRouteIndex < maxSize; subRouteIndex++) {
+        subRoutes[subRouteIndex].reset();
     }
 
     initializeValues();
@@ -78,22 +73,19 @@ void Route::reset() {
 
 void Route::copy(Route routeToCopy) {
 
-    if(routeToCopy.maxSize > maxSize) {
-        maxSize = routeToCopy.size;  
-    }
-
-    if(routeToCopy.size > size) {
+    if(routeToCopy.size > maxSize) {
 
         subRoutes = (SubRoute*) realloc(subRoutes, routeToCopy.size * sizeof(SubRoute));
 
         int subRouteMaxLength = subRoutes[0].maxLength;
-        for(int subRouteIndex = size; subRouteIndex < routeToCopy.size; subRouteIndex++) {
+        for(int subRouteIndex = maxSize; subRouteIndex < routeToCopy.size; subRouteIndex++) {
             subRoutes[subRouteIndex] = SubRoute(subRouteMaxLength);
         }
 
-        size = routeToCopy.size;
+        maxSize = routeToCopy.size;
     }
 
+    size = routeToCopy.size;
     distanceTraveled = routeToCopy.distanceTraveled;
     timeSpent = routeToCopy.timeSpent;
 
