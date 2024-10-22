@@ -280,9 +280,6 @@ void StodolaInspiredAntSystem::run() {
     int generationEdgesCount = 0;
     int** generationEdgesOccurrenceCount = (int**) callocMatrix(problemInstance.customersCount, sizeof(int*), sizeof(int));
     int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
-
-    // std::cout << "visitedCustomersIndexes (equals 0): \n";
-    // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
     
     int globalImprovementsCount = 0;
     int intervalImprovementsCount = 0;
@@ -300,63 +297,27 @@ void StodolaInspiredAntSystem::run() {
     double informationEntropyCoef = -1;
 
     //initial solution
-    Solution* generationBestSolution = (Solution*) malloc(sizeof(Solution));
     bestSolution = (Solution*) malloc(sizeof(Solution));
 
-    // Solution antSolution = buildAntSolution(visitedCustomersIndexes);
-    // generationBestSolution[0] = antSolution;
-    // generationBestSolution[0] = buildAntSolution(visitedCustomersIndexes);
-    // bestSolution[0] = generationBestSolution[0];
+    bestSolution[0] = Solution (
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
 
-    // (antSolution.routes)
-
-    // antSolution.routes = 
-
-    // newSolution = routes(&currentRoutes);
-
-    // Solution initialSolution(
-    //     problemInstance.depotsCount, 
-    //     MinimizationType::MAX_TIME_SPENT,
-    //     problemInstance.customersCount
-    // );
-
-    // Solution firstAntSolution(
-    //     problemInstance.depotsCount, 
-    //     MinimizationType::MAX_TIME_SPENT,
-    //     problemInstance.customersCount
-    // );
+    buildAntRoutes(bestSolution[0], visitedCustomersIndexes);
 
     Solution antSolution(
-        problemInstance.depotsCount, 
-        MinimizationType::MAX_TIME_SPENT,
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
         problemInstance.customersCount
     );
 
-    // Solution generationAntSolution(
-    //     problemInstance.depotsCount, 
-    //     MinimizationType::MAX_TIME_SPENT,
-    //     problemInstance.customersCount
-    // );
-
-    // Solution bestAntSolution(
-    //     problemInstance.depotsCount, 
-    //     MinimizationType::MAX_TIME_SPENT,
-    //     problemInstance.customersCount
-    // );
-
-    generationBestSolution[0] = Solution (
-        problemInstance.depotsCount, 
-        MinimizationType::MAX_TIME_SPENT,
+    Solution generationBestSolution = Solution (
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
         problemInstance.customersCount
     );
-
-    bestSolution[0] = Solution (
-        problemInstance.depotsCount, 
-        MinimizationType::MAX_TIME_SPENT,
-        problemInstance.customersCount
-    );
-    buildAntRoutes(bestSolution[0], visitedCustomersIndexes);
-    // exit(0);
 
     while(!hasAchievedTerminationCondition(
         iterationsCount, 
@@ -368,85 +329,37 @@ void StodolaInspiredAntSystem::run() {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
 
-        // std::cout << "visitedCustomersIndexes (equals 0): \n";
-        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
-
-        // std::cout << "visitedCustomersIndexes (equals 1): \n";
-        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 1);
-        
         //first ant
-        // Route* antRoutes = Solution::initializeRoutes();
-        // Route* generationRoutes;
-        // Route* bestRoutes;
-
-        // Solution.routes.subRoutes
-        // Solution antSolution(
-        //     problemInstance.depotsCount, 
-        //     MinimizationType::MAX_TIME_SPENT
-        // );
-
-        // antRoutes = 
-
-        // Solution firstSolution(
-        //     problemInstance.depotsCount,
-        //     MinimizationType::MAX_TIME_SPENT
-        // );
-
-        //first ant
-        buildAntRoutes(generationBestSolution[0], visitedCustomersIndexes);
-        generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution[0], generationEdgesOccurrenceCount);
+        // std::cout << "------ ant: " << 0 << "\n";
+        buildAntRoutes(generationBestSolution, visitedCustomersIndexes);
+        generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
 
             // std::cout << "------ ant: " << antIndex << "\n";
 
-            // std::cout << "visitedCustomersIndexes (equals 0): \n";
-            // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
-
-            // std::cout << "visitedCustomersIndexes (equals 1): \n";
-            // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 1);
-
             buildAntRoutes(antSolution, visitedCustomersIndexes);
-            // if( (iterationsCount + 1) % 1000 == 0) {
-            //     Solution solution = buildAntSolutionDebug();
-            //     antSolution = &solution;
-            // } else {
-            //     Solution solution = buildAntSolution();
-            //     antSolution = &solution;
-            // }
-            
-            // std::cout << antSolution.fitness << "\n";
-
-            //TODO: it could be needed to use the depot-customer edges
             generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
 
-            if(antSolution.fitness < generationBestSolution->fitness) {
-                // generationBestSolution->finalize();
-                generationBestSolution[0].copy(antSolution);
+            if(antSolution.fitness < generationBestSolution.fitness) {
+                generationBestSolution.copy(antSolution);
             }
-            // else {
-            //     antSolution.finalize();
-            // }
         }
 
         //TODO: local optimization
         // if(iterIndex % localOptimizationFrequency == 0) {
         // }
 
-        if(generationBestSolution->fitness < bestSolution->fitness) {
-            // bestSolution->finalize();
-            bestSolution[0].copy(generationBestSolution[0]);
-            
-            // //std::cout << "generation " << iterIndex << " - best solution\n";
-            // bestSolution->print();
+        if(generationBestSolution.fitness < bestSolution->fitness) {
+
+            bestSolution[0].copy(generationBestSolution);
+            reinforcePheromoneMatrix(bestSolution);
+
             intervalImprovementsCount += 1;
             iterationsWithoutImprovementCount = 0;
-
-            reinforcePheromoneMatrix(bestSolution);
         } else {
-            reinforcePheromoneMatrixWithProbability(generationBestSolution);
-            // generationBestSolution->finalize();
+            reinforcePheromoneMatrixWithProbability(&generationBestSolution);
         }
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
@@ -459,7 +372,6 @@ void StodolaInspiredAntSystem::run() {
 
         iterationsCount += 1;
         iterationsWithoutImprovementCount += 1;
-
         generationEdgesCount = 0;
 
         fillMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount, 0);
@@ -467,7 +379,7 @@ void StodolaInspiredAntSystem::run() {
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;
 
-        if(iterationsCount % 1000 == 0 && intervalImprovementsCount > 0) {
+        if(iterationsCount % 2000 == 0 && intervalImprovementsCount > 0) {
 
             globalImprovementsCount += intervalImprovementsCount;
 
@@ -480,10 +392,6 @@ void StodolaInspiredAntSystem::run() {
             std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
             std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
             std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
-
-            // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-            //     bestSolution->routes[depotIndex].shrink();
-            // }
             
             bestSolution->print();
             
@@ -500,38 +408,22 @@ void StodolaInspiredAntSystem::run() {
     std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
     std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
     std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
-
-    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-    //     bestSolution->routes[depotIndex].shrink();
-    // }
     
     bestSolution->print();
 
     antSolution.finalize();
-    generationBestSolution[0].finalize();
+    generationBestSolution.finalize();
     
-    free(generationBestSolution);
-    freeMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount);
     free(visitedCustomersIndexes);
+    freeMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount);
 }
 
 void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes) {
 
-    // int* currentVertexIndex = (int*) calloc(problemInstance.depotsCount, sizeof(int));
-    // int* currentTruckLoad = (int*) calloc(problemInstance.depotsCount, sizeof(int));
-
-    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-    //     currentVertexIndex[depotIndex] = -1; //when it is a depot
-    //     // currentTruckLoad[depotIndex] = 0;
-    // }
-
     antSolution.reset();
 
-    fillArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
-
     int unvisitedCustomersCount = problemInstance.customersCount;
-
-    // Solution antSolution(problemInstance.depotsCount, MinimizationType::MAX_TIME_SPENT);
+    fillArray(visitedCustomersIndexes, unvisitedCustomersCount, 0);
 
     while(unvisitedCustomersCount > 0) {
 
@@ -568,8 +460,6 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
         int subClusterIndex = selectSubCluster(visitedCustomersIndexes, currentRoute->last(), depotIndex);
         // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
 
-        // if(subClusterIndex == -1) {
-        // }
         int customerIndex = selectCustomer(visitedCustomersIndexes, currentRoute->last(), depotIndex, subClusterIndex);
         // std::cout << "------------ customerIndex: " << customerIndex << "\n";
 
@@ -582,21 +472,12 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
 
         currentRoute->insert(customerIndex);
         currentRoute->incrementCurrentLoad(nextCustomer->demand);
-        // antSolution.print();
 
         visitedCustomersIndexes[customerIndex] = 1;
         unvisitedCustomersCount--;
     }
 
-    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-    //     antSolution.routes[depotIndex].shrink();
-    // }
-
-    // antSolution.print();
     antSolution.updateFitness(problemInstance);
-
-    // free(currentVertexIndex);
-    // free(currentTruckLoad);
 }
 
 int StodolaInspiredAntSystem::selectDepot(int* visitedCustomersIndexes, Route* routes) {
@@ -1022,6 +903,8 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** generationEdg
 }
 
 int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
+
+    //TODO: it could be needed to use the depot-customer edges
 
     int edgesCount = 0;
     // int depotEdges = 0;
