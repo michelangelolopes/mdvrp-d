@@ -84,15 +84,17 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
         int isInformationEntropySufficient(double informationEntropyCoef);
 
-        void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability);
+        void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
 
         int selectDepot(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
         int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
 
-        int selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex);
+        int selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int depotIndex, int vertexIndex);
         int updatePrimarySubClusterSelectionProbability(
             int* visitedCustomersIndexes, 
             double* primarySubClusterSelectionProbability,
+            double* heuristicInformationAverage, 
+            double* pheromoneConcentrationAverage,
             int depotIndex,
             int vertexIndex
         );

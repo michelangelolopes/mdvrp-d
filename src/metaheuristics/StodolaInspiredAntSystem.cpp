@@ -194,6 +194,10 @@ void StodolaInspiredAntSystem::run() {
     int** generationEdgesOccurrenceCount = (int**) callocMatrix(problemInstance.customersCount, sizeof(int*), sizeof(int));
     int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
     double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
+
+    int primarySubClustersCout = verticesClusters[0].primariesCount;
+    double* heuristicInformationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
     
     int globalImprovementsCount = 0;
     int intervalImprovementsCount = 0;
@@ -219,7 +223,7 @@ void StodolaInspiredAntSystem::run() {
         problemInstance.customersCount
     );
 
-    buildAntRoutes(bestSolution[0], visitedCustomersIndexes, selectionProbability);
+    buildAntRoutes(bestSolution[0], visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
 
     Solution antSolution(
         problemInstance.depotsCount,
@@ -245,7 +249,7 @@ void StodolaInspiredAntSystem::run() {
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
-        buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability);
+        buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
         generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
         
         //others ants
@@ -253,7 +257,7 @@ void StodolaInspiredAntSystem::run() {
 
             // std::cout << "------ ant: " << antIndex << "\n";
 
-            buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability);
+            buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
             generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
@@ -332,7 +336,7 @@ void StodolaInspiredAntSystem::run() {
     freeMatrix(generationEdgesOccurrenceCount, problemInstance.customersCount);
 }
 
-void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability) {
+void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage) {
 
     antSolution.reset();
 
@@ -359,7 +363,7 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
 
-        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex);
+        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex);
         // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
 
         int customerIndex = selectCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex, subClusterIndex);
@@ -427,11 +431,11 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbability(int* visitedCustom
     return consideredCustomersCount;
 }
 
-int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex) {
+int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int depotIndex, int vertexIndex) {
     
     int selectedSubClusterIndex = -1;
 
-    int hasUnvisitedCustomers = updatePrimarySubClusterSelectionProbability(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex);
+    int hasUnvisitedCustomers = updatePrimarySubClusterSelectionProbability(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, vertexIndex);
     if(hasUnvisitedCustomers) {
 
         Cluster* cluster = &verticesClusters[vertexIndex];
@@ -449,17 +453,17 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, dou
 int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(
     int* visitedCustomersIndexes, 
     double* primarySubClusterSelectionProbability,
+    double* heuristicInformationAverage, 
+    double* pheromoneConcentrationAverage,
     int depotIndex,
     int vertexIndex
 ) {
 
     Cluster* cluster = &verticesClusters[vertexIndex];
-
-    double* heuristicInformationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
     
     fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
     fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
+    fillArray(primarySubClusterSelectionProbability, cluster->primariesCount, 0.0);
 
     int consideredCustomersCountSum = 0;
     for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
@@ -487,8 +491,6 @@ int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(
         }
     }
 
-
-    fillArray(primarySubClusterSelectionProbability, cluster->primariesCount, 0.0);
     if(consideredCustomersCountSum > 0) {
         for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
             
@@ -500,9 +502,6 @@ int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(
             primarySubClusterSelectionProbability[subClusterIndex] *= pow(pheromoneConcentrationAverage[subClusterIndex], pheromoneProbabilityCoef);
         }
     }
-
-    free(heuristicInformationAverage);
-    free(pheromoneConcentrationAverage);
 
     return consideredCustomersCountSum;
 }
