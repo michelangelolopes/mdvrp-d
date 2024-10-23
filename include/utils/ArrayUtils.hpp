@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <iostream>
 
+void** mallocMatrix(int count, int pointerSize, int objectSize);
+void** mallocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
 void** callocMatrix(int count, int pointerSize, int objectSize);
 void** callocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
 

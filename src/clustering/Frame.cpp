@@ -88,7 +88,7 @@ void Frame::initializeSectors() {
     double xTotal = abs(min.x) + abs(max.x);
     double yTotal = abs(min.y) + abs(max.y);
 
-    sectors = (Sector*) calloc(sectorsCount, sizeof(Sector));
+    sectors = (Sector*) malloc(sectorsCount * sizeof(Sector));
 
     if(xTotal >= yTotal) {
         splitSectorsHorizontally(xTotal);

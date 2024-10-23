@@ -112,7 +112,7 @@ void StodolaInspiredAntSystem::createClusters(int primarySubClustersMaxCount, in
 
 void StodolaInspiredAntSystem::createCustomerClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
 
-    customerClusters = (CustomerToCustomerCluster*) calloc(problemInstance.customersCount, sizeof(CustomerToCustomerCluster));
+    customerClusters = (CustomerToCustomerCluster*) malloc(problemInstance.customersCount * sizeof(CustomerToCustomerCluster));
 
     for(int index = 0; index < problemInstance.customersCount; index++) {
         customerClusters[index] = CustomerToCustomerCluster(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, index);
@@ -121,7 +121,7 @@ void StodolaInspiredAntSystem::createCustomerClusters(int primarySubClustersMaxC
 
 void StodolaInspiredAntSystem::createDepotClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
 
-    depotClusters = (DepotToCustomerCluster*) calloc(problemInstance.depotsCount, sizeof(DepotToCustomerCluster));
+    depotClusters = (DepotToCustomerCluster*) malloc(problemInstance.depotsCount * sizeof(DepotToCustomerCluster));
 
     for(int index = 0; index < problemInstance.depotsCount; index++) {
         depotClusters[index] = DepotToCustomerCluster(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, index);
@@ -133,7 +133,7 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
     pheromoneMatrix = (double***) malloc(problemInstance.depotsCount * sizeof(double**));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        pheromoneMatrix[depotIndex] = (double**) callocMatrix(problemInstance.customersCount, sizeof(double*), sizeof(double));
+        pheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.customersCount, sizeof(double*), sizeof(double));
 
         for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
             for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
@@ -142,10 +142,10 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
         }
     }
 
-    depotPheromoneMatrix = (double**) calloc(problemInstance.depotsCount, sizeof(double*));
+    depotPheromoneMatrix = (double**) malloc(problemInstance.depotsCount * sizeof(double*));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        depotPheromoneMatrix[depotIndex] = (double*) calloc(problemInstance.customersCount, sizeof(double));
+        depotPheromoneMatrix[depotIndex] = (double*) malloc(problemInstance.customersCount * sizeof(double));
 
         for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
             depotPheromoneMatrix[depotIndex][customerIndex] = 1;
@@ -279,7 +279,7 @@ void StodolaInspiredAntSystem::run() {
 
     int generationEdgesCount = 0;
     int** generationEdgesOccurrenceCount = (int**) callocMatrix(problemInstance.customersCount, sizeof(int*), sizeof(int));
-    int* visitedCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
+    int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
     
     int globalImprovementsCount = 0;
     int intervalImprovementsCount = 0;
@@ -482,7 +482,8 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
 
 int StodolaInspiredAntSystem::selectDepot(int* visitedCustomersIndexes, Route* routes) {
 
-    double* depotSelectionProbability = (double*) calloc(problemInstance.depotsCount, sizeof(double));
+    double* depotSelectionProbability = (double*) malloc(problemInstance.depotsCount * sizeof(double));
+    fillArray(depotSelectionProbability, problemInstance.depotsCount, 0.0);
 
     int consideredCustomersCount = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
@@ -612,7 +613,7 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int
 
 double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int primarySubClustersCount) {
     
-    double* primarySubClusterSelectionProbability = (double*) calloc(primarySubClustersCount, sizeof(double));
+    double* primarySubClusterSelectionProbability = (double*) malloc(primarySubClustersCount * sizeof(double));
     fillArray(primarySubClusterSelectionProbability, primarySubClustersCount, 0.0);
 
     for(int subClusterIndex = 0; subClusterIndex < primarySubClustersCount; subClusterIndex++) {
@@ -634,8 +635,8 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromDe
     int depotIndex
 ) {
     
-    double* heuristicInformationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
+    double* heuristicInformationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
     
     fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
     fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
@@ -684,8 +685,8 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromCu
     int customerIndex
 ) {
 
-    double* heuristicInformationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) calloc(cluster->primariesCount, sizeof(double));
+    double* heuristicInformationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
     
     fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
     fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
@@ -847,7 +848,7 @@ int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, int v
 
 double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex) {
 
-    double* customerSelectionProbability = (double*) calloc(subCluster->size, sizeof(double));
+    double* customerSelectionProbability = (double*) malloc(subCluster->size * sizeof(double));
     fillArray(customerSelectionProbability, subCluster->size, 0.0);
 
     for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
@@ -865,7 +866,7 @@ double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource
 
 double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int customerIndex) {
   
-    double* customerSelectionProbability = (double*) calloc(subCluster->size, sizeof(double));
+    double* customerSelectionProbability = (double*) malloc(subCluster->size * sizeof(double));
     fillArray(customerSelectionProbability, subCluster->size, 0.0);
 
     for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {

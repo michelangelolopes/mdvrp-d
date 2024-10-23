@@ -16,7 +16,7 @@ void Route::initializeValues() {
 
 void Route::initializeSubRoutes(int subRouteMaxLength) {
 
-    subRoutes = (SubRoute*) calloc(size, sizeof(SubRoute));
+    subRoutes = (SubRoute*) malloc(size * sizeof(SubRoute));
     initializeNextSubRoute(subRouteMaxLength);
 }
 

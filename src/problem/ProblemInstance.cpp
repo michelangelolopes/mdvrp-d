@@ -126,8 +126,8 @@ void ProblemInstance::loadCordeauInstance(string filename) {
     valueStream >> customersCount;
     valueStream >> depotsCount;
 
-    depots = (Depot*) calloc(depotsCount, sizeof(Depot));
-    customers = (Customer*) calloc(customersCount, sizeof(Customer));
+    depots = (Depot*) malloc(depotsCount * sizeof(Depot));
+    customers = (Customer*) malloc(customersCount * sizeof(Customer));
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         std::getline(file, line);
@@ -204,13 +204,13 @@ int ProblemInstance::loadGeneralInfo(string key, string value) {
     
     if(key.compare("NumberOfDepots") == 0) {
         valueStream >> depotsCount;
-        depots = (Depot*) calloc(depotsCount, sizeof(Depot));
+        depots = (Depot*) malloc(depotsCount * sizeof(Depot));
         return 1;
     } 
     
     if(key.compare("NumberOfNodes") == 0) {
         valueStream >> customersCount;
-        customers = (Customer*) calloc(customersCount, sizeof(Customer));
+        customers = (Customer*) malloc(customersCount * sizeof(Customer));
         return 1;
     }
 
@@ -347,7 +347,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::createDistanceMatrices() {
 
-    this->customerToCustomerDistanceMatrix = (double**) callocMatrix(customersCount, sizeof(double*), sizeof(double));
+    this->customerToCustomerDistanceMatrix = (double**) mallocMatrix(customersCount, sizeof(double*), sizeof(double));
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
             customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
@@ -357,7 +357,7 @@ void ProblemInstance::createDistanceMatrices() {
         }
     }
 
-    this->depotToCustomerDistanceMatrix = (double**) callocMatrix(depotsCount, customersCount, sizeof(double*), sizeof(double));
+    this->depotToCustomerDistanceMatrix = (double**) mallocMatrix(depotsCount, customersCount, sizeof(double*), sizeof(double));
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
             depotToCustomerDistanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(

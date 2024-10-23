@@ -17,7 +17,7 @@ void Solution::initializeValues() {
 
 void Solution::initializeRoutes(int subRouteMaxLength) {
 
-    this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
+    this->routes = (Route*) malloc(this->depotsCount * sizeof(Route));
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         this->routes[depotIndex] = Route(subRouteMaxLength);
@@ -34,8 +34,6 @@ void Solution::finalize() {
 }
 
 void Solution::reset() {
-
-    // this->routes = (Route*) calloc(this->depotsCount, sizeof(Route));
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         this->routes[depotIndex].reset();

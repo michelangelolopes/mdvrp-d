@@ -4,7 +4,7 @@
 #include <iostream>
 
 void SubCluster::initialize() {
-    elements = (int*) calloc(size, sizeof(int));
+    elements = (int*) malloc(size * sizeof(int));
 }
 
 void SubCluster::finalize() {

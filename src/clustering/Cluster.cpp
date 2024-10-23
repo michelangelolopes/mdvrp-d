@@ -40,7 +40,7 @@ void Cluster::initializeSubClusters(int primarySubClustersMaxCount, int subClust
     // std::cout << "size: " << size << "\n";
     // std::cout << "primariesCount: " << primariesCount << "\n";
 
-    subClusters = (SubCluster*) calloc(size, sizeof(SubCluster));
+    subClusters = (SubCluster*) malloc(size * sizeof(SubCluster));
 
     for(int subClusterIndex = 0; subClusterIndex < fullSubClustersCount; subClusterIndex++) {
         subClusters[subClusterIndex] = SubCluster(subClusterMaxSize);

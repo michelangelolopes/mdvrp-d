@@ -16,7 +16,7 @@ void SubRoute::initializeValues() {
 
 void SubRoute::initializeMembers() {
 
-    members = (int*) calloc(maxLength, sizeof(int));
+    members = (int*) malloc(maxLength * sizeof(int));
 }
 
 void SubRoute::finalize() {
