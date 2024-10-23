@@ -29,12 +29,14 @@ class ProblemInstance {
         Customer* customers = nullptr;
         int customersCount;
 
-        double** depotToCustomerDistanceMatrix = nullptr;
-        double** customerToCustomerDistanceMatrix = nullptr;
+        int vertexCount;
+        double** verticesDistanceMatrix = nullptr;
 
         void create(string datasetFilename);
         void finalize();
         void print(int printDistanceMatrix);
+
+        inline int getDepotVertexIndex(int depotIndex);
 
     private:
         void loadCordeauInstance(string filename);

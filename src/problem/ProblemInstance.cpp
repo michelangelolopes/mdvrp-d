@@ -31,20 +31,16 @@ void ProblemInstance::create(string filename) {
 }
 
 void ProblemInstance::finalize() {
-    if(this->customers != nullptr) {
-        free(this->customers);
+    if(customers != nullptr) {
+        free(customers);
     }
 
-    if(this->depots != nullptr) {
-        free(this->depots);
+    if(depots != nullptr) {
+        free(depots);
     }
 
-    if(this->customerToCustomerDistanceMatrix != nullptr) {
-        freeMatrix(this->customerToCustomerDistanceMatrix, this->customersCount);
-    }
-
-    if(this->depotToCustomerDistanceMatrix != nullptr) {
-        freeMatrix(this->depotToCustomerDistanceMatrix, this->depotsCount);
+    if(verticesDistanceMatrix != nullptr) {
+        freeMatrix(verticesDistanceMatrix, vertexCount);
     }
 }
 
@@ -94,17 +90,19 @@ void ProblemInstance::print(int printDistanceMatrix) {
                 std::cout << "Distance Customer-Customer: ";
                 std::cout << "[" << customerIndex << "]";
                 std::cout << "[" << neighborCustomerIndex << "]";
-                std::cout << " = " << customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] << '\n';
+                std::cout << " = " << verticesDistanceMatrix[customerIndex][neighborCustomerIndex] << '\n';
             }
         }
 
         std::cout << "-------------------------\n";
         for(int depotIndex = customersCount; depotIndex < depotsCount; depotIndex++) {
-            for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
+            for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
                 std::cout << "Distance Depot-Customer: ";
                 std::cout << "[" << depotIndex << "]";
-                std::cout << "[" << customerIndex << "]";
-                std::cout << " = " << depotToCustomerDistanceMatrix[depotIndex][customerIndex] << '\n';
+                std::cout << "[" << neighborCustomerIndex << "]";
+
+                int depotVertexIndex = getDepotVertexIndex(depotIndex);
+                std::cout << " = " << verticesDistanceMatrix[depotVertexIndex][neighborCustomerIndex] << '\n';
             }
         }
     }
@@ -347,25 +345,33 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::createDistanceMatrices() {
 
-    this->customerToCustomerDistanceMatrix = (double**) mallocMatrix(customersCount, sizeof(double*), sizeof(double));
+    vertexCount = customersCount + depotsCount;
+    verticesDistanceMatrix = (double**) mallocMatrix(vertexCount, sizeof(double*), sizeof(double));
+
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
-            customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
+            
+            verticesDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
                 customers[customerIndex].position,
                 customers[neighborCustomerIndex].position
             );
         }
     }
 
-    this->depotToCustomerDistanceMatrix = (double**) mallocMatrix(depotsCount, customersCount, sizeof(double*), sizeof(double));
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
-            depotToCustomerDistanceMatrix[depotIndex][customerIndex] = calculateEuclidianDistance(
+        for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
+
+            int depotVertexIndex = getDepotVertexIndex(depotIndex);
+            verticesDistanceMatrix[depotVertexIndex][neighborCustomerIndex] = calculateEuclidianDistance(
                 depots[depotIndex].position,
-                customers[customerIndex].position
+                customers[neighborCustomerIndex].position
             );
         }
     }
+}
+
+inline int ProblemInstance::getDepotVertexIndex(int depotIndex) {
+    return depotIndex + customersCount;
 }
 
 int extractIndex(istringstream& stream) {
