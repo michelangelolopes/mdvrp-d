@@ -90,7 +90,6 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex, int vertexIndex);
 
         int selectSubCluster(int* visitedCustomersIndexes, int vertexIndex, int depotIndex);
-        double* getPrimarySubClusterSelectionProbability(double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int primarySubClustersCount);
         double* getPrimarySubClusterSelectionProbability(
             int* visitedCustomersIndexes, 
             Cluster* cluster,

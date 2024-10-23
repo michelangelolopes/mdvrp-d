@@ -540,24 +540,6 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int
     return selectedSubClusterIndex;
 }
 
-double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int primarySubClustersCount) {
-    
-    double* primarySubClusterSelectionProbability = (double*) malloc(primarySubClustersCount * sizeof(double));
-    fillArray(primarySubClusterSelectionProbability, primarySubClustersCount, 0.0);
-
-    for(int subClusterIndex = 0; subClusterIndex < primarySubClustersCount; subClusterIndex++) {
-        
-        // std::cout << "subCluster[" << subClusterIndex << "]: ";
-        // std::cout << heuristicInformationAverage[subClusterIndex] << " - ";
-        // std::cout << pheromoneConcentrationAverage[subClusterIndex] << "\n";
-        primarySubClusterSelectionProbability[subClusterIndex] = 1;
-        primarySubClusterSelectionProbability[subClusterIndex] *= pow(heuristicInformationAverage[subClusterIndex], distanceProbabilityCoef);
-        primarySubClusterSelectionProbability[subClusterIndex] *= pow(pheromoneConcentrationAverage[subClusterIndex], pheromoneProbabilityCoef);
-    }
-
-    return primarySubClusterSelectionProbability;
-}
-
 double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(
     int* visitedCustomersIndexes, 
     Cluster* cluster,
@@ -599,7 +581,18 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(
 
     double* primarySubClusterSelectionProbability = nullptr;
     if(consideredCustomersCountSum > 0) {
-        primarySubClusterSelectionProbability = getPrimarySubClusterSelectionProbability(heuristicInformationAverage, pheromoneConcentrationAverage, cluster->primariesCount);
+        primarySubClusterSelectionProbability = (double*) malloc(cluster->primariesCount * sizeof(double));
+        fillArray(primarySubClusterSelectionProbability, cluster->primariesCount, 0.0);
+
+        for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
+            
+            // std::cout << "subCluster[" << subClusterIndex << "]: ";
+            // std::cout << heuristicInformationAverage[subClusterIndex] << " - ";
+            // std::cout << pheromoneConcentrationAverage[subClusterIndex] << "\n";
+            primarySubClusterSelectionProbability[subClusterIndex] = 1;
+            primarySubClusterSelectionProbability[subClusterIndex] *= pow(heuristicInformationAverage[subClusterIndex], distanceProbabilityCoef);
+            primarySubClusterSelectionProbability[subClusterIndex] *= pow(pheromoneConcentrationAverage[subClusterIndex], pheromoneProbabilityCoef);
+        }
     }
 
     free(heuristicInformationAverage);
