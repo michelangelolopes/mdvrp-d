@@ -59,7 +59,7 @@ void SubRoute::updateDistanceTraveled(ProblemInstance problemInstance) {
 
         int sourceIndex = members[customerIndex];
         int destIndex = members[customerIndex + 1];
-        distanceTraveled += problemInstance.customerToCustomerDistanceMatrix[sourceIndex][destIndex];
+        distanceTraveled += problemInstance.verticesDistanceMatrix[sourceIndex][destIndex];
     }
 }
 

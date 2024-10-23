@@ -2,6 +2,8 @@
 
 int DepotToCustomerCluster::findClosestCustomer(ProblemInstance problemInstance, int depotIndex, int* consideredCustomersIndexes) {
 
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
     int memberIndex = -1;
     double minDistance = -1;
 
@@ -9,7 +11,7 @@ int DepotToCustomerCluster::findClosestCustomer(ProblemInstance problemInstance,
 
         if(consideredCustomersIndexes[customerIndex] != 1) {
 
-            double distance = problemInstance.depotToCustomerDistanceMatrix[depotIndex][customerIndex];
+            double distance = problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = customerIndex;
@@ -30,6 +32,8 @@ int DepotToCustomerCluster::findClosestCustomer(ProblemInstance problemInstance,
 
 int DepotToCustomerCluster::findClosestCustomerInSector(ProblemInstance problemInstance, int depotIndex, int sectorIndex, int* consideredCustomersIndexes, int* customerSectorMap) {
 
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
     int memberIndex = -1;
     double minDistance = -1;
 
@@ -37,7 +41,7 @@ int DepotToCustomerCluster::findClosestCustomerInSector(ProblemInstance problemI
 
         if(consideredCustomersIndexes[customerIndex] != 1 && customerSectorMap[customerIndex] == sectorIndex) {
 
-            double distance = problemInstance.depotToCustomerDistanceMatrix[depotIndex][customerIndex];
+            double distance = problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = customerIndex;

@@ -9,7 +9,7 @@ int CustomerToCustomerCluster::findClosestCustomer(ProblemInstance problemInstan
 
         if(consideredCustomersIndexes[neighborCustomerIndex] != 1) {
 
-            double distance = problemInstance.customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex];
+            double distance = problemInstance.verticesDistanceMatrix[customerIndex][neighborCustomerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = neighborCustomerIndex;
@@ -30,7 +30,7 @@ int CustomerToCustomerCluster::findClosestCustomerInSector(ProblemInstance probl
 
         if(consideredCustomersIndexes[neighborCustomerIndex] != 1 && customerSectorMap[neighborCustomerIndex] == sectorIndex) {
 
-            double distance = problemInstance.customerToCustomerDistanceMatrix[customerIndex][neighborCustomerIndex];
+            double distance = problemInstance.verticesDistanceMatrix[customerIndex][neighborCustomerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = neighborCustomerIndex;

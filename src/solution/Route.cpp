@@ -110,13 +110,15 @@ void Route::updateDistanceTraveled(ProblemInstance problemInstance, int depotInd
 
     for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
 
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
         int firstCustomerIndex = subRoutes[subRouteIndex].members[0];
-        distanceTraveled += problemInstance.depotToCustomerDistanceMatrix[depotIndex][firstCustomerIndex];
+        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][firstCustomerIndex];
 
         distanceTraveled += subRoutes[subRouteIndex].distanceTraveled;
         
         int lastCustomerIndex = subRoutes[subRouteIndex].last();
-        distanceTraveled += problemInstance.depotToCustomerDistanceMatrix[depotIndex][lastCustomerIndex]; //undirected graph -> same distance
+        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][lastCustomerIndex]; //undirected graph -> same distance
     }
 }
 
