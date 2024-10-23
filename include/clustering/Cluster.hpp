@@ -11,6 +11,9 @@
 class Cluster {
     public:
         Cluster() {}
+        Cluster(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
+            create(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, vertexIndex);
+        }
 
         int size;
         int primariesCount;
@@ -28,9 +31,8 @@ class Cluster {
         void createFirstSubCluster(ProblemInstance problemInstance, Frame frame, int baseIndex, int* consideredCustomersIndexes);
         void createOthersSubClusters(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes);
 
-        virtual int isCustomerToCustomerCluster() = 0;
-        virtual int findClosestCustomer(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes) = 0;
-        virtual int findClosestCustomerInSector(ProblemInstance problemInstance, int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes, int* customerSectorMap) = 0;
+        int findClosestCustomer(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes);
+        int findClosestCustomerInSector(ProblemInstance problemInstance, int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes, int* customerSectorMap);
 };
 
 #endif
