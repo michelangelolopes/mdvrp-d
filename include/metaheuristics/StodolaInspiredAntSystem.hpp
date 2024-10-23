@@ -84,23 +84,23 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
         int isInformationEntropySufficient(double informationEntropyCoef);
 
-        void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes);
+        void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability);
 
-        int selectDepot(int* visitedCustomersIndexes, Route* routes);
-        int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex, int vertexIndex);
+        int selectDepot(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
+        int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
 
-        int selectSubCluster(int* visitedCustomersIndexes, int vertexIndex, int depotIndex);
-        double* getPrimarySubClusterSelectionProbability(
+        int selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex);
+        int updatePrimarySubClusterSelectionProbability(
             int* visitedCustomersIndexes, 
-            Cluster* cluster,
+            double* primarySubClusterSelectionProbability,
             int depotIndex,
             int vertexIndex
         );
 
         int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
 
-        int selectCustomer(int* visitedCustomersIndexes, int vertexIndex, int depotIndex, int clusterIndex);
-        double* getCustomerSelectionProbability(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int vertexIndex);
+        int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
+        double* updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, SubCluster* subCluster);
 
         double calculateInformationEntropy(int** populationEdgesOcurrenceSum, int populationEdgesSum);
         int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
