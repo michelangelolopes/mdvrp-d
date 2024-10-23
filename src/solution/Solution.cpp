@@ -20,7 +20,7 @@ void Solution::initializeRoutes(int subRouteMaxLength) {
     this->routes = (Route*) malloc(this->depotsCount * sizeof(Route));
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        this->routes[depotIndex] = Route(subRouteMaxLength);
+        this->routes[depotIndex] = Route(depotIndex, subRouteMaxLength);
     }
 }
 

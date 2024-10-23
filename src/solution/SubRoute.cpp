@@ -87,7 +87,7 @@ void SubRoute::print() const {
 int SubRoute::first() const {
 
     if(length == 0) {
-        return -1;
+        return depotIndex + maxLength;
     }
 
     return members[0];
@@ -96,7 +96,7 @@ int SubRoute::first() const {
 int SubRoute::last() const {
 
     if(length == 0) {
-        return -1;
+        return depotIndex + maxLength;
     }
 
     return members[length - 1];

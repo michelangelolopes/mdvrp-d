@@ -17,10 +17,11 @@ class Route {
         // {
 
         // }
-        Route(int subRouteMaxLength) {
+        Route(int depotIndex, int subRouteMaxLength) : depotIndex(depotIndex) {
             init(subRouteMaxLength);
         }
 
+        int depotIndex;
         int size;
         int maxSize;
 

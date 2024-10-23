@@ -23,7 +23,7 @@ void Route::initializeSubRoutes(int subRouteMaxLength) {
 void Route::initializeNextSubRoute(int subRouteMaxLength) {
 
     int nextSubRouteIndex = size - 1;
-    subRoutes[nextSubRouteIndex] = SubRoute(subRouteMaxLength);
+    subRoutes[nextSubRouteIndex] = SubRoute(depotIndex, subRouteMaxLength);
 }
 
 void Route::finalize() {
@@ -79,7 +79,7 @@ void Route::copy(Route routeToCopy) {
 
         int subRouteMaxLength = subRoutes[0].maxLength;
         for(int subRouteIndex = maxSize; subRouteIndex < routeToCopy.size; subRouteIndex++) {
-            subRoutes[subRouteIndex] = SubRoute(subRouteMaxLength);
+            subRoutes[subRouteIndex] = SubRoute(depotIndex, subRouteMaxLength);
         }
 
         maxSize = routeToCopy.size;
@@ -112,13 +112,13 @@ void Route::updateDistanceTraveled(ProblemInstance problemInstance, int depotInd
 
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
 
-        int firstCustomerIndex = subRoutes[subRouteIndex].members[0];
-        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][firstCustomerIndex];
+        int firstCustomerIndex = subRoutes[subRouteIndex].first();
+        int lastCustomerIndex = subRoutes[subRouteIndex].last();
 
+        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][firstCustomerIndex];
+        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][lastCustomerIndex]; //undirected graph -> same distance
         distanceTraveled += subRoutes[subRouteIndex].distanceTraveled;
         
-        int lastCustomerIndex = subRoutes[subRouteIndex].last();
-        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][lastCustomerIndex]; //undirected graph -> same distance
     }
 }
 
