@@ -2,8 +2,6 @@
 #define STODOLA_INSPIRED_ANT_SYSTEM_HPP
 
 #include "../clustering/Cluster.hpp"
-#include "../clustering/CustomerToCustomerCluster.hpp"
-#include "../clustering/DepotToCustomerCluster.hpp"
 #include "../clustering/Frame.hpp"
 #include "AntSystem.hpp"
 #include "SimulatedAnnealing.hpp"
@@ -64,8 +62,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         double** depotPheromoneMatrix;
 
-        CustomerToCustomerCluster* customerClusters = nullptr;
-        DepotToCustomerCluster* depotClusters = nullptr;
+        Cluster* verticesClusters = nullptr;
         Frame frame;
 
         void finalize();
@@ -75,8 +72,6 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
     private:
         void create(int primarySubClustersMaxCount, int subClusterMaxSize);
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
-        void createCustomerClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
-        void createDepotClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
         void initializePheromoneMatrices();
 
