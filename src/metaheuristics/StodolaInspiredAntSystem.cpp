@@ -33,10 +33,6 @@ void StodolaInspiredAntSystem::finalize() {
 
     frame.finalize();
 
-    if(depotPheromoneMatrix != nullptr) {
-        freeMatrix( depotPheromoneMatrix, problemInstance.depotsCount);
-    }
-
     if(verticesClusters != nullptr) {
 
         for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
@@ -121,15 +117,10 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
                 pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] = 1;
             }
         }
-    }
 
-    depotPheromoneMatrix = (double**) malloc(problemInstance.depotsCount * sizeof(double*));
-
-    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        depotPheromoneMatrix[depotIndex] = (double*) malloc(problemInstance.customersCount * sizeof(double));
-
-        for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
-            depotPheromoneMatrix[depotIndex][customerIndex] = 1;
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+            pheromoneMatrix[depotIndex][depotVertexIndex][neighborCustomerIndex] = 1;
         }
     }
 }
@@ -173,8 +164,10 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixInRoute(const Route& rout
 
 void StodolaInspiredAntSystem::reinforcePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneReinforcingValue) {
 
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
     int firstCustomerIndex = subRoute.members[0];
-    depotPheromoneMatrix[depotIndex][firstCustomerIndex] += pheromoneReinforcingValue;
+    pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] += pheromoneReinforcingValue;
 
     for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
 
@@ -184,7 +177,7 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixInSubRoute(const SubRoute
     }
 
     int lastCustomerIndex = subRoute.last();
-    depotPheromoneMatrix[depotIndex][lastCustomerIndex] += pheromoneReinforcingValue;
+    pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] += pheromoneReinforcingValue;
 }
 
 void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
@@ -206,8 +199,10 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrixInRoute(const Route& rout
 
 void StodolaInspiredAntSystem::evaporatePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneEvaporatingValue) {
 
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
     int firstCustomerIndex = subRoute.members[0];
-    depotPheromoneMatrix[depotIndex][firstCustomerIndex] *= pheromoneEvaporatingValue;
+    pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] *= pheromoneEvaporatingValue;
 
     for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
 
@@ -217,7 +212,7 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrixInSubRoute(const SubRoute
     }
 
     int lastCustomerIndex = subRoute.last();
-    depotPheromoneMatrix[depotIndex][lastCustomerIndex] *= pheromoneEvaporatingValue;
+    pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] *= pheromoneEvaporatingValue;
 }
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
@@ -507,7 +502,7 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbabilityFromDepotSource(int
             if(visitedCustomersIndexes[customerIndex] != 1) {
 
                 consideredCustomersCount++;
-                depotSelectionProbability[depotIndex] += depotPheromoneMatrix[depotIndex][customerIndex];
+                depotSelectionProbability[depotIndex] += pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex];
             }
         }
     }
@@ -639,7 +634,7 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromDe
 
                 int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
                 heuristicInformationSum += problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex];
-                pheromoneConcentrationSum += depotPheromoneMatrix[depotIndex][customerIndex];
+                pheromoneConcentrationSum += pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex];
                 consideredCustomersCount++;
             }
         }
@@ -844,7 +839,7 @@ double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource
 
             int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
             customerSelectionProbability[memberIndex] += pow(problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex], -distanceProbabilityCoef);
-            customerSelectionProbability[memberIndex] *= pow(depotPheromoneMatrix[depotIndex][customerIndex], pheromoneProbabilityCoef);
+            customerSelectionProbability[memberIndex] *= pow(pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex], pheromoneProbabilityCoef);
         }
     }
 

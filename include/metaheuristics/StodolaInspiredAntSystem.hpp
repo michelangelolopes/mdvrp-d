@@ -60,8 +60,6 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         double maxOptimizationTime;
         double minInformationEntropyCoef;
 
-        double** depotPheromoneMatrix;
-
         Cluster* verticesClusters = nullptr;
         Frame frame;
 
