@@ -45,52 +45,7 @@ void StodolaInspiredAntSystem::finalize() {
 }
 
 void StodolaInspiredAntSystem::print() {
-
-    // //std::cout << "Cluster - ";
-    // if(isCustomerVertex) {
-    //     //std::cout << "Customer[" << baseIndex << "] - ";
-    // } else {
-    //     //std::cout << "Depot[" << baseIndex - neighborcustomersCount << "] - ";
-    // }
-
-    // int subClusterSize = oldClusters[0].subClusterSize;
-    // int unvisitedCustomersCount = problemInstance.customersCount - 1;
-    // int clusterCount = std::ceil((float) unvisitedCustomersCount / (float) subClusterSize);
-
-    // for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
-    //     //std::cout << "--------------------------------\n";
-    //     //std::cout << "Cluster for Customer " << customerIndex << "\n";
-    //     for(int clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
-    //         //std::cout << "---------------\n";
-    //         //std::cout << "Cluster " << clusterIndex << "\n";
-
-    //         for(int subClusterIndex = 0; subClusterIndex < subClusterSize; subClusterIndex++) {
-    //             int neighborIndex = oldClusters[customerIndex].clusters[clusterIndex][subClusterIndex];
-    //             int neighborDistance = problemInstance.distanceMatrix[customerIndex][neighborIndex];
-    //             int neighborSector = frame.customerSectorMap[neighborIndex];
-
-    //             //std::cout << "--------\n";
-    //             //std::cout << "SubCluster " << subClusterIndex << "\n";
-    //             //std::cout << "Neighbor " << neighborIndex << "\n";
-    //             //std::cout << "Distance " << neighborDistance << "\n";
-    //             //std::cout << "Sector " << neighborSector << "\n";
-    //             //std::cout << "--------\n";
-    //         }
-    //         //std::cout << "---------------\n";
-    //     }
-    //     //std::cout << "--------------------------------\n";
-    // }
-
-    // for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-    //     for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
-    //         for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
-    //             //std::cout << "[" << depotIndex << "]";
-    //             //std::cout << "[" << vertexIndex << "]";
-    //             //std::cout << "[" << customerIndex << "]";
-    //             //std::cout << " = " << pheromoneMatrix[depotIndex][vertexIndex][customerIndex] << '\n';
-    //         }
-    //     }
-    // }
+    //TODO: check what is needed
 }
 
 void StodolaInspiredAntSystem::createClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
@@ -215,15 +170,6 @@ void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, 
 }
 
 int StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef) {
-
-    // std::cout << "iterationsCount: " << iterationsCount << " - ";
-    // std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
-    // std::cout << "currentOptimizationTime: " << currentOptimizationTime << "\n";
-    // std::cout << "informationEntropy: " << informationEntropy << " - ";
-    // std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
-
-    // double informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
-    // std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
 
     return (iterationsCount >= maxIterations) ||
         (iterationsWithoutImprovementCount >= maxIterationsWithoutImprovement) ||
@@ -408,27 +354,15 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
         // currentRoute->print();
         // std::cout << "\n";
 
-        // int currentVertexIndex = currentRoute->last();
+        int currentVertexIndex = currentRoute->last();
         // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
-        
-        // if(currentVertexIndex != -1) {
-        //     std::cout << "------------ currentCluster: ";
-        //     customerClusters[currentVertexIndex].print(visitedCustomersIndexes);
+        // std::cout << "------------ currentCluster: ";
+        // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
 
-        //     std::cout << "------------ fullCluster: ";
-        //     customerClusters[currentVertexIndex].print();
-        // } else {
-        //     std::cout << "------------ currentCluster: ";
-        //     depotClusters[depotIndex].print(visitedCustomersIndexes);
-
-        //     std::cout << "------------ fullCluster: ";
-        //     depotClusters[depotIndex].print();
-        // }
-
-        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, depotIndex, currentRoute->last());
+        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex);
         // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
 
-        int customerIndex = selectCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, currentRoute->last(), subClusterIndex);
+        int customerIndex = selectCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex, subClusterIndex);
         // std::cout << "------------ customerIndex: " << customerIndex << "\n";
 
         Customer* nextCustomer = &problemInstance.customers[customerIndex];
@@ -500,13 +434,6 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, dou
     int hasUnvisitedCustomers = updatePrimarySubClusterSelectionProbability(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex);
     if(hasUnvisitedCustomers) {
 
-        // for(int index = 0; index < cluster->primariesCount; index++) {
-        //     std::cout << "Primary2\nselectionProbability[" << index << "]: ";
-        //     std::cout << primarySubClusterSelectionProbability[index] << "\n";
-        // }
-
-        // double probabilitiesSum = sumArray(primarySubClusterSelectionProbability, cluster->primariesCount);
-        // std::cout << "probabilitiesSum: " << probabilitiesSum << "\n";
         Cluster* cluster = &verticesClusters[vertexIndex];
         selectedSubClusterIndex = rouletteWheelSelection(
             selectionProbability,
@@ -515,19 +442,6 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, dou
     } else { //if there is no customer unvisited for all primary clusters, choose non primary cluster
         selectedSubClusterIndex = selectSubClusterNonPrimary(visitedCustomersIndexes, vertexIndex);
     }
-
-    // if(selectedSubClusterIndex == -1) {
-    //     // //std::cout << "selectSubCluster error!\n";
-    //     Cluster* cluster = nullptr;
-    //     if(vertexIndex == -1) { //depot
-    //         cluster = &depotClusters[depotIndex];
-    //     } else {
-    //         cluster = &customerClusters[vertexIndex];
-    //         //std::cout << "CustomerCluster[" << vertexIndex << "]: ";
-    //         cluster->print();
-    //         //std::cout << "\n";
-    //     }
-    // }
 
     return selectedSubClusterIndex;
 }
@@ -629,32 +543,6 @@ int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, doubl
         subCluster->size
     );
 
-    // if(memberIndex == -1) {
-    //     if(vertexIndex == -1) {
-    //         //std::cout << "Depot[" << depotIndex << "]\n";
-    //         for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-
-    //             int customerIndex = subCluster->elements[memberIndex];
-    //             if(visitedCustomersIndexes[customerIndex] != 1) {
-
-    //                 //std::cout << pow(problemInstance.depotToCustomerDistanceMatrix[depotIndex][customerIndex], -distanceProbabilityCoef) << "\n";
-    //                 //std::cout << pow(depotPheromoneMatrix[depotIndex][customerIndex], pheromoneProbabilityCoef) << "\n";
-    //             }
-    //         }
-    //     } else {
-    //         //std::cout << "Customer[" << vertexIndex << "]\n";
-    //         for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-            
-    //             int neighborCustomerIndex = subCluster->elements[memberIndex];
-    //             if(visitedCustomersIndexes[neighborCustomerIndex] != 1) {
-
-    //                 //std::cout << pow(problemInstance.verticesDistanceMatrix[vertexIndex][neighborCustomerIndex], -distanceProbabilityCoef) << "\n";
-    //                 //std::cout << pow(pheromoneMatrix[depotIndex][vertexIndex][neighborCustomerIndex], pheromoneProbabilityCoef) << "\n";
-    //             }
-    //         }
-    //     }
-    // }
-
     return subCluster->elements[memberIndex];
 }
 
@@ -699,20 +587,12 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
     //TODO: it could be needed to use the depot-customer edges
 
     int edgesCount = 0;
-    // int depotEdges = 0;
     for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
         
         Route* route = &solution.routes[depotIndex];
         for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
 
             SubRoute* subRoute = &route->subRoutes[subRouteIndex];
-            
-            // int firstCustomerIndex = subRoute->first();
-            // int lastCustomerIndex = subRoute->last();
-
-            // edgesOccurrenceCount[depotIndex][firstCustomerIndex] += 1;
-            // edgesOccurrenceCount[depotIndex][lastCustomerIndex] += 1;
-            // depotEdges += 1;
 
             for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
                 int customerIndex = subRoute->members[memberIndex];
@@ -723,8 +603,6 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
             }
         }
     }
-
-    // std::cout << "edgesCount: " << edgesCount << "\n";
 
     return edgesCount;
 }
