@@ -87,21 +87,21 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes);
 
         int selectDepot(int* visitedCustomersIndexes, Route* routes);
-        int updateDepotSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex, int customerIndex);
+        int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex, int vertexIndex);
 
         int selectSubCluster(int* visitedCustomersIndexes, int vertexIndex, int depotIndex);
         double* getPrimarySubClusterSelectionProbability(double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int primarySubClustersCount);
-        double* getPrimarySubClusterSelectionProbabilityFromCustomerSource(
+        double* getPrimarySubClusterSelectionProbability(
             int* visitedCustomersIndexes, 
             Cluster* cluster,
             int depotIndex,
-            int customerIndex
+            int vertexIndex
         );
 
-        int selectSubClusterNonPrimaryFromCustomerSource(int* visitedCustomersIndexes, int customerIndex);
+        int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
 
         int selectCustomer(int* visitedCustomersIndexes, int vertexIndex, int depotIndex, int clusterIndex);
-        double* getCustomerSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int customerIndex);
+        double* getCustomerSelectionProbability(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int vertexIndex);
 
         double calculateInformationEntropy(int** populationEdgesOcurrenceSum, int populationEdgesSum);
         int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
