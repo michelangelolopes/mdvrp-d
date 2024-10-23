@@ -36,7 +36,9 @@ class ProblemInstance {
         void finalize();
         void print(int printDistanceMatrix);
 
-        inline int getDepotVertexIndex(int depotIndex);
+        inline int getDepotVertexIndex(int depotIndex) const {
+            return depotIndex + customersCount;
+        }
 
     private:
         void loadCordeauInstance(string filename);

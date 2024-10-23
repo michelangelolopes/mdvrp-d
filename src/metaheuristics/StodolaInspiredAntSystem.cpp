@@ -66,18 +66,8 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
     pheromoneMatrix = (double***) malloc(problemInstance.depotsCount * sizeof(double**));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        pheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.customersCount, sizeof(double*), sizeof(double));
-
-        for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
-            for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
-                pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] = 1;
-            }
-        }
-
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
-            pheromoneMatrix[depotIndex][depotVertexIndex][neighborCustomerIndex] = 1;
-        }
+        pheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.vertexCount, problemInstance.customersCount, sizeof(double*), sizeof(double));
+        fillMatrix(pheromoneMatrix[depotIndex], problemInstance.vertexCount, problemInstance.customersCount, 1.0);
     }
 }
 
@@ -192,7 +182,7 @@ void StodolaInspiredAntSystem::run() {
     srand((unsigned int)time(0));
 
     int generationEdgesCount = 0;
-    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.vertexCount, problemInstance.customersCount, sizeof(int*), sizeof(int));
+    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.vertexCount, problemInstance.vertexCount, sizeof(int*), sizeof(int));
     int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
     double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
 
@@ -215,17 +205,6 @@ void StodolaInspiredAntSystem::run() {
     double informationEntropyMax = -1;
     double informationEntropyCoef = -1;
 
-    //initial solution
-    bestSolution = (Solution*) malloc(sizeof(Solution));
-
-    bestSolution[0] = Solution (
-        problemInstance.depotsCount,
-        problemInstance.minimizationType,
-        problemInstance.customersCount
-    );
-
-    buildAntRoutes(bestSolution[0], visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
-
     Solution antSolution(
         problemInstance.depotsCount,
         problemInstance.minimizationType,
@@ -238,6 +217,17 @@ void StodolaInspiredAntSystem::run() {
         problemInstance.customersCount
     );
 
+    //initial solution
+    bestSolution = (Solution*) malloc(sizeof(Solution));
+
+    bestSolution[0] = Solution (
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
+
+    buildAntRoutes(bestSolution[0], visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+
     while(!hasAchievedTerminationCondition(
         iterationsCount, 
         iterationsWithoutImprovementCount,
@@ -247,12 +237,12 @@ void StodolaInspiredAntSystem::run() {
     {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
-        fillMatrix(generationEdgesOccurrenceCount, problemInstance.vertexCount, 0);
+        fillMatrix(generationEdgesOccurrenceCount, problemInstance.vertexCount, problemInstance.vertexCount, 0);
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
         buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
-        generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
+        generationEdgesCount += updateGenerationEdgesOccurrenceCount(&generationBestSolution, generationEdgesOccurrenceCount);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
@@ -260,7 +250,7 @@ void StodolaInspiredAntSystem::run() {
             // std::cout << "------ ant: " << antIndex << "\n";
 
             buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
-            generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
+            generationEdgesCount += updateGenerationEdgesOccurrenceCount(&antSolution, generationEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
                 generationBestSolution.copy(antSolution);
@@ -548,7 +538,7 @@ int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, doubl
     return subCluster->elements[memberIndex];
 }
 
-double* StodolaInspiredAntSystem::updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, SubCluster* subCluster) {
+void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, SubCluster* subCluster) {
   
     fillArray(customerSelectionProbability, problemInstance.customersCount, 0.0);
 
@@ -567,50 +557,42 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** edgesOccurren
     
     double informationEntropy = 0;
 
-    //considering that a customer cannot visit itself
-    for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
-        for(int neighborCustomerIndex = customerIndex + 1; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+    for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+        for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.vertexCount; neighborVertexIndex++) {
 
-            //considering the probability of having a edge involving a pair of vertices (customer, customer)
-            double edgePairOcurrenceProbability = 0;
-            edgePairOcurrenceProbability += edgesOccurrenceCount[customerIndex][neighborCustomerIndex];
-            edgePairOcurrenceProbability += edgesOccurrenceCount[neighborCustomerIndex][customerIndex];
+            double edgeOcurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
 
-            if(edgePairOcurrenceProbability > 0) {
+            if(edgeOcurrenceCount > 0) {
 
-                edgePairOcurrenceProbability /= generationEdgesCount;
-                informationEntropy += (edgePairOcurrenceProbability * log(edgePairOcurrenceProbability));
+                // std::cout << "(" << vertexIndex << ", " << neighborVertexIndex << "): ";
+                // std::cout << edgeOcurrenceCount << " - ";
+                // std::cout << generationEdgesCount << " - ";
+
+                double edgeOcurrenceProbability = edgeOcurrenceCount / generationEdgesCount;
+                // std::cout << edgeOcurrenceProbability << " - ";
+
+                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log(edgeOcurrenceProbability));
+                // std::cout << balancedEdgeOcurrenceProbability << "\n";
+
+                informationEntropy += balancedEdgeOcurrenceProbability;
             }
         }
     }
-
-    for(int depotVertexIndex = problemInstance.getDepotVertexIndex(0); depotVertexIndex < problemInstance.vertexCount; depotVertexIndex++) {
-        for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
-            
-            //the probability of having a edge involving a pair of vertices (depot, customer) was stored at same indexes
-            double edgePairOcurrenceProbability = edgesOccurrenceCount[depotVertexIndex][neighborCustomerIndex];
-            if(edgePairOcurrenceProbability > 0) {
-
-                edgePairOcurrenceProbability /= generationEdgesCount;
-                informationEntropy += (edgePairOcurrenceProbability * log(edgePairOcurrenceProbability));
-            }
-        }
-    }
-
+    
     informationEntropy *= -1;
 
     return informationEntropy;
 }
 
-int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
+int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(Solution* solution, int** edgesOccurrenceCount) {
 
     //TODO: it could be needed to use the depot-customer edges
 
     int edgesCount = 0;
-    for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < solution->depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* route = &solution.routes[depotIndex];
+        Route* route = &solution->routes[depotIndex];
 
         for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
 
@@ -620,7 +602,7 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
             int lastCustomerIndex = subRoute->last();
 
             edgesOccurrenceCount[depotVertexIndex][firstCustomerIndex] += 1;
-            edgesOccurrenceCount[depotVertexIndex][lastCustomerIndex] += 1;
+            edgesOccurrenceCount[lastCustomerIndex][depotVertexIndex] += 1;
 
             edgesCount += 2;
 

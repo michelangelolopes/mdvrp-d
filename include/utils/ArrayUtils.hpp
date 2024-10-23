@@ -4,14 +4,11 @@
 #include <cstdlib>
 #include <iostream>
 
-void** mallocMatrix(int count, int pointerSize, int objectSize);
 void** mallocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
-void** callocMatrix(int count, int pointerSize, int objectSize);
-void** callocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
 
-template <typename T> void printIndexesArray(T* array, int count, T value) {
+template <typename T> void printIndexesArray(T* array, int objectCount, T value) {
     
-    for(int i = 0; i < count; i++) {
+    for(int i = 0; i < objectCount; i++) {
         
         if(array[i] == value) {
             std::cout << i << " ";
@@ -21,44 +18,32 @@ template <typename T> void printIndexesArray(T* array, int count, T value) {
     std::cout << "\n";
 }
 
-template <typename T> T sumArray(T* array, int count) {
+template <typename T> T sumArray(T* array, int objectCount) {
     
     T sum = 0;
-    for(int i = 0; i < count; i++) {
+    for(int i = 0; i < objectCount; i++) {
         sum += array[i];
     }
 
-    // return std::accumulate(array, array + count, 0);
     return sum;
 }
 
-template <typename T> T sumMatrix(T** matrix, int count) {
-    
-    T sum = 0;
-    for(int i = 0; i < count; i++) {
-        sum += sumArray(matrix[i], count);
-    }
+template <typename T> void fillArray(T* array, int objectCount, T value) {
 
-    // return std::accumulate(array, array + count, 0);
-    return sum;
-}
-
-template <typename T> void fillArray(T* array, int count, T value) {
-
-    // std::fill(array, array + count, value);
-    for(int i = 0; i < count; i++) {
+    for(int i = 0; i < objectCount; i++) {
         array[i] = value;
     }
 }
 
-template <typename T> void fillMatrix(T** matrix, int count, T value) {
+template <typename T> void fillMatrix(T** matrix, int pointerCount, int objectCount, T value) {
 
-    for(int i = 0; i < count; i++) {
-        fillArray(matrix[i], count, value);
+    for(int i = 0; i < pointerCount; i++) {
+        fillArray(matrix[i], objectCount, value);
     }
 }
 
 template <typename T> void freeMatrix(T** matrix, int pointerCount) {
+
     for(int i = 0; i < pointerCount; i++) {
         free(matrix[i]);
     }

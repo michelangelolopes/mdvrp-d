@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     double pheromoneEvaporationCoefMax = 0.1; //0.1
     double pheromoneProbabilityCoef = 1; //1
     double distanceProbabilityCoef = 1; //1
-    int maxIterations = 100000;
+    int maxIterations = 100000; //100000
     int maxIterationsWithoutImprovement = 4000; //4000
     double maxOptimizationTime = 120; //20000
     double minInformationEntropyCoef = 0.5; //0.1

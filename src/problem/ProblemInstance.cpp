@@ -346,7 +346,7 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 void ProblemInstance::createDistanceMatrices() {
 
     vertexCount = customersCount + depotsCount;
-    verticesDistanceMatrix = (double**) mallocMatrix(vertexCount, sizeof(double*), sizeof(double));
+    verticesDistanceMatrix = (double**) mallocMatrix(vertexCount, customersCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
@@ -368,10 +368,6 @@ void ProblemInstance::createDistanceMatrices() {
             );
         }
     }
-}
-
-inline int ProblemInstance::getDepotVertexIndex(int depotIndex) {
-    return depotIndex + customersCount;
 }
 
 int extractIndex(istringstream& stream) {
