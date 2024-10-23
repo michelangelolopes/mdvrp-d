@@ -456,11 +456,7 @@ int StodolaInspiredAntSystem::selectDepot(int* visitedCustomersIndexes, Route* r
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
 
         int vertexIndex = routes[depotIndex].last();
-        if(vertexIndex == -1) { //depot
-            consideredCustomersCount += updateDepotSelectionProbabilityFromDepotSource(visitedCustomersIndexes, depotSelectionProbability, depotIndex);
-        } else { //customer
-            consideredCustomersCount += updateDepotSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, depotSelectionProbability, depotIndex, vertexIndex);
-        }
+        consideredCustomersCount += updateDepotSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, depotSelectionProbability, depotIndex, vertexIndex);
     }
 
     int selectedDepotIndex = -1;
@@ -476,29 +472,6 @@ int StodolaInspiredAntSystem::selectDepot(int* visitedCustomersIndexes, Route* r
     free(depotSelectionProbability);
 
     return selectedDepotIndex;
-}
-
-int StodolaInspiredAntSystem::updateDepotSelectionProbabilityFromDepotSource(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex) {
-    
-    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-    Cluster* cluster = &verticesClusters[depotVertexIndex];
-
-    int consideredCustomersCount = 0;
-    for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
-
-        SubCluster* subCluster = &cluster->subClusters[subClusterIndex];
-        for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-
-            int customerIndex = subCluster->elements[memberIndex];
-            if(visitedCustomersIndexes[customerIndex] != 1) {
-
-                consideredCustomersCount++;
-                depotSelectionProbability[depotIndex] += pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex];
-            }
-        }
-    }
-
-    return consideredCustomersCount;
 }
 
 int StodolaInspiredAntSystem::updateDepotSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, double* depotSelectionProbability, int depotIndex, int customerIndex) {
@@ -526,17 +499,9 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbabilityFromCustomerSource(
 int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int vertexIndex, int depotIndex) {
 
     double* primarySubClusterSelectionProbability = nullptr;
-    Cluster* cluster = nullptr;
+    Cluster* cluster = &verticesClusters[vertexIndex];
 
-    if(vertexIndex == -1) { //depot
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        cluster = &verticesClusters[depotVertexIndex];
-        primarySubClusterSelectionProbability = getPrimarySubClusterSelectionProbabilityFromDepotSource(visitedCustomersIndexes, cluster, depotIndex);
-    } else { //customer
-        cluster = &verticesClusters[vertexIndex];
-        // std::cout << "\nPrimary1\n";
-        primarySubClusterSelectionProbability = getPrimarySubClusterSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, cluster, depotIndex, vertexIndex);
-    }
+    primarySubClusterSelectionProbability = getPrimarySubClusterSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, cluster, depotIndex, vertexIndex);
 
     int selectedSubClusterIndex = -1;
     if(primarySubClusterSelectionProbability != nullptr) {
@@ -554,12 +519,7 @@ int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, int
             cluster->primariesCount
         );
     } else { //if there is no customer unvisited for all primary clusters, choose non primary cluster
-
-        if(vertexIndex == -1) { //depot
-            selectedSubClusterIndex = selectSubClusterNonPrimaryFromDepotSource(visitedCustomersIndexes, depotIndex);
-        } else {
-            selectedSubClusterIndex = selectSubClusterNonPrimaryFromCustomerSource(visitedCustomersIndexes, vertexIndex);
-        }
+        selectedSubClusterIndex = selectSubClusterNonPrimaryFromCustomerSource(visitedCustomersIndexes, vertexIndex);
     }
 
     // if(selectedSubClusterIndex == -1) {
@@ -594,56 +554,6 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbability(doubl
         primarySubClusterSelectionProbability[subClusterIndex] *= pow(heuristicInformationAverage[subClusterIndex], distanceProbabilityCoef);
         primarySubClusterSelectionProbability[subClusterIndex] *= pow(pheromoneConcentrationAverage[subClusterIndex], pheromoneProbabilityCoef);
     }
-
-    return primarySubClusterSelectionProbability;
-}
-
-double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromDepotSource(
-    int* visitedCustomersIndexes,
-    Cluster* cluster,
-    int depotIndex
-) {
-    
-    double* heuristicInformationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) malloc(cluster->primariesCount * sizeof(double));
-    
-    fillArray(pheromoneConcentrationAverage, cluster->primariesCount, 0.0);
-    fillArray(heuristicInformationAverage, cluster->primariesCount, 0.0);
-
-    int consideredCustomersCountSum = 0;
-    for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
-
-        int consideredCustomersCount = 0;
-        double heuristicInformationSum = 0;
-        double pheromoneConcentrationSum = 0;
-
-        SubCluster* subCluster = &cluster->subClusters[subClusterIndex];
-        for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-
-            int customerIndex = subCluster->elements[memberIndex];
-            if(visitedCustomersIndexes[customerIndex] != 1) {
-
-                int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-                heuristicInformationSum += problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex];
-                pheromoneConcentrationSum += pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex];
-                consideredCustomersCount++;
-            }
-        }
-
-        if(consideredCustomersCount > 0) {
-            heuristicInformationAverage[subClusterIndex] = consideredCustomersCount * heuristicInformationSum;
-            pheromoneConcentrationAverage[subClusterIndex] = pheromoneConcentrationSum / consideredCustomersCount;
-            consideredCustomersCountSum += consideredCustomersCount;
-        }
-    }
-
-    double* primarySubClusterSelectionProbability = nullptr;
-    if(consideredCustomersCountSum > 0) {
-        primarySubClusterSelectionProbability = getPrimarySubClusterSelectionProbability(heuristicInformationAverage, pheromoneConcentrationAverage, cluster->primariesCount);
-    }
-
-    free(heuristicInformationAverage);
-    free(pheromoneConcentrationAverage);
 
     return primarySubClusterSelectionProbability;
 }
@@ -698,32 +608,6 @@ double* StodolaInspiredAntSystem::getPrimarySubClusterSelectionProbabilityFromCu
     return primarySubClusterSelectionProbability;
 }
 
-int StodolaInspiredAntSystem::selectSubClusterNonPrimaryFromDepotSource(int* visitedCustomersIndexes, int depotIndex) {
-    
-    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-    Cluster* cluster = &verticesClusters[depotVertexIndex];
-
-    for(int subClusterIndex = cluster->primariesCount; subClusterIndex < cluster->size; subClusterIndex++) {
-
-        SubCluster* subCluster = &cluster->subClusters[subClusterIndex];
-
-        int consideredCustomersCount = 0;
-        for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-
-            int customerIndex = subCluster->elements[memberIndex];
-            if(visitedCustomersIndexes[customerIndex] != 1) {
-                consideredCustomersCount++;
-            }
-        }
-
-        if(consideredCustomersCount > 0) {
-            return subClusterIndex;
-        }
-    }
-
-    return -1;
-}
-
 int StodolaInspiredAntSystem::selectSubClusterNonPrimaryFromCustomerSource(int* visitedCustomersIndexes, int customerIndex) {
     
     Cluster* cluster = &verticesClusters[customerIndex];
@@ -752,31 +636,9 @@ int StodolaInspiredAntSystem::selectSubClusterNonPrimaryFromCustomerSource(int* 
 int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, int vertexIndex, int depotIndex, int subClusterIndex) {
     
     double* customerSelectionProbability = nullptr;
-    SubCluster* subCluster = nullptr;
+    SubCluster* subCluster = &verticesClusters[vertexIndex].subClusters[subClusterIndex];
 
-    if(vertexIndex == -1) { //depot
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        subCluster = &verticesClusters[depotVertexIndex].subClusters[subClusterIndex];
-
-        // //std::cout << "cluster->size: " << cluster->size << "\n";
-        // //std::cout << "depotIndex: " << depotIndex << "\n";
-        // //std::cout << "subClusterIndex: " << subClusterIndex << "\n";
-
-        // cluster->print(visitedCustomersIndexes);
-
-        customerSelectionProbability = getCustomerSelectionProbabilityFromDepotSource(visitedCustomersIndexes, subCluster, depotIndex);
-    } else { //customer
-        subCluster = &verticesClusters[vertexIndex].subClusters[subClusterIndex];
-
-        // std::cout << "cluster->size: " << customerClusters[vertexIndex].size << "\n";
-        // std::cout << "customerIndex: " << vertexIndex << "\n";
-        // std::cout << "subClusterIndex: " << subClusterIndex << "\n";
-
-        // customerClusters[vertexIndex].print(visitedCustomersIndexes);
-        // std::cout << "\n";
-
-        customerSelectionProbability = getCustomerSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, subCluster, depotIndex, vertexIndex);
-    }
+    customerSelectionProbability = getCustomerSelectionProbabilityFromCustomerSource(visitedCustomersIndexes, subCluster, depotIndex, vertexIndex);
 
     // if(customerSelectionProbability == nullptr) {
     //     return -1;
@@ -816,25 +678,6 @@ int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, int v
     free(customerSelectionProbability);
 
     return subCluster->elements[memberIndex];
-}
-
-double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromDepotSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex) {
-
-    double* customerSelectionProbability = (double*) malloc(subCluster->size * sizeof(double));
-    fillArray(customerSelectionProbability, subCluster->size, 0.0);
-
-    for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
-
-        int customerIndex = subCluster->elements[memberIndex];
-        if(visitedCustomersIndexes[customerIndex] != 1) {
-
-            int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-            customerSelectionProbability[memberIndex] += pow(problemInstance.verticesDistanceMatrix[depotVertexIndex][customerIndex], -distanceProbabilityCoef);
-            customerSelectionProbability[memberIndex] *= pow(pheromoneMatrix[depotIndex][depotVertexIndex][customerIndex], pheromoneProbabilityCoef);
-        }
-    }
-
-    return customerSelectionProbability;
 }
 
 double* StodolaInspiredAntSystem::getCustomerSelectionProbabilityFromCustomerSource(int* visitedCustomersIndexes, SubCluster* subCluster, int depotIndex, int customerIndex) {
