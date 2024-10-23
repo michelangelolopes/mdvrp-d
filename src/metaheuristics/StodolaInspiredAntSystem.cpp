@@ -4,6 +4,7 @@
 #include <cmath>    // ceil()
 #include <cstdlib>  // rand(), srand()
 #include <ctime>    // time()
+#include <functional>
 #include <iostream>
 
 #include "../../include/utils/ArrayUtils.hpp"
@@ -143,76 +144,66 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(Solution*
     }
 }
 
-void StodolaInspiredAntSystem::reinforcePheromoneMatrix(Solution* consideredSolution) {
+void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolution, double updateValue, int isSumOperation) {
 
-    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution->fitness / consideredSolution->fitness);
+    std::function<double(double, double)> operationFunction;
+    
+    if(isSumOperation) {
+        operationFunction = [](double x, double y) { return x + y; };
+    } else {
+        operationFunction = [](double x, double y) { return x * y; };
+    }
 
     //obs: checking precedence is not needed, because only the pheromone of visitedCustomers from the route will be updated
     for(int depotIndex = 0; depotIndex < consideredSolution->depotsCount; depotIndex++) {
-        reinforcePheromoneMatrixInRoute(consideredSolution->routes[depotIndex], depotIndex, pheromoneReinforcingValue);
+        
+        Route* route = &consideredSolution->routes[depotIndex];
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
+            int firstCustomerIndex = subRoute->first();
+            pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] = operationFunction(
+                pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex],
+                updateValue
+            );
+
+            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+
+                int customerIndex = subRoute->members[memberIndex];
+                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+                pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] = operationFunction(
+                pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex],
+                updateValue
+            );
+            }
+
+            int lastCustomerIndex = subRoute->last();
+            pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] = operationFunction(
+                pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex],
+                updateValue
+            );
+        }
     }
+}
+
+void StodolaInspiredAntSystem::reinforcePheromoneMatrix(Solution* consideredSolution) {
+
+    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution->fitness / consideredSolution->fitness);
+    int isSumOperation = 1;
+
+    updatePheromoneMatrix(consideredSolution, pheromoneReinforcingValue, isSumOperation);
     
     temperatureUpdateCoef *= temperatureCoolingCoef;
-}
-
-void StodolaInspiredAntSystem::reinforcePheromoneMatrixInRoute(const Route& route, int depotIndex, double pheromoneReinforcingValue) {
-
-    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
-        reinforcePheromoneMatrixInSubRoute(route.subRoutes[subRouteIndex], depotIndex, pheromoneReinforcingValue);
-    }
-}
-
-void StodolaInspiredAntSystem::reinforcePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneReinforcingValue) {
-
-    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-
-    int firstCustomerIndex = subRoute.members[0];
-    pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] += pheromoneReinforcingValue;
-
-    for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
-
-        int customerIndex = subRoute.members[memberIndex];
-        int neighborCustomerIndex = subRoute.members[memberIndex + 1];
-        pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] += pheromoneReinforcingValue;
-    }
-
-    int lastCustomerIndex = subRoute.last();
-    pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] += pheromoneReinforcingValue;
 }
 
 void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
 
     double pheromoneEvaporatingValue = (1 - pheromoneEvaporationCoef);
+    int isSumOperation = 0;
 
-    //obs: checking precedence is not needed, because only the pheromone of visitedCustomers from the route will be updated
-    for(int depotIndex = 0; depotIndex < bestSolution->depotsCount; depotIndex++) {
-        evaporatePheromoneMatrixInRoute(bestSolution->routes[depotIndex], depotIndex, pheromoneEvaporatingValue);
-    }
-}
-
-void StodolaInspiredAntSystem::evaporatePheromoneMatrixInRoute(const Route& route, int depotIndex, double pheromoneEvaporatingValue) {
-
-    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
-        evaporatePheromoneMatrixInSubRoute(route.subRoutes[subRouteIndex], depotIndex, pheromoneEvaporatingValue);
-    }
-}
-
-void StodolaInspiredAntSystem::evaporatePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneEvaporatingValue) {
-
-    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-
-    int firstCustomerIndex = subRoute.members[0];
-    pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] *= pheromoneEvaporatingValue;
-
-    for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
-
-        int customerIndex = subRoute.members[memberIndex];
-        int neighborCustomerIndex = subRoute.members[memberIndex + 1];
-        pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] *= pheromoneEvaporatingValue;
-    }
-
-    int lastCustomerIndex = subRoute.last();
-    pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] *= pheromoneEvaporatingValue;
+    updatePheromoneMatrix(bestSolution, pheromoneEvaporatingValue, isSumOperation);
 }
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {

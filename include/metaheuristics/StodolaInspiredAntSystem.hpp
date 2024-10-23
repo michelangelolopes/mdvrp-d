@@ -72,15 +72,12 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
         void initializePheromoneMatrices();
+        void updatePheromoneMatrix(Solution* consideredSolution, double updateValue, int isSumOperation);
 
         void reinforcePheromoneMatrixWithProbability(Solution* generationBestSolution);
         void reinforcePheromoneMatrix(Solution* consideredSolution);
-        void reinforcePheromoneMatrixInRoute(const Route& route, int depotIndex, double pheromoneUpdateSum);
-        void reinforcePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneUpdateSum);
 
         void evaporatePheromoneMatrix();
-        void evaporatePheromoneMatrixInRoute(const Route& route, int depotIndex, double pheromoneEvaporatingValue);
-        void evaporatePheromoneMatrixInSubRoute(const SubRoute& subRoute, int depotIndex, double pheromoneEvaporatingValue);
 
         void updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax);
 
