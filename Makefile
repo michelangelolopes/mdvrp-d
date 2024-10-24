@@ -1,5 +1,6 @@
-INCLUDE=include/clustering/* include/metaheuristics/* include/problem/* include/solution/* include/utils/*
-SRC=src/clustering/* src/metaheuristics/* src/problem/* src/solution/* src/utils/*
+INCLUDE = include/clustering/* include/metaheuristics/* include/problem/* include/solution/* include/utils/*
+SRC = src/clustering/* src/metaheuristics/* src/problem/* src/solution/* src/utils/*
+ARGS ?= mdvrp 01
 
 compile:
 	@echo "compiling..."
@@ -19,12 +20,12 @@ compile_opt_debug:
 
 run:
 	@echo "running..."
-	@./bin/mdvrp-d
+	@./bin/mdvrp-d $(ARGS)
 
 run_gdb:
 	@echo "running with gdb..."
-	@gdb -ex=r --args ./bin/mdvrp-d
+	@gdb -ex=r --args ./bin/mdvrp-d $(ARGS)
 
 run_valgrind:
 	@echo "running with valgrind..."
-	@valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/mdvrp-d
+	@valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/mdvrp-d $(ARGS)

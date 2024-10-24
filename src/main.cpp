@@ -1,5 +1,7 @@
 #include <chrono>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "../include/metaheuristics/StodolaInspiredAntSystem.hpp"
@@ -7,13 +9,36 @@
 
 using namespace std;
 
+void loadExampleSolution(string filename, ProblemInstance problemInstance);
+
 int main(int argc, char** argv) {
 
-    string mdvrpdInstance = "./dataset/mdvrpd/p01-D.mdvrp-d";
-    ProblemInstance problemInstanceMDVRPD(mdvrpdInstance, ProblemType::MDVRP_D);
-    
-    string mdvrpInstance = "./dataset/mdvrp/p01";
-    ProblemInstance problemInstanceMDVRP(mdvrpInstance, ProblemType::MDVRP);
+    if(argc != 3) {
+        std::cout << "ERROR! The program needs two args: problem name and problem instance index\n";
+        exit(0);
+    }
+
+    string problemName = argv[1];
+    string problemInstanceIndex = argv[2];
+    string problemInstanceFilePath = "./dataset";
+    ProblemType problemType;
+
+    if(problemName.compare("mdvrp") == 0) {
+
+        problemInstanceFilePath += "/mdvrp";
+        problemInstanceFilePath += "/p" + problemInstanceIndex;
+        problemType = ProblemType::MDVRP;
+    } else if(problemName.compare("mdvrp-d") == 0) {
+
+        problemInstanceFilePath += "/mdvrp-d";
+        problemInstanceFilePath += "/p" + problemInstanceIndex + "-D.mdvrp-d";
+        problemType = ProblemType::MDVRP_D;
+    } else {
+        std::cout << "ERROR! The problem name must be one of the following: mdvrp, mdvrp-d\n";
+        exit(0);
+    }
+
+    ProblemInstance problemInstance(problemInstanceFilePath, problemType);
 
     int antsCount = 192; //192;
     double pheromoneUpdateCoef = 3; //3
@@ -35,7 +60,7 @@ int main(int argc, char** argv) {
     auto start = std::chrono::high_resolution_clock::now();
 
     StodolaInspiredAntSystem antSystem(
-            problemInstanceMDVRPD, 
+            problemInstance, 
             antsCount, 
             pheromoneUpdateCoef, 
             temperatureUpdateCoef,
@@ -63,4 +88,64 @@ int main(int argc, char** argv) {
     antSystem.finalize();
 
     return 0;
+}
+
+void loadExampleSolution(string filename, ProblemInstance problemInstance) {
+
+    ifstream file;
+    string line;
+
+    file.open(filename);
+    std::getline(file, line); //ignore fitness
+
+    Solution example(
+        problemInstance.depotsCount,
+        MinimizationType::TOTAL_DISTANCE_TRAVELED,
+        problemInstance.customersCount
+    );
+
+    int depotIndex;
+    int vertexIndex;
+    int subRouteIndex;
+    int tempInt;
+    double tempDouble;
+
+    while (std::getline(file, line)) {
+        
+        // std::cout << "line: " << line << "\n";
+        istringstream valueStream(line);
+
+        valueStream >> depotIndex;
+        depotIndex--;
+
+        // std::cout << "depotIndex: " << depotIndex << "\n";
+
+        Route* route = &example.routes[depotIndex];
+
+        // std::cout << "route->size: " << route->size << "\n";
+
+        valueStream >> subRouteIndex; //subroute index
+
+        if(subRouteIndex > 1) {
+            route->expand();
+        }
+
+        // std::cout << "subRouteIndex: " << subRouteIndex << "\n";
+
+        valueStream >> tempDouble; //subroute fitness
+        valueStream >> tempInt; //subroute load
+        while(valueStream >> vertexIndex) {
+
+            if(vertexIndex > 0) {
+                vertexIndex--;
+                route->insert(vertexIndex);
+                route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+            }
+        }
+
+        // std::cout << "route->getCurrentLoad(): " << route->getCurrentLoad() << "\n";
+    }
+    
+    example.updateFitness(problemInstance);
+    example.print();
 }
