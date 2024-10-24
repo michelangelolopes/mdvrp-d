@@ -195,10 +195,13 @@ void StodolaInspiredAntSystem::run() {
 
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
+    std::chrono::time_point startIntervalOptimizationTime = startOptimizationTime;
 
     int iterationsCount = 0;
     int iterationsWithoutImprovementCount = 0;
+    int oldIterationIndex = 0;
     std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+    std::chrono::duration<double> currentIntervalOptimizationTime = currentOptimizationTime;
 
     double informationEntropy = -1;
     double informationEntropyMin = -1;
@@ -286,13 +289,15 @@ void StodolaInspiredAntSystem::run() {
 
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+        currentIntervalOptimizationTime = endOptimizationTime - startIntervalOptimizationTime;
 
-        if(iterationsCount % 2000 == 0 && intervalImprovementsCount > 0) {
+        if(currentIntervalOptimizationTime.count() >= 10 && intervalImprovementsCount > 0) {
 
             globalImprovementsCount += intervalImprovementsCount;
 
             std::cout << "iterationsCount: " << iterationsCount << "\n";
             std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
+            std::cout << "iterationsBetweenIntervals: " << iterationsCount - oldIterationIndex << "\n";
             std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
             std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
             std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
@@ -303,7 +308,9 @@ void StodolaInspiredAntSystem::run() {
             
             bestSolution->print();
             
+            oldIterationIndex = iterationsCount;
             intervalImprovementsCount = 0;
+            startIntervalOptimizationTime = std::chrono::high_resolution_clock::now();
         }
     }
 
