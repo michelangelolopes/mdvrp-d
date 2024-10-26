@@ -26,7 +26,7 @@ void StodolaInspiredAntSystem::finalize() {
     if(pheromoneMatrix != nullptr) {
 
         for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-            freeMatrix(pheromoneMatrix[depotIndex], problemInstance.customersCount);
+            freeMatrix(pheromoneMatrix[depotIndex], problemInstance.verticesCount);
         }
 
         free(pheromoneMatrix);
