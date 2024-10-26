@@ -30,7 +30,7 @@ void Route::finalize() {
 
     if(subRoutes != nullptr) {
 
-        for(int index = 0; index < size; index++) {
+        for(int index = 0; index < maxSize; index++) {
             subRoutes[index].finalize();
         }
 
