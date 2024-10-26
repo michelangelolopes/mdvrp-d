@@ -11,7 +11,7 @@
 class Cluster {
     public:
         Cluster() {}
-        Cluster(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
+        Cluster(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
             create(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, vertexIndex);
         }
 
@@ -23,16 +23,15 @@ class Cluster {
         void print();
         void print(int* visitedCustomersIndexes);
 
-    protected:
-        void create(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex);
-
     private:
-        void initializeSubClusters(int primarySubClustersMaxCount, int subClusterMaxSize, int neighborcustomersCount);
-        void createFirstSubCluster(ProblemInstance problemInstance, Frame frame, int baseIndex, int* consideredCustomersIndexes);
-        void createOthersSubClusters(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes);
+        void create(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex);
 
-        int findClosestCustomer(ProblemInstance problemInstance, int baseIndex, int* consideredCustomersIndexes);
-        int findClosestCustomerInSector(ProblemInstance problemInstance, int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes, int* customerSectorMap);
+        void initializeSubClusters(int primarySubClustersMaxCount, int subClusterMaxSize, int neighborcustomersCount);
+        void createFirstSubCluster(const ProblemInstance& problemInstance, const Frame& frame, int baseIndex, int* consideredCustomersIndexes);
+        void createOthersSubClusters(const ProblemInstance& problemInstance, int baseIndex, int* consideredCustomersIndexes);
+
+        int findClosestCustomer(const ProblemInstance& problemInstance, int baseIndex, int* consideredCustomersIndexes);
+        int findClosestCustomerInSector(const ProblemInstance& problemInstance, int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes, int* customerSectorMap);
 };
 
 #endif

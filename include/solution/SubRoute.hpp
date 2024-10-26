@@ -25,11 +25,11 @@ class SubRoute {
         void finalize();
         void insert(int customerIndex);
         void reset();
-        void copy(SubRoute subRouteToCopy);
+        void copy(const SubRoute& subRouteToCopy);
         
         void incrementLoad(double demand);
-        void updateDistanceTraveled(ProblemInstance problemInstance);
-        void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
+        void updateDistanceTraveled(const ProblemInstance& problemInstance);
+        void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
 
         void print() const;
         int first() const;

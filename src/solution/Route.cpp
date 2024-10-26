@@ -71,7 +71,7 @@ void Route::reset() {
     initializeValues();
 }
 
-void Route::copy(Route routeToCopy) {
+void Route::copy(const Route& routeToCopy) {
 
     if(routeToCopy.size > maxSize) {
 
@@ -104,7 +104,7 @@ void Route::incrementCurrentLoad(double demand) {
     subRoutes[size - 1].incrementLoad(demand);
 }
 
-void Route::updateDistanceTraveled(ProblemInstance problemInstance, int depotIndex) {
+void Route::updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex) {
     
     distanceTraveled = 0;
 
@@ -122,7 +122,7 @@ void Route::updateDistanceTraveled(ProblemInstance problemInstance, int depotInd
     }
 }
 
-void Route::updateTimeSpent(ProblemInstance problemInstance, int depotIndex) {
+void Route::updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex) {
 
     for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
 

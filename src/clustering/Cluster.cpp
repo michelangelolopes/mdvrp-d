@@ -7,7 +7,7 @@
 #include "../../include/utils/ArrayUtils.hpp"
 #include "../../include/utils/MathUtils.hpp"
 
-void Cluster::create(ProblemInstance problemInstance, Frame frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
+void Cluster::create(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
     
     int neighborCustomersCount = problemInstance.customersCount;
     int* consideredCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
@@ -51,7 +51,7 @@ void Cluster::initializeSubClusters(int primarySubClustersMaxCount, int subClust
     }
 }
 
-void Cluster::createFirstSubCluster(ProblemInstance problemInstance, Frame frame, int vertexIndex, int* consideredCustomersIndexes) {
+void Cluster::createFirstSubCluster(const ProblemInstance& problemInstance, const Frame& frame, int vertexIndex, int* consideredCustomersIndexes) {
 
     int consideredCustomersCount = 0;
 
@@ -83,7 +83,7 @@ void Cluster::createFirstSubCluster(ProblemInstance problemInstance, Frame frame
     // }
 }
 
-void Cluster::createOthersSubClusters(ProblemInstance problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
+void Cluster::createOthersSubClusters(const ProblemInstance& problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
 
     int subClusterIndex = 1;
     while(subClusterIndex < size) {
@@ -172,7 +172,7 @@ void Cluster::print(int* visitedCustomersIndexes) {
     // std::cout << "--------------------------------------------------\n";       
 }
 
-int Cluster::findClosestCustomer(ProblemInstance problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
+int Cluster::findClosestCustomer(const ProblemInstance& problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
 
     int memberIndex = -1;
     double minDistance = -1;
@@ -193,7 +193,7 @@ int Cluster::findClosestCustomer(ProblemInstance problemInstance, int vertexInde
     return memberIndex;
 }
 
-int Cluster::findClosestCustomerInSector(ProblemInstance problemInstance, int vertexIndex, int sectorIndex, int* consideredCustomersIndexes, int* customerSectorMap) {
+int Cluster::findClosestCustomerInSector(const ProblemInstance& problemInstance, int vertexIndex, int sectorIndex, int* consideredCustomersIndexes, int* customerSectorMap) {
 
     int memberIndex = -1;
     double minDistance = -1;

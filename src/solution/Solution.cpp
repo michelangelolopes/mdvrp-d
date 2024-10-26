@@ -17,17 +17,17 @@ void Solution::initializeValues() {
 
 void Solution::initializeRoutes(int subRouteMaxLength) {
 
-    this->routes = (Route*) malloc(this->depotsCount * sizeof(Route));
+    routes = (Route*) malloc(depotsCount * sizeof(Route));
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        this->routes[depotIndex] = Route(depotIndex, subRouteMaxLength);
+        routes[depotIndex] = Route(depotIndex, subRouteMaxLength);
     }
 }
 
 void Solution::finalize() {
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        this->routes[depotIndex].finalize();
+        routes[depotIndex].finalize();
     }
 
     free(routes);
@@ -36,7 +36,7 @@ void Solution::finalize() {
 void Solution::reset() {
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        this->routes[depotIndex].reset();
+        routes[depotIndex].reset();
     }
 
     initializeValues();
@@ -55,7 +55,7 @@ void Solution::copy(Solution solutionToCopy) {
     }
 }
 
-void Solution::updateFitness(ProblemInstance problemInstance) {
+void Solution::updateFitness(const ProblemInstance& problemInstance) {
 
     totalDistanceTraveled = 0;
     totalTimeSpent = 0;

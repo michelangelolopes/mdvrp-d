@@ -11,9 +11,9 @@
 
 class Solution {
     public:
-        Solution(int depotsCount, MinimizationType minimizationType) : depotsCount(depotsCount), minimizationType(minimizationType) {}
+        Solution(int depotsCount, const MinimizationType& minimizationType) : depotsCount(depotsCount), minimizationType(minimizationType) {}
 
-        Solution(int depotsCount, MinimizationType minimizationType, int subRouteMaxLength) : 
+        Solution(int depotsCount, const MinimizationType& minimizationType, int subRouteMaxLength) : 
         Solution(depotsCount, minimizationType)
         {
             init(subRouteMaxLength);
@@ -32,7 +32,7 @@ class Solution {
         void finalize();
         void reset();
         void copy(Solution solutionToCopy);
-        void updateFitness(ProblemInstance problemInstance);
+        void updateFitness(const ProblemInstance& problemInstance);
 
         void print() const;
     private:

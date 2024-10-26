@@ -10,13 +10,6 @@
 
 class Route {
     public:
-        // Route() : 
-        // size(1),
-        // distanceTraveled(-1),
-        // timeSpent(-1)
-        // {
-
-        // }
         Route(int depotIndex, int subRouteMaxLength) : depotIndex(depotIndex) {
             init(subRouteMaxLength);
         }
@@ -35,15 +28,15 @@ class Route {
         void insert(int customerIndex);
         int last();
         void reset();
-        void copy(Route routeToCopy);
+        void copy(const Route& routeToCopy);
 
         double getCurrentLoad();
         void incrementCurrentLoad(double demand);
         void initializeSubRoutes(int subRouteMaxLength);
 
         void print() const;
-        void updateDistanceTraveled(ProblemInstance problemInstance, int depotIndex);
-        void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
+        void updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex);
+        void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
 
     private:
         void init(int subRouteMaxLength);

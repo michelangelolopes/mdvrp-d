@@ -34,7 +34,7 @@ void SubRoute::reset() {
     initializeValues();
 }
 
-void SubRoute::copy(SubRoute subRouteToCopy) {
+void SubRoute::copy(const SubRoute& subRouteToCopy) {
 
     length = subRouteToCopy.length;
     load = subRouteToCopy.load;
@@ -51,7 +51,7 @@ void SubRoute::incrementLoad(double demand) {
     load += demand;
 }
 
-void SubRoute::updateDistanceTraveled(ProblemInstance problemInstance) {
+void SubRoute::updateDistanceTraveled(const ProblemInstance& problemInstance) {
 
     distanceTraveled = 0;
 
@@ -63,7 +63,7 @@ void SubRoute::updateDistanceTraveled(ProblemInstance problemInstance) {
     }
 }
 
-void SubRoute::updateTimeSpent(ProblemInstance problemInstance, int depotIndex) {
+void SubRoute::updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex) {
 
     updateDistanceTraveled(problemInstance);
     double truckSpeed = problemInstance.depots[depotIndex].truck.speed;
@@ -75,7 +75,6 @@ void SubRoute::print() const {
 
     for(int index = 0; index < length; index++) {
 
-        // std::cout << members[index] + 1;
         std::cout << members[index];
 
         if(index != length - 1) {
