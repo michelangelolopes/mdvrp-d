@@ -36,7 +36,7 @@ void StodolaInspiredAntSystem::finalize() {
 
     if(verticesClusters != nullptr) {
 
-        for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
+        for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
             verticesClusters[vertexIndex].finalize();
         }
 
@@ -50,13 +50,13 @@ void StodolaInspiredAntSystem::print() {
 
 void StodolaInspiredAntSystem::createClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
 
-    verticesClusters = (Cluster*) malloc(problemInstance.vertexCount * sizeof(Cluster));
+    verticesClusters = (Cluster*) malloc(problemInstance.verticesCount * sizeof(Cluster));
 
     for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
         verticesClusters[customerIndex] = Cluster(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, customerIndex);
     }
 
-    for(int depotVertexIndex = problemInstance.getDepotVertexIndex(0); depotVertexIndex < problemInstance.vertexCount; depotVertexIndex++) {
+    for(int depotVertexIndex = problemInstance.getDepotVertexIndex(0); depotVertexIndex < problemInstance.verticesCount; depotVertexIndex++) {
         verticesClusters[depotVertexIndex] = Cluster(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, depotVertexIndex);
     }
 }
@@ -66,8 +66,8 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
     pheromoneMatrix = (double***) malloc(problemInstance.depotsCount * sizeof(double**));
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
-        pheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.vertexCount, problemInstance.customersCount, sizeof(double*), sizeof(double));
-        fillMatrix(pheromoneMatrix[depotIndex], problemInstance.vertexCount, problemInstance.customersCount, 1.0);
+        pheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.verticesCount, problemInstance.customersCount, sizeof(double*), sizeof(double));
+        fillMatrix(pheromoneMatrix[depotIndex], problemInstance.verticesCount, problemInstance.customersCount, 1.0);
     }
 }
 
@@ -182,7 +182,7 @@ void StodolaInspiredAntSystem::run() {
     srand((unsigned int)time(0));
 
     int generationEdgesCount = 0;
-    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.vertexCount, problemInstance.vertexCount, sizeof(int*), sizeof(int));
+    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.verticesCount, problemInstance.verticesCount, sizeof(int*), sizeof(int));
     int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
     double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
 
@@ -240,7 +240,7 @@ void StodolaInspiredAntSystem::run() {
     {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
-        fillMatrix(generationEdgesOccurrenceCount, problemInstance.vertexCount, problemInstance.vertexCount, 0);
+        fillMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount, problemInstance.verticesCount, 0);
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
@@ -333,7 +333,7 @@ void StodolaInspiredAntSystem::run() {
     free(selectionProbability);
     free(heuristicInformationAverage);
     free(pheromoneConcentrationAverage);
-    freeMatrix(generationEdgesOccurrenceCount, problemInstance.vertexCount);
+    freeMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount);
 }
 
 void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage) {
@@ -564,8 +564,8 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** edgesOccurren
     
     double informationEntropy = 0;
 
-    for(int vertexIndex = 0; vertexIndex < problemInstance.vertexCount; vertexIndex++) {
-        for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.vertexCount; neighborVertexIndex++) {
+    for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
+        for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.verticesCount; neighborVertexIndex++) {
 
             double edgeOcurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
 
