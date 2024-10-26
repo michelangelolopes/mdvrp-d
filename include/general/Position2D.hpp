@@ -6,10 +6,7 @@
 class Position2D {
     public:
         Position2D() {}
-        Position2D(double x, double y) {
-            this->x = x;
-            this->y = y;
-        }
+        Position2D(double x, double y) : x(x), y(y) {}
 
         double x;
         double y;
