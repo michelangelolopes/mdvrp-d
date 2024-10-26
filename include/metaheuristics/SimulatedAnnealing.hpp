@@ -3,10 +3,8 @@
 
 class SimulatedAnnealing {
     public:
-        SimulatedAnnealing(double temperatureUpdateCoef, double temperatureCoolingCoef) {
-            this->temperatureUpdateCoef = temperatureUpdateCoef;
-            this->temperatureCoolingCoef = temperatureCoolingCoef;
-        }
+        SimulatedAnnealing(double temperatureUpdateCoef, double temperatureCoolingCoef) :
+        temperatureUpdateCoef(temperatureUpdateCoef), temperatureCoolingCoef(temperatureCoolingCoef) {}
 
         double temperatureUpdateCoef;
         double temperatureCoolingCoef;

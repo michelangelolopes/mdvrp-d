@@ -6,12 +6,8 @@
 
 class AntSystem {
     public:
-        AntSystem(ProblemInstance problemInstance, int antsCount, double pheromoneUpdateCoef) :
-        problemInstance(problemInstance) 
-        {
-            this->antsCount = antsCount;
-            this->pheromoneUpdateCoef = pheromoneUpdateCoef;
-        } 
+        AntSystem(const ProblemInstance& problemInstance, int antsCount, double pheromoneUpdateCoef) :
+        problemInstance(problemInstance), antsCount(antsCount), pheromoneUpdateCoef(pheromoneUpdateCoef) {}
 
         int antsCount;
         double pheromoneUpdateCoef;
@@ -20,15 +16,6 @@ class AntSystem {
 
         ProblemInstance problemInstance;
         Solution* bestSolution = nullptr;
-
-        void finalize() {
-            problemInstance.finalize();
-            
-            if(bestSolution != nullptr) {
-                bestSolution->finalize();
-                delete bestSolution;
-            }
-        }
 };
 
 #endif
