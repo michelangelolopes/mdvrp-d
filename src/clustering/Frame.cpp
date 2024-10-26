@@ -4,9 +4,9 @@
 #include <iostream>
 #include "../../include/utils/ArrayUtils.hpp"
 
-void Frame::create(ProblemInstance problemInstance) {
+void Frame::create(const ProblemInstance& problemInstance) {
 
-    this->customersCount = problemInstance.customersCount;
+    customersCount = problemInstance.customersCount;
 
     initializePositions();
 
@@ -20,12 +20,12 @@ void Frame::create(ProblemInstance problemInstance) {
 
 void Frame::finalize() {
 
-    if(this->sectors != nullptr) {
-        free(this->sectors);
+    if(sectors != nullptr) {
+        free(sectors);
     }
 
-    if(this->customerSectorMap != nullptr) {
-        free(this->customerSectorMap);
+    if(customerSectorMap != nullptr) {
+        free(customerSectorMap);
     }
 }
 
@@ -47,7 +47,7 @@ void Frame::print() {
     std::cout << "-------------------------\n";
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         std::cout << "Sector[" << sectorIndex << "]: ";
-        for(int customerIndex = 0; customerIndex < this->customersCount; customerIndex++) {
+        for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
             if(customerSectorMap[customerIndex] == sectorIndex) {
                 std::cout << customerIndex << "\t";
             }
@@ -65,7 +65,7 @@ void Frame::initializePositions() {
     min.y = 0;
 }
 
-void Frame::updatePositions(Position2D position) {
+void Frame::updatePositions(const Position2D& position) {
     if(position.x > max.x) {
         max.x = position.x;
     }
@@ -130,23 +130,16 @@ void Frame::splitSectorsVertically(double yTotal) {
     }
 }
 
-void Frame::assignSectorToCustomers(ProblemInstance problemInstance) {
+void Frame::assignSectorToCustomers(const ProblemInstance& problemInstance) {
 
-    customerSectorMap = (int*) calloc(problemInstance.customersCount, sizeof(int));
+    customerSectorMap = (int*) malloc(problemInstance.customersCount * sizeof(int));
 
     for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
         for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
-            if( isPositionInSector(sectors[sectorIndex], problemInstance.customers[customerIndex].position) ) {
+            if( sectors[sectorIndex].contains(problemInstance.customers[customerIndex].position) ) {
                 customerSectorMap[customerIndex] = sectorIndex;
                 break;
             }
         }
     }
-}
-
-int isPositionInSector(Sector sector, Position2D position) {
-    return (position.x >= sector.min.x) && 
-        (position.x <= sector.max.x) && 
-        (position.y >= sector.min.y) && 
-        (position.y <= sector.max.y);
 }

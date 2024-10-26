@@ -7,15 +7,22 @@
 class Sector {
     public:
         Sector() {}
-        Sector(Position2D min, Position2D max) : min(min), max(max) {}
+        Sector(const Position2D& min, const Position2D& max) : min(min), max(max) {}
 
         Position2D min;
         Position2D max;
 
-        void print() {
+        inline void print() const {
             min.print();
             std::cout << " - ";
             max.print();
+        }
+
+        inline int contains(const Position2D& position) const {
+            return (position.x >= min.x) && 
+                (position.x <= max.x) && 
+                (position.y >= min.y) && 
+                (position.y <= max.y);
         }
 };
 
