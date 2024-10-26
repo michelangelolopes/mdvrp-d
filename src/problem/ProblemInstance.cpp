@@ -132,6 +132,8 @@ void ProblemInstance::loadCordeauInstance(const string& filename) {
 
         valueStream >> depots[depotIndex].truck.routeMaxDuration;
         valueStream >> depots[depotIndex].truck.capacity;
+        depots[depotIndex].truck.speed = 0;
+        depots[depotIndex].truck.serviceTime = 0;
     }
 
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
