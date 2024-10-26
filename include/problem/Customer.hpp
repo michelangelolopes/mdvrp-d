@@ -9,7 +9,7 @@ class Customer {
         Position2D position;
         double demand;
 
-        void print() {
+        inline void print() const {
             position.print();
             std::cout << " - Demand: " << demand << "\n";
         }

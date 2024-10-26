@@ -10,7 +10,7 @@ class Uav : public Vehicle {
         double launchTime;
         double recoveryTime;
 
-        void print() {
+        inline void print() const {
             std::cout << "Speed: " << speed << " - ";
             std::cout << "Capacity: " << capacity << " - ";
             std::cout << "ServiceTime: " << serviceTime << " - ";

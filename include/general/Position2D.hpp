@@ -14,7 +14,7 @@ class Position2D {
         double x;
         double y;
 
-        void print() {
+        inline void print() const {
             std::cout << "(x: " << x << ", y: " << y << ")"; 
         }
 };
