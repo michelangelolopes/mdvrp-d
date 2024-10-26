@@ -8,7 +8,7 @@
 #include "../../include/utils/ArrayUtils.hpp"
 #include "../../include/utils/MathUtils.hpp"
 
-void ProblemInstance::create(string filename) {
+void ProblemInstance::create(const string& filename) {
 
     switch(problemType) {
         case VRP:
@@ -40,11 +40,11 @@ void ProblemInstance::finalize() {
     }
 
     if(verticesDistanceMatrix != nullptr) {
-        freeMatrix(verticesDistanceMatrix, vertexCount);
+        freeMatrix(verticesDistanceMatrix, verticesCount);
     }
 }
 
-void ProblemInstance::print(int printDistanceMatrix) {
+void ProblemInstance::print(int printDistanceMatrix) const {
 
     std::cout << "\n--------------------------------------------------\n";
 
@@ -69,7 +69,7 @@ void ProblemInstance::print(int printDistanceMatrix) {
     std::cout << "-------------------------\n";
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         std::cout << "Depot[" << depotIndex << "] - ";
-        depots[depotIndex].print();
+        depots[depotIndex].print(problemType);
 
         if(depotIndex < depotsCount - 1) {
             std::cout << "------------\n";
@@ -80,7 +80,6 @@ void ProblemInstance::print(int printDistanceMatrix) {
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         std::cout << "Customer[" << customerIndex << "] - ";
         customers[customerIndex].print();
-        std::cout << "\n";
     }
 
     if(printDistanceMatrix) {
@@ -108,7 +107,7 @@ void ProblemInstance::print(int printDistanceMatrix) {
     }
 }
 
-void ProblemInstance::loadCordeauInstance(string filename) {
+void ProblemInstance::loadCordeauInstance(const string& filename) {
 
     ifstream file;
     file.open(filename);
@@ -174,7 +173,7 @@ void ProblemInstance::loadCordeauInstance(string filename) {
     }
 }
 
-void ProblemInstance::loadStodolaInstance(string filename) {
+void ProblemInstance::loadStodolaInstance(const string& filename) {
 
     ifstream file;
     file.open(filename);
@@ -194,11 +193,14 @@ void ProblemInstance::loadStodolaInstance(string filename) {
     }
 }
 
-int ProblemInstance::loadGeneralInfo(string key, string value) {
+int ProblemInstance::loadGeneralInfo(const string& key, const string& value) {
 
     istringstream valueStream;
     valueStream.str(value);
-    
+
+    if(key.compare("Problem") == 0) {
+        return 1; //don´t need to store this
+    }
     
     if(key.compare("NumberOfDepots") == 0) {
         valueStream >> depotsCount;
@@ -215,7 +217,7 @@ int ProblemInstance::loadGeneralInfo(string key, string value) {
     return 0;
 }
 
-int ProblemInstance::loadObjectInfo(string key, string value) {
+int ProblemInstance::loadObjectInfo(const string& key, const string& value) {
 
     int delimiterIndex = key.find('_');
     string object = key.substr(0, delimiterIndex);
@@ -225,7 +227,12 @@ int ProblemInstance::loadObjectInfo(string key, string value) {
     
     int isDepotInfo = depotComparison >= 0 && depotComparison <= 3;
     if(isDepotInfo) {
-        loadDepotInfo(object, info, value);
+
+        string depotIndexStr = object.substr(object.length() - depotComparison);
+        int depotIndex = std::stoi(depotIndexStr);
+        
+        loadDepotInfo(info, value, --depotIndex);
+        
         return 1;
     }
 
@@ -233,21 +240,19 @@ int ProblemInstance::loadObjectInfo(string key, string value) {
 
     int isCustomerInfo = customerComparison >= 0 && customerComparison <= 3;
     if(isCustomerInfo) {
-        loadCustomerInfo(object, info, value);
+
+        string customerIndexStr = object.substr(object.length() - customerComparison);
+        int customerIndex = std::stoi(customerIndexStr);
+
+        loadCustomerInfo(info, value, --customerIndex);
+
         return 1;
     }
 
     return 0;
 }
 
-int ProblemInstance::loadDepotInfo(string object, string info, string value) {
-
-    istringstream objectStream;
-    objectStream.str(object);
-
-    string tempString;
-    int depotIndex = extractIndex(objectStream);
-    depotIndex--;
+int ProblemInstance::loadDepotInfo(const string& info, const string& value, int depotIndex) {
 
     istringstream valueStream;
     valueStream.str(value);
@@ -314,14 +319,7 @@ int ProblemInstance::loadDepotInfo(string object, string info, string value) {
     return 0;
 }
 
-int ProblemInstance::loadCustomerInfo(string object, string info, string value) {
-
-    istringstream objectStream;
-    objectStream.str(object);
-
-    string tempString;
-    int customerIndex = extractIndex(objectStream);
-    customerIndex--;
+int ProblemInstance::loadCustomerInfo(const string& info, const string& value, int customerIndex) {
 
     istringstream valueStream;
     valueStream.str(value);
@@ -345,8 +343,8 @@ int ProblemInstance::loadCustomerInfo(string object, string info, string value) 
 
 void ProblemInstance::createDistanceMatrices() {
 
-    vertexCount = customersCount + depotsCount;
-    verticesDistanceMatrix = (double**) mallocMatrix(vertexCount, customersCount, sizeof(double*), sizeof(double));
+    verticesCount = customersCount + depotsCount;
+    verticesDistanceMatrix = (double**) mallocMatrix(verticesCount, customersCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
@@ -368,19 +366,4 @@ void ProblemInstance::createDistanceMatrices() {
             );
         }
     }
-}
-
-int extractIndex(istringstream& stream) {
-    char temp;
-    int value;
-    while (stream >> temp) {
-        if (isdigit(temp)) {
-            stream.putback(temp);
-            break;
-        }
-    }
-
-    stream >> value;
-
-    return value;
 }

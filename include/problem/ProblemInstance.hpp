@@ -14,7 +14,7 @@ using namespace std;
 
 class ProblemInstance {
     public:
-        ProblemInstance(string datasetFilename, ProblemType problemType) : 
+        ProblemInstance(const string& datasetFilename, const ProblemType& problemType) : 
         problemType(problemType)
         {
             create(datasetFilename);
@@ -24,34 +24,33 @@ class ProblemInstance {
         MinimizationType minimizationType;
         
         Depot* depots = nullptr;
-        int depotsCount;
-        
         Customer* customers = nullptr;
-        int customersCount;
-
-        int vertexCount;
         double** verticesDistanceMatrix = nullptr;
 
-        void create(string datasetFilename);
+        int depotsCount;
+        int customersCount;
+        int verticesCount;
+
         void finalize();
-        void print(int printDistanceMatrix);
+
+        void print(int printDistanceMatrix) const;
 
         inline int getDepotVertexIndex(int depotIndex) const {
             return depotIndex + customersCount;
         }
 
     private:
-        void loadCordeauInstance(string filename);
+        void create(const string& datasetFilename);
 
-        void loadStodolaInstance(string filename);
-        int loadGeneralInfo(string key, string value);
-        int loadObjectInfo(string key, string value);
-        int loadDepotInfo(string object, string info, string value);
-        int loadCustomerInfo(string object, string info, string value);
+        void loadCordeauInstance(const string& filename);
+
+        void loadStodolaInstance(const string& filename);
+        int loadGeneralInfo(const string& key, const string& value);
+        int loadObjectInfo(const string& key, const string& value);
+        int loadDepotInfo(const string& info, const string& value, int depotIndex);
+        int loadCustomerInfo(const string& info, const string& value, int customerIndex);
 
         void createDistanceMatrices();
 };
-
-int extractIndex(istringstream& stream);
 
 #endif
