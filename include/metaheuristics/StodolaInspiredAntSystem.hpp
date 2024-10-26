@@ -9,7 +9,7 @@
 class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
     public:
         StodolaInspiredAntSystem(
-            ProblemInstance problemInstance, 
+            const ProblemInstance& problemInstance, 
             int antsCount, 
             double pheromoneUpdateCoef, 
             double temperatureUpdateCoef,
@@ -48,7 +48,6 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         }
 
         int localOptimizationFrequency;
-        // int primarySubClustersCount;
         double pheromoneEvaporationCoefMin;
         double pheromoneEvaporationCoefMax;
 
@@ -72,10 +71,10 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
         void initializePheromoneMatrices();
-        void updatePheromoneMatrix(Solution* consideredSolution, double updateValue, int isSumOperation);
+        void updatePheromoneMatrix(const Solution& consideredSolution, double updateValue, int isSumOperation);
 
-        void reinforcePheromoneMatrixWithProbability(Solution* generationBestSolution);
-        void reinforcePheromoneMatrix(Solution* consideredSolution);
+        void reinforcePheromoneMatrixWithProbability(const Solution& generationBestSolution);
+        void reinforcePheromoneMatrix(const Solution& consideredSolution);
 
         void evaporatePheromoneMatrix();
 
@@ -102,10 +101,10 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
 
         int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
-        void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, SubCluster* subCluster);
+        void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
         double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
-        int updateGenerationEdgesOccurrenceCount(Solution* solution, int** edgesOcurrenceCount);
+        int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
 };
 
 void normalizeValues(double* selectionProbability, int candidatesCount);

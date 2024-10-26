@@ -71,25 +71,7 @@ void StodolaInspiredAntSystem::initializePheromoneMatrices() {
     }
 }
 
-void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(Solution* generationBestSolution) {
-
-    double bestSolutionProbability = generationBestSolution->fitness - bestSolution->fitness;
-    bestSolutionProbability /= bestSolution->fitness;
-    bestSolutionProbability /= temperatureUpdateCoef;
-    bestSolutionProbability *= -1;
-    bestSolutionProbability = exp(bestSolutionProbability);
-
-    double generationBestSolutionProbability = 1 - bestSolutionProbability;
-    double randomValue = ((double)rand() / RAND_MAX);
-
-    if(randomValue <= generationBestSolutionProbability) {
-        reinforcePheromoneMatrix(generationBestSolution);
-    } else {
-        reinforcePheromoneMatrix(bestSolution);
-    }
-}
-
-void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolution, double updateValue, int isSumOperation) {
+void StodolaInspiredAntSystem::updatePheromoneMatrix(const Solution& consideredSolution, double updateValue, int isSumOperation) {
 
     std::function<double(double, double)> operationFunction;
     
@@ -100,17 +82,17 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolutio
     }
 
     //obs: checking precedence is not needed, because only the pheromone of visitedCustomers from the route will be updated
-    for(int depotIndex = 0; depotIndex < consideredSolution->depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < consideredSolution.depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* route = &consideredSolution->routes[depotIndex];
+        Route route = consideredSolution.routes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
         
-            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            SubRoute subRoute = route.subRoutes[subRouteIndex];
 
-            int firstCustomerIndex = subRoute->first();
-            int lastCustomerIndex = subRoute->last();
+            int firstCustomerIndex = subRoute.first();
+            int lastCustomerIndex = subRoute.last();
 
             pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] = operationFunction(
                 pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex],
@@ -121,10 +103,10 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolutio
                 updateValue
             );
 
-            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+            for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
 
-                int customerIndex = subRoute->members[memberIndex];
-                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+                int customerIndex = subRoute.members[memberIndex];
+                int neighborCustomerIndex = subRoute.members[memberIndex + 1];
                 pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] = operationFunction(
                     pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex],
                     updateValue
@@ -134,9 +116,27 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(Solution* consideredSolutio
     }
 }
 
-void StodolaInspiredAntSystem::reinforcePheromoneMatrix(Solution* consideredSolution) {
+void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(const Solution& generationBestSolution) {
 
-    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution->fitness / consideredSolution->fitness);
+    double bestSolutionProbability = generationBestSolution.fitness - bestSolution->fitness;
+    bestSolutionProbability /= bestSolution[0].fitness;
+    bestSolutionProbability /= temperatureUpdateCoef;
+    bestSolutionProbability *= -1;
+    bestSolutionProbability = exp(bestSolutionProbability);
+
+    double generationBestSolutionProbability = 1 - bestSolutionProbability;
+    double randomValue = ((double)rand() / RAND_MAX);
+
+    if(randomValue <= generationBestSolutionProbability) {
+        reinforcePheromoneMatrix(generationBestSolution);
+    } else {
+        reinforcePheromoneMatrix(bestSolution[0]);
+    }
+}
+
+void StodolaInspiredAntSystem::reinforcePheromoneMatrix(const Solution& consideredSolution) {
+
+    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution[0].fitness / consideredSolution.fitness);
     int isSumOperation = 1;
 
     updatePheromoneMatrix(consideredSolution, pheromoneReinforcingValue, isSumOperation);
@@ -149,7 +149,7 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
     double pheromoneEvaporatingValue = (1 - pheromoneEvaporationCoef);
     int isSumOperation = 0;
 
-    updatePheromoneMatrix(bestSolution, pheromoneEvaporatingValue, isSumOperation);
+    updatePheromoneMatrix(bestSolution[0], pheromoneEvaporatingValue, isSumOperation);
 }
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
@@ -245,7 +245,7 @@ void StodolaInspiredAntSystem::run() {
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
         buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
-        generationEdgesCount += updateGenerationEdgesOccurrenceCount(&generationBestSolution, generationEdgesOccurrenceCount);
+        generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
@@ -253,7 +253,7 @@ void StodolaInspiredAntSystem::run() {
             // std::cout << "------ ant: " << antIndex << "\n";
 
             buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
-            generationEdgesCount += updateGenerationEdgesOccurrenceCount(&antSolution, generationEdgesOccurrenceCount);
+            generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
                 generationBestSolution.copy(antSolution);
@@ -267,12 +267,12 @@ void StodolaInspiredAntSystem::run() {
         if(generationBestSolution.fitness < bestSolution->fitness) {
 
             bestSolution[0].copy(generationBestSolution);
-            reinforcePheromoneMatrix(bestSolution);
+            reinforcePheromoneMatrix(bestSolution[0]);
 
             intervalImprovementsCount += 1;
             iterationsWithoutImprovementCount = 0;
         } else {
-            reinforcePheromoneMatrixWithProbability(&generationBestSolution);
+            reinforcePheromoneMatrixWithProbability(generationBestSolution);
         }
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
@@ -306,7 +306,7 @@ void StodolaInspiredAntSystem::run() {
             std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
             std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
             
-            bestSolution->print();
+            bestSolution[0].print();
             
             oldIterationIndex = iterationsCount;
             intervalImprovementsCount = 0;
@@ -324,7 +324,7 @@ void StodolaInspiredAntSystem::run() {
     std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
     std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
     
-    bestSolution->print();
+    bestSolution[0].print();
 
     antSolution.finalize();
     generationBestSolution.finalize();
@@ -533,25 +533,25 @@ int StodolaInspiredAntSystem::selectSubClusterNonPrimary(int* visitedCustomersIn
 
 int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex) {
 
-    SubCluster* subCluster = &verticesClusters[vertexIndex].subClusters[subClusterIndex];
+    SubCluster subCluster = verticesClusters[vertexIndex].subClusters[subClusterIndex];
 
     updateCustomerSelectionProbability(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex, subCluster);
 
     int memberIndex = rouletteWheelSelection(
         selectionProbability,
-        subCluster->size
+        subCluster.size
     );
 
-    return subCluster->elements[memberIndex];
+    return subCluster.elements[memberIndex];
 }
 
-void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, SubCluster* subCluster) {
+void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster) {
   
     fillArray(customerSelectionProbability, problemInstance.customersCount, 0.0);
 
-    for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
+    for(int memberIndex = 0; memberIndex < subCluster.size; memberIndex++) {
         
-        int neighborCustomerIndex = subCluster->elements[memberIndex];
+        int neighborCustomerIndex = subCluster.elements[memberIndex];
         if(visitedCustomersIndexes[neighborCustomerIndex] != 1) {
 
             customerSelectionProbability[memberIndex] += pow(problemInstance.verticesDistanceMatrix[vertexIndex][neighborCustomerIndex], -distanceProbabilityCoef);
@@ -591,31 +591,31 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** edgesOccurren
     return informationEntropy;
 }
 
-int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(Solution* solution, int** edgesOccurrenceCount) {
+int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
 
     //TODO: it could be needed to use the depot-customer edges
 
     int edgesCount = 0;
-    for(int depotIndex = 0; depotIndex < solution->depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* route = &solution->routes[depotIndex];
+        Route route = solution.routes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
 
-            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            SubRoute subRoute = route.subRoutes[subRouteIndex];
             
-            int firstCustomerIndex = subRoute->first();
-            int lastCustomerIndex = subRoute->last();
+            int firstCustomerIndex = subRoute.first();
+            int lastCustomerIndex = subRoute.last();
 
             edgesOccurrenceCount[depotVertexIndex][firstCustomerIndex] += 1;
             edgesOccurrenceCount[lastCustomerIndex][depotVertexIndex] += 1;
 
             edgesCount += 2;
 
-            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
-                int customerIndex = subRoute->members[memberIndex];
-                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+            for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
+                int customerIndex = subRoute.members[memberIndex];
+                int neighborCustomerIndex = subRoute.members[memberIndex + 1];
 
                 edgesOccurrenceCount[customerIndex][neighborCustomerIndex] += 1;
                 edgesCount += 1;
