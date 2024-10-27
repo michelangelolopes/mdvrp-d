@@ -276,8 +276,8 @@ void StodolaInspiredAntSystem::run() {
         }
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
-        informationEntropyMin = -1 * log((double)antsCount / generationEdgesCount);
-        informationEntropyMax = -1 * log(1.00 / generationEdgesCount);
+        informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
+        informationEntropyMax = -1 * log2(1.00 / generationEdgesCount);
         informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
 
         updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
@@ -625,7 +625,7 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** edgesOccurren
                 double edgeOcurrenceProbability = edgeOcurrenceCount / generationEdgesCount;
                 // std::cout << edgeOcurrenceProbability << " - ";
 
-                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log(edgeOcurrenceProbability));
+                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log2(edgeOcurrenceProbability));
                 // std::cout << balancedEdgeOcurrenceProbability << "\n";
 
                 informationEntropy += balancedEdgeOcurrenceProbability;
