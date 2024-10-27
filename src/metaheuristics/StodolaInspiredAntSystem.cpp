@@ -85,14 +85,14 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(const Solution& consideredS
     for(int depotIndex = 0; depotIndex < consideredSolution.depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route route = consideredSolution.routes[depotIndex];
+        Route* route = &consideredSolution.routes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
         
-            SubRoute subRoute = route.subRoutes[subRouteIndex];
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
 
-            int firstCustomerIndex = subRoute.first();
-            int lastCustomerIndex = subRoute.last();
+            int firstCustomerIndex = subRoute->first();
+            int lastCustomerIndex = subRoute->last();
 
             pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] = operationFunction(
                 pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex],
@@ -103,10 +103,10 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(const Solution& consideredS
                 updateValue
             );
 
-            for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
+            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
 
-                int customerIndex = subRoute.members[memberIndex];
-                int neighborCustomerIndex = subRoute.members[memberIndex + 1];
+                int customerIndex = subRoute->members[memberIndex];
+                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
                 pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] = operationFunction(
                     pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex],
                     updateValue
@@ -561,20 +561,20 @@ int StodolaInspiredAntSystem::selectSubClusterNonPrimary(int* visitedCustomersIn
 
 int StodolaInspiredAntSystem::selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex) {
 
-    SubCluster subCluster = verticesClusters[vertexIndex].subClusters[subClusterIndex];
+    SubCluster* subCluster = &verticesClusters[vertexIndex].subClusters[subClusterIndex];
 
     if(distanceProbabilityCoef == 1 && pheromoneProbabilityCoef == 1) {
-        updateCustomerSelectionProbabilityWithCoefOne(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex, subCluster);
+        updateCustomerSelectionProbabilityWithCoefOne(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex, *subCluster);
     } else {
-        updateCustomerSelectionProbability(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex, subCluster);
+        updateCustomerSelectionProbability(visitedCustomersIndexes, selectionProbability, depotIndex, vertexIndex, *subCluster);
     }
 
     int memberIndex = rouletteWheelSelection(
         selectionProbability,
-        subCluster.size
+        subCluster->size
     );
 
-    return subCluster.elements[memberIndex];
+    return subCluster->elements[memberIndex];
 }
 
 void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster) {
@@ -646,23 +646,23 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
     for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route route = solution.routes[depotIndex];
+        Route* route = &solution.routes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
 
-            SubRoute subRoute = route.subRoutes[subRouteIndex];
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
             
-            int firstCustomerIndex = subRoute.first();
-            int lastCustomerIndex = subRoute.last();
+            int firstCustomerIndex = subRoute->first();
+            int lastCustomerIndex = subRoute->last();
 
             edgesOccurrenceCount[depotVertexIndex][firstCustomerIndex] += 1;
             edgesOccurrenceCount[lastCustomerIndex][depotVertexIndex] += 1;
 
             edgesCount += 2;
 
-            for(int memberIndex = 0; memberIndex < subRoute.length - 1; memberIndex++) {
-                int customerIndex = subRoute.members[memberIndex];
-                int neighborCustomerIndex = subRoute.members[memberIndex + 1];
+            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+                int customerIndex = subRoute->members[memberIndex];
+                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
 
                 edgesOccurrenceCount[customerIndex][neighborCustomerIndex] += 1;
                 edgesCount += 1;
