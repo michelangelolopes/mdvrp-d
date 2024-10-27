@@ -17,11 +17,7 @@ void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClu
 void StodolaInspiredAntSystem::finalize() {
     
     problemInstance.finalize();
-
-    if(bestSolution != nullptr) {
-        bestSolution->finalize();
-        free(bestSolution);
-    }
+    bestSolution.finalize();
 
     if(pheromoneMatrix != nullptr) {
 
@@ -118,8 +114,8 @@ void StodolaInspiredAntSystem::updatePheromoneMatrix(const Solution& consideredS
 
 void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(const Solution& generationBestSolution) {
 
-    double bestSolutionProbability = generationBestSolution.fitness - bestSolution->fitness;
-    bestSolutionProbability /= bestSolution[0].fitness;
+    double bestSolutionProbability = generationBestSolution.fitness - bestSolution.fitness;
+    bestSolutionProbability /= bestSolution.fitness;
     bestSolutionProbability /= temperatureUpdateCoef;
     bestSolutionProbability *= -1;
     bestSolutionProbability = exp(bestSolutionProbability);
@@ -130,13 +126,13 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(const Sol
     if(randomValue <= generationBestSolutionProbability) {
         reinforcePheromoneMatrix(generationBestSolution);
     } else {
-        reinforcePheromoneMatrix(bestSolution[0]);
+        reinforcePheromoneMatrix(bestSolution);
     }
 }
 
 void StodolaInspiredAntSystem::reinforcePheromoneMatrix(const Solution& consideredSolution) {
 
-    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution[0].fitness / consideredSolution.fitness);
+    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
     int isSumOperation = 1;
 
     updatePheromoneMatrix(consideredSolution, pheromoneReinforcingValue, isSumOperation);
@@ -149,7 +145,7 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
     double pheromoneEvaporatingValue = (1 - pheromoneEvaporationCoef);
     int isSumOperation = 0;
 
-    updatePheromoneMatrix(bestSolution[0], pheromoneEvaporatingValue, isSumOperation);
+    updatePheromoneMatrix(bestSolution, pheromoneEvaporatingValue, isSumOperation);
 }
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
@@ -195,13 +191,11 @@ void StodolaInspiredAntSystem::run() {
 
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
-    std::chrono::time_point startIntervalOptimizationTime = startOptimizationTime;
 
     int iterationsCount = 0;
     int iterationsWithoutImprovementCount = 0;
     int oldIterationIndex = 0;
     std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
-    std::chrono::duration<double> currentIntervalOptimizationTime = currentOptimizationTime;
 
     double informationEntropy = -1;
     double informationEntropyMin = -1;
@@ -221,15 +215,13 @@ void StodolaInspiredAntSystem::run() {
     );
 
     //initial solution
-    bestSolution = (Solution*) malloc(sizeof(Solution));
-
-    bestSolution[0] = Solution (
+    bestSolution = Solution(
         problemInstance.depotsCount,
         problemInstance.minimizationType,
         problemInstance.customersCount
     );
 
-    buildAntRoutes(bestSolution[0], visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+    buildAntRoutes(bestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
 
     while(!hasAchievedTerminationCondition(
         iterationsCount, 
@@ -256,7 +248,7 @@ void StodolaInspiredAntSystem::run() {
             generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
-                generationBestSolution.copy(antSolution);
+                swap(generationBestSolution, antSolution);
             }
         }
 
@@ -264,10 +256,10 @@ void StodolaInspiredAntSystem::run() {
         // if(iterIndex % localOptimizationFrequency == 0) {
         // }
 
-        if(generationBestSolution.fitness < bestSolution->fitness) {
+        if(generationBestSolution.fitness < bestSolution.fitness) {
 
-            bestSolution[0].copy(generationBestSolution);
-            reinforcePheromoneMatrix(bestSolution[0]);
+            swap(bestSolution, generationBestSolution);
+            reinforcePheromoneMatrix(bestSolution);
 
             intervalImprovementsCount += 1;
             iterationsWithoutImprovementCount = 0;
@@ -289,9 +281,8 @@ void StodolaInspiredAntSystem::run() {
 
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;
-        currentIntervalOptimizationTime = endOptimizationTime - startIntervalOptimizationTime;
 
-        if(currentIntervalOptimizationTime.count() >= 10 && intervalImprovementsCount > 0) {
+        if(iterationsWithoutImprovementCount >= 50 && intervalImprovementsCount > 0) {
 
             globalImprovementsCount += intervalImprovementsCount;
 
@@ -306,11 +297,10 @@ void StodolaInspiredAntSystem::run() {
             std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
             std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
             
-            bestSolution[0].print();
+            bestSolution.print();
             
             oldIterationIndex = iterationsCount;
             intervalImprovementsCount = 0;
-            startIntervalOptimizationTime = std::chrono::high_resolution_clock::now();
         }
     }
 
@@ -319,12 +309,13 @@ void StodolaInspiredAntSystem::run() {
     std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
     std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
     std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
+    // std::cout << "globalImprovements: " << intervalImprovementsCount << "\n";
     std::cout << "informationEntropy: " << informationEntropy << " - ";
     std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
     std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
     std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
     
-    bestSolution[0].print();
+    bestSolution.print();
 
     antSolution.finalize();
     generationBestSolution.finalize();
