@@ -97,11 +97,24 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             int depotIndex,
             int vertexIndex
         );
+        void calculatePrimarySubClusterSelectionProbability( 
+            double* primarySubClusterSelectionProbability,
+            double* heuristicInformationAverage, 
+            double* pheromoneConcentrationAverage,
+            Cluster* cluster
+        );
+        void calculatePrimarySubClusterSelectionProbabilityWithCoefOne( 
+            double* primarySubClusterSelectionProbability,
+            double* heuristicInformationAverage, 
+            double* pheromoneConcentrationAverage,
+            Cluster* cluster
+        );
 
         int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
 
         int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
         void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
+        void updateCustomerSelectionProbabilityWithCoefOne(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
         double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
         int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
