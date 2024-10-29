@@ -672,6 +672,57 @@ void StodolaInspiredAntSystem::exchangeMembersInSameSubRoute(
     }
 }
 
+void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
+    Solution& exchangeSolution, 
+    SubRoute& subRoute,
+    SubRoute& exchangeSubRoute,
+    int successiveVerticesCount
+) {
+
+    double baseFitness = exchangeSolution.fitness;
+
+    for(int memberIndex = 0; memberIndex < subRoute.length; memberIndex++) {
+
+        int maxSuccessiveMembersCount = memberIndex + successiveVerticesCount;
+        int willExceedSubRoute = ( maxSuccessiveMembersCount > subRoute.length );
+        if(willExceedSubRoute) {
+            break;
+        }
+
+        for(int exchangeMemberIndex = 0; exchangeMemberIndex < exchangeSubRoute.length; exchangeMemberIndex++) {
+
+            int maxSuccessiveExchangeMembersCount = exchangeMemberIndex + successiveVerticesCount;
+            int willExceedExchangeSubRoute = ( maxSuccessiveExchangeMembersCount > exchangeSubRoute.length );
+            if(willExceedExchangeSubRoute) {
+                break;
+            }
+
+            exchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
+            exchangeSolution.updateFitness(problemInstance);
+
+            int isSubRouteContraintsSatisfied = subRoute.constraints(problemInstance);
+            int isRandomSubRouteConstraintsSatisfied = exchangeSubRoute.constraints(problemInstance);
+            int isBetterSolution = (exchangeSolution.fitness < baseFitness);
+
+            if(isSubRouteContraintsSatisfied && isRandomSubRouteConstraintsSatisfied && isBetterSolution) {
+
+                // std::cout << "new.fitness: " << exchangeSolution.fitness << " *improved - ";
+                // std::cout << "[" << depotIndex << "]";
+                // std::cout << "[" << subRouteIndex << "]";
+                // std::cout << "[" << memberIndex << "] - ";
+                // std::cout << "[" << depotIndex << "]";
+                // std::cout << "[" << exchangeSubRouteIndex << "]";
+                // std::cout << "[" << exchangeMemberIndex << "]\n";
+                baseFitness = exchangeSolution.fitness;
+            } else {
+
+                revertExchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
+                exchangeSolution.updateFitness(problemInstance);  
+            }
+        }
+    }
+}
+
 void normalizeValues(double* selectionProbability, int candidatesCount) {
     
     double probabilitiesSum = sumArray(selectionProbability, candidatesCount);
