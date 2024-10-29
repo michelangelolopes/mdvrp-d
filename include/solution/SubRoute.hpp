@@ -53,13 +53,5 @@ void exchangeMembersBetweenSubRoutes(
     int successiveVerticesCount
 );
 
-void revertExchangeMembersBetweenSubRoutes(
-    const ProblemInstance& problemInstance,
-    SubRoute& subRouteA,
-    SubRoute& subRouteB,
-    int memberIndexA,
-    int memberIndexB,
-    int successiveVerticesCount
-);
 
 #endif

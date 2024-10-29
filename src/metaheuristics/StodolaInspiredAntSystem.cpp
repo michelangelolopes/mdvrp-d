@@ -832,7 +832,7 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
                 baseFitness = exchangeSolution.fitness;
             } else {
 
-                revertExchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
+                exchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
                 exchangeSolution.updateFitness(problemInstance);  
             }
         }
