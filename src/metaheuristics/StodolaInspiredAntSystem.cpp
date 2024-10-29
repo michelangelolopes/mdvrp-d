@@ -692,6 +692,41 @@ void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
     }
 }
 
+void StodolaInspiredAntSystem::exchangeMembersInDifferentRoutes(
+    Solution& exchangeSolution, 
+    Route& route,
+    Route& exchangeRoute,
+    int successiveVerticesCount
+) {
+    
+    SubRoute* subRoute;
+    SubRoute* exchangeSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
+
+        subRoute = &route.subRoutes[subRouteIndex];
+        if(subRoute->length < successiveVerticesCount) {
+            break;
+        }
+
+        exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
+
+        for(int exchangeSubRouteIndex = 0; exchangeSubRouteIndex < exchangeRoute.size; exchangeSubRouteIndex++) {
+
+            exchangeSubRoute = &exchangeRoute.subRoutes[exchangeSubRouteIndex];
+            if(exchangeSubRoute->length < successiveVerticesCount) {
+                break;
+            }
+
+            // std::cout << "subRoute: [" << subRouteIndex << "] - ";
+            // std::cout << "[" << exchangeSubRouteIndex << "] - ";
+            // std::cout << "length: " << subRoute->length << " - " << exchangeSubRoute->length << "\n";
+
+            exchangeMembersInDifferentSubRoutes(exchangeSolution, *subRoute, *exchangeSubRoute, successiveVerticesCount);
+        }
+    }
+}
+
 void StodolaInspiredAntSystem::exchangeMembersInSameSubRoute(
     Solution& exchangeSolution, 
     SubRoute& subRoute,
