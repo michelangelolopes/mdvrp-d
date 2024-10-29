@@ -15,7 +15,7 @@ class AntSystem {
         double*** pheromoneMatrix;
 
         ProblemInstance problemInstance;
-        Solution* bestSolution = nullptr;
+        Solution bestSolution;
 };
 
 #endif

@@ -11,8 +11,8 @@
 
 class Solution {
     public:
+        Solution() {}
         Solution(int depotsCount, const MinimizationType& minimizationType) : depotsCount(depotsCount), minimizationType(minimizationType) {}
-
         Solution(int depotsCount, const MinimizationType& minimizationType, int subRouteMaxLength) : 
         Solution(depotsCount, minimizationType)
         {
