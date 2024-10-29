@@ -651,10 +651,26 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
 
     exchangeSolution.copy(generationBestSolution);
 
+    Route* route;
+    Route* exchangeRoute;
+
     for(int successiveVerticesCount = maxExchangeSuccessiveVertices; successiveVerticesCount > 0; successiveVerticesCount--) {
         for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+            
+            route = &exchangeSolution.routes[depotIndex];
 
-            exchangeMembersInSameRoute(exchangeSolution, exchangeSolution.routes[depotIndex], successiveVerticesCount);
+            // std::cout << "depotIndex: [" << depotIndex << "] - size: " << route->size << " - " << exchangeRoute->size << "\n";
+            exchangeMembersInSameRoute(exchangeSolution, *route, successiveVerticesCount);
+
+            for(int exchangeDepotIndex = depotIndex + 1; exchangeDepotIndex < problemInstance.depotsCount; exchangeDepotIndex++) {
+
+                exchangeRoute = &exchangeSolution.routes[exchangeDepotIndex];
+
+                // std::cout << "depotIndex: [" << depotIndex << "] - ";
+                // std::cout << "[" << exchangeDepotIndex << "] - ";
+                // std::cout << "size: " << route->size << " - " << exchangeRoute->size << "\n";
+                exchangeMembersInDifferentRoutes(exchangeSolution, *route, *exchangeRoute, successiveVerticesCount);
+            }
         }
     }
 
@@ -677,7 +693,8 @@ void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
         if(subRoute->length < successiveVerticesCount) {
             break;
         }
-
+        
+        // std::cout << "subRoute: [" << subRouteIndex << "] - length: " << subRoute->length << "\n";
         exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
 
         for(int exchangeSubRouteIndex = subRouteIndex + 1; exchangeSubRouteIndex < route.size; exchangeSubRouteIndex++) {
@@ -686,6 +703,10 @@ void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
             if(exchangeSubRoute->length < successiveVerticesCount) {
                 break;
             }
+
+            // std::cout << "subRoute: [" << subRouteIndex << "] - ";
+            // std::cout << "[" << exchangeSubRouteIndex << "] - ";
+            // std::cout << "length: " << subRoute->length << " - " << exchangeSubRoute->length << "\n";
 
             exchangeMembersInDifferentSubRoutes(exchangeSolution, *subRoute, *exchangeSubRoute, successiveVerticesCount);
         }
@@ -751,18 +772,15 @@ void StodolaInspiredAntSystem::exchangeMembersInSameSubRoute(
                 break;
             }
 
+            // std::cout << "member: [" << memberIndex << "] - ";
+            // std::cout << "[" << exchangeMemberIndex << "]\n";
+
             subRoute.exchangeMembers(problemInstance, memberIndex, exchangeMemberIndex, successiveVerticesCount);
             exchangeSolution.updateFitness(problemInstance);
 
             if(exchangeSolution.fitness < baseFitness) {
 
                 // std::cout << "new.fitness: " << exchangeSolution.fitness << " *improved - ";
-                // std::cout << "[" << depotIndex << "]";
-                // std::cout << "[" << subRouteIndex << "]";
-                // std::cout << "[" << memberIndex << "] - ";
-                // std::cout << "[" << depotIndex << "]";
-                // std::cout << "[" << exchangeSubRouteIndex << "]";
-                // std::cout << "[" << exchangeMemberIndex << "]\n";
                 baseFitness = exchangeSolution.fitness;
             } else {
 
@@ -798,6 +816,9 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
                 break;
             }
 
+            // std::cout << "member: [" << memberIndex << "] - ";
+            // std::cout << "[" << exchangeMemberIndex << "]\n";
+
             exchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
             exchangeSolution.updateFitness(problemInstance);
 
@@ -808,12 +829,6 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
             if(isSubRouteContraintsSatisfied && isRandomSubRouteConstraintsSatisfied && isBetterSolution) {
 
                 // std::cout << "new.fitness: " << exchangeSolution.fitness << " *improved - ";
-                // std::cout << "[" << depotIndex << "]";
-                // std::cout << "[" << subRouteIndex << "]";
-                // std::cout << "[" << memberIndex << "] - ";
-                // std::cout << "[" << depotIndex << "]";
-                // std::cout << "[" << exchangeSubRouteIndex << "]";
-                // std::cout << "[" << exchangeMemberIndex << "]\n";
                 baseFitness = exchangeSolution.fitness;
             } else {
 
