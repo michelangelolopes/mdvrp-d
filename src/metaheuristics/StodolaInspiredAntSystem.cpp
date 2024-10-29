@@ -610,7 +610,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
 
     exchangeSolution.copy(generationBestSolution);
 
-    for(int successiveVerticesCount = 1; successiveVerticesCount <= maxExchangeSuccessiveVertices; successiveVerticesCount++) {
+    for(int successiveVerticesCount = maxExchangeSuccessiveVertices; successiveVerticesCount > 0; successiveVerticesCount--) {
         for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
 
             exchangeMembersInSameRoute(exchangeSolution, exchangeSolution.routes[depotIndex], successiveVerticesCount);
