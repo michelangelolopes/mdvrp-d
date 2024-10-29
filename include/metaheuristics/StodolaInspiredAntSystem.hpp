@@ -22,6 +22,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             double pheromoneEvaporationCoefMax,
             double distanceProbabilityCoef,
             double pheromoneProbabilityCoef,
+            int maxExchangeSuccessiveVertices,
             int maxIterations,
             int maxIterationsWithoutImprovement,
             double maxOptimizationTime,
@@ -35,6 +36,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         pheromoneEvaporationCoefMax(pheromoneEvaporationCoefMax),
         distanceProbabilityCoef(distanceProbabilityCoef),
         pheromoneProbabilityCoef(pheromoneProbabilityCoef),
+        maxExchangeSuccessiveVertices(maxExchangeSuccessiveVertices),
         maxIterations(maxIterations),
         maxIterationsWithoutImprovement(maxIterationsWithoutImprovement),
         maxOptimizationTime(maxOptimizationTime),
@@ -48,12 +50,13 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         }
 
         int localOptimizationFrequency;
-        // int primarySubClustersCount;
         double pheromoneEvaporationCoefMin;
         double pheromoneEvaporationCoefMax;
 
         double distanceProbabilityCoef;
         double pheromoneProbabilityCoef;
+
+        int maxExchangeSuccessiveVertices;
 
         int maxIterations;
         int maxIterationsWithoutImprovement;
@@ -107,24 +110,24 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
         int updateGenerationEdgesOccurrenceCount(Solution* solution, int** edgesOcurrenceCount);
 
+        void localOptimization(Solution& generationBestSolution);
+
         void exchangeMembersInSameRoute(
             Solution& exchangeSolution, 
             Route& route,
             int successiveVerticesCount
         );
-
         void exchangeMembersInSameSubRoute(
             Solution& exchangeSolution, 
             SubRoute& subRoute,
             int successiveVerticesCount
         );
-
         void exchangeMembersInDifferentSubRoutes(
             Solution& exchangeSolution, 
             SubRoute& subRoute,
             SubRoute& exchangeSubRoute,
             int successiveVerticesCount
-        );        
+        );
 };
 
 void normalizeValues(double* selectionProbability, int candidatesCount);

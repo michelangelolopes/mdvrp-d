@@ -52,8 +52,9 @@ int main(int argc, char** argv) {
     double pheromoneEvaporationCoefMax = 0.1; //0.1
     double pheromoneProbabilityCoef = 1; //1
     double distanceProbabilityCoef = 1; //1
+    int maxExchangeSuccessiveVertices = 2; //2
     int maxIterations = 100000; //100000
-    int maxIterationsWithoutImprovement = 4000; //4000
+    int maxIterationsWithoutImprovement = 100000; //4000
     double maxOptimizationTime = atoi(argv[8]); //60; //20000
     double minInformationEntropyCoef = 0.1; //0.1
 
@@ -82,6 +83,7 @@ int main(int argc, char** argv) {
             pheromoneEvaporationCoefMax,
             distanceProbabilityCoef,
             pheromoneProbabilityCoef,
+            maxExchangeSuccessiveVertices,
             maxIterations,
             maxIterationsWithoutImprovement,
             maxOptimizationTime,
@@ -92,7 +94,6 @@ int main(int argc, char** argv) {
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
-    std::cout << "Execution time: " << duration.count() << " seconds\n";
 
     antSystem.finalize();
 

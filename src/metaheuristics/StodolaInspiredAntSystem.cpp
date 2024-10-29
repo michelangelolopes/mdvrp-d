@@ -260,9 +260,10 @@ void StodolaInspiredAntSystem::run() {
             }
         }
 
-        //TODO: local optimization
-        // if(iterIndex % localOptimizationFrequency == 0) {
-        // }
+        //TODO: local optimization inter-route exchange
+        if(iterationsCount % localOptimizationFrequency == 0) {
+            localOptimization(generationBestSolution);
+        }
 
         if(generationBestSolution.fitness < bestSolution->fitness) {
 
@@ -624,6 +625,27 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(Solution* sol
     }
 
     return edgesCount;
+}
+
+void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolution) {
+
+    Solution exchangeSolution(
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
+
+    exchangeSolution.copy(generationBestSolution);
+
+    for(int successiveVerticesCount = 1; successiveVerticesCount <= maxExchangeSuccessiveVertices; successiveVerticesCount++) {
+        for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+
+            exchangeMembersInSameRoute(exchangeSolution, exchangeSolution.routes[depotIndex], successiveVerticesCount);
+        }
+    }
+
+    swap(generationBestSolution, exchangeSolution);
+    exchangeSolution.finalize();
 }
 
 void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
