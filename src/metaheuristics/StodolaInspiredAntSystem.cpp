@@ -626,6 +626,36 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(Solution* sol
     return edgesCount;
 }
 
+void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
+    Solution& exchangeSolution, 
+    Route& route,
+    int successiveVerticesCount
+) {
+    
+    SubRoute* subRoute;
+    SubRoute* exchangeSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
+
+        subRoute = &route.subRoutes[subRouteIndex];
+        if(subRoute->length < successiveVerticesCount) {
+            break;
+        }
+
+        exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
+
+        for(int exchangeSubRouteIndex = subRouteIndex + 1; exchangeSubRouteIndex < route.size; exchangeSubRouteIndex++) {
+
+            exchangeSubRoute = &route.subRoutes[exchangeSubRouteIndex];
+            if(exchangeSubRoute->length < successiveVerticesCount) {
+                break;
+            }
+
+            exchangeMembersInDifferentSubRoutes(exchangeSolution, *subRoute, *exchangeSubRoute, successiveVerticesCount);
+        }
+    }
+}
+
 void StodolaInspiredAntSystem::exchangeMembersInSameSubRoute(
     Solution& exchangeSolution, 
     SubRoute& subRoute,
