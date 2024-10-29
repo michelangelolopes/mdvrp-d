@@ -165,48 +165,33 @@ int StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCoun
     return (iterationsCount >= maxIterations) ||
         (iterationsWithoutImprovementCount >= maxIterationsWithoutImprovement) ||
         (currentOptimizationTime >= maxOptimizationTime) ||
-        (!isInformationEntropySufficient(informationEntropyCoef));
-}
-
-int StodolaInspiredAntSystem::isInformationEntropySufficient(double informationEntropyCoef) {
-
-    if(informationEntropyCoef == -1) {
-        return 1;
-    }
-
-    return (informationEntropyCoef >= minInformationEntropyCoef);
+        (informationEntropyCoef < minInformationEntropyCoef);
 }
 
 void StodolaInspiredAntSystem::run() {
 
     srand((unsigned int)time(0));
 
-    int generationEdgesCount = 0;
-    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.vertexCount, problemInstance.vertexCount, sizeof(int*), sizeof(int));
-    int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
-    double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
-
-    int primarySubClustersCout = verticesClusters[0].primariesCount;
-    double* heuristicInformationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
-    double* pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
-    
-    int globalImprovementsCount = 0;
-    int intervalImprovementsCount = 0;
-
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
-    std::chrono::time_point startIntervalOptimizationTime = startOptimizationTime;
-
+    std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+    
+    int primarySubClustersCout = verticesClusters[0].primariesCount;
+    int generationEdgesCount = 0;
+    int globalImprovementsCount = 0;
     int iterationsCount = 0;
     int iterationsWithoutImprovementCount = 0;
-    int oldIterationIndex = 0;
-    std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
-    std::chrono::duration<double> currentIntervalOptimizationTime = currentOptimizationTime;
-
     double informationEntropy = -1;
     double informationEntropyMin = -1;
     double informationEntropyMax = -1;
-    double informationEntropyCoef = -1;
+    double informationEntropyCoef = 100;
+
+    int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
+    double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
+    double* heuristicInformationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
+
+    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.vertexCount, problemInstance.vertexCount, sizeof(int*), sizeof(int));
 
     Solution antSolution(
         problemInstance.depotsCount,
@@ -270,7 +255,14 @@ void StodolaInspiredAntSystem::run() {
             bestSolution[0].copy(generationBestSolution);
             reinforcePheromoneMatrix(bestSolution);
 
-            intervalImprovementsCount += 1;
+            globalImprovementsCount += 1;
+
+            std::cout << "--------------------------------------------------\n";
+            std::cout << "globalImproves: " << globalImprovementsCount << " - ";
+            std::cout << "fitness: " << bestSolution->fitness << " - ";
+            std::cout << "generations: " << iterationsCount << " - ";
+            std::cout << "generationsUntilImprove: " << iterationsWithoutImprovementCount  << " - ";
+
             iterationsWithoutImprovementCount = 0;
         } else {
             reinforcePheromoneMatrixWithProbability(&generationBestSolution);
@@ -284,46 +276,27 @@ void StodolaInspiredAntSystem::run() {
         updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
         evaporatePheromoneMatrix();
 
+        endOptimizationTime = std::chrono::high_resolution_clock::now();
+        currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+
+        if(iterationsWithoutImprovementCount == 0) {
+
+            std::cout << "timer: " << currentOptimizationTime.count() << "\n";
+            std::cout << "informationEntropy: coef: " << informationEntropyCoef << " - ";
+            std::cout << "min: " << informationEntropyMin << " - ";
+            std::cout << "cur: " << informationEntropy << " - ";
+            std::cout << "max: " << informationEntropyMax << "\n";
+        }
+
         iterationsCount += 1;
         iterationsWithoutImprovementCount += 1;
         generationEdgesCount = 0;
-
-        endOptimizationTime = std::chrono::high_resolution_clock::now();
-        currentOptimizationTime = endOptimizationTime - startOptimizationTime;
-        currentIntervalOptimizationTime = endOptimizationTime - startIntervalOptimizationTime;
-
-        if(currentIntervalOptimizationTime.count() >= 10 && intervalImprovementsCount > 0) {
-
-            globalImprovementsCount += intervalImprovementsCount;
-
-            std::cout << "iterationsCount: " << iterationsCount << "\n";
-            std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
-            std::cout << "iterationsBetweenIntervals: " << iterationsCount - oldIterationIndex << "\n";
-            std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
-            std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
-            std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
-            std::cout << "informationEntropy: " << informationEntropy << " - ";
-            std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
-            std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
-            std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
-            
-            bestSolution->print();
-            
-            oldIterationIndex = iterationsCount;
-            intervalImprovementsCount = 0;
-            startIntervalOptimizationTime = std::chrono::high_resolution_clock::now();
-        }
     }
 
-    std::cout << "iterationsCount: " << iterationsCount << "\n";
-    std::cout << "iterationsWithoutImprovementCount: " << iterationsWithoutImprovementCount << "\n";
-    std::cout << "currentOptimizationTime: " << currentOptimizationTime.count() << "\n";
-    std::cout << "globalImprovements: " << globalImprovementsCount << " - ";
-    std::cout << "intervalImprovements: " << intervalImprovementsCount << "\n";
-    std::cout << "informationEntropy: " << informationEntropy << " - ";
-    std::cout << "informationEntropyCoef: " << informationEntropyCoef << "\n";
-    std::cout << "informationEntropyMin: " << informationEntropyMin << " - ";
-    std::cout << "informationEntropyMax: " << informationEntropyMax << "\n";
+    std::cout << "--------------------------------------------------\n";
+    std::cout << "generations: " << iterationsCount << " - ";
+    std::cout << "generationsWithoutImprove: " << iterationsWithoutImprovementCount  << " - ";
+    std::cout << "timer: " << currentOptimizationTime.count() << "\n";
     
     bestSolution->print();
 
