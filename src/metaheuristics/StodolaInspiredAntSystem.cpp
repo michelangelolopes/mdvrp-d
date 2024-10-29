@@ -626,6 +626,52 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(Solution* sol
     return edgesCount;
 }
 
+void StodolaInspiredAntSystem::exchangeMembersInSameSubRoute(
+    Solution& exchangeSolution, 
+    SubRoute& subRoute,
+    int successiveVerticesCount
+) {
+
+    double baseFitness = exchangeSolution.fitness;
+
+    for(int memberIndex = 0; memberIndex < subRoute.length; memberIndex++) {
+
+        int maxSuccessiveMembersCount = memberIndex + successiveVerticesCount;
+        int willExceedSubRoute = ( maxSuccessiveMembersCount > subRoute.length );
+        if(willExceedSubRoute) {
+            break;
+        }
+
+        for(int exchangeMemberIndex = memberIndex + 1; exchangeMemberIndex < subRoute.length; exchangeMemberIndex++) {
+            
+            int maxSuccessiveExchangeMembersCount = exchangeMemberIndex + successiveVerticesCount;
+            int willExceedExchangeSubRoute = ( maxSuccessiveExchangeMembersCount > subRoute.length );
+            if(willExceedExchangeSubRoute) {
+                break;
+            }
+
+            subRoute.exchangeMembers(problemInstance, memberIndex, exchangeMemberIndex, successiveVerticesCount);
+            exchangeSolution.updateFitness(problemInstance);
+
+            if(exchangeSolution.fitness < baseFitness) {
+
+                // std::cout << "new.fitness: " << exchangeSolution.fitness << " *improved - ";
+                // std::cout << "[" << depotIndex << "]";
+                // std::cout << "[" << subRouteIndex << "]";
+                // std::cout << "[" << memberIndex << "] - ";
+                // std::cout << "[" << depotIndex << "]";
+                // std::cout << "[" << exchangeSubRouteIndex << "]";
+                // std::cout << "[" << exchangeMemberIndex << "]\n";
+                baseFitness = exchangeSolution.fitness;
+            } else {
+
+                subRoute.revertExchangeMembers(problemInstance, memberIndex, exchangeMemberIndex, successiveVerticesCount);
+                exchangeSolution.updateFitness(problemInstance);                 
+            }
+        }
+    }
+}
+
 void normalizeValues(double* selectionProbability, int candidatesCount) {
     
     double probabilitiesSum = sumArray(selectionProbability, candidatesCount);

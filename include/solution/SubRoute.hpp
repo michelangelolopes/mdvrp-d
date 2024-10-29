@@ -30,6 +30,8 @@ class SubRoute {
         void incrementLoad(double demand);
         void updateDistanceTraveled(ProblemInstance problemInstance);
         void updateTimeSpent(ProblemInstance problemInstance, int depotIndex);
+        void exchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
+        void revertExchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
 
         void print() const;
         int first() const;

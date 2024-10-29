@@ -106,6 +106,12 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
         int updateGenerationEdgesOccurrenceCount(Solution* solution, int** edgesOcurrenceCount);
+
+        void exchangeMembersInSameSubRoute(
+            Solution& exchangeSolution, 
+            SubRoute& subRoute,
+            int successiveVerticesCount
+        );
 };
 
 void normalizeValues(double* selectionProbability, int candidatesCount);

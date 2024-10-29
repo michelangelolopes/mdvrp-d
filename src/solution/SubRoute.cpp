@@ -71,6 +71,56 @@ void SubRoute::updateTimeSpent(ProblemInstance problemInstance, int depotIndex) 
     timeSpent = (distanceTraveled / truckSpeed);
 }
 
+void SubRoute::exchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount) {
+
+    for(int successiveIndex = 0; successiveIndex < successiveVerticesCount; successiveIndex++) {
+
+        int successiveMemberIndexA = memberIndexA + successiveIndex;
+        int successiveMemberIndexB = memberIndexB + successiveIndex;
+
+        int customerIndexA = members[successiveMemberIndexA];
+        int customerIndexB = members[successiveMemberIndexB];
+
+        Customer* customerA = &problemInstance.customers[customerIndexA];
+        Customer* customerB = &problemInstance.customers[customerIndexB];
+
+        // std::cout << "exchange:successiveIndex: " << successiveIndex << "\n";
+        // std::cout << "exchange:successiveMemberIndexA: " << successiveMemberIndexA << " - ";
+        // std::cout << "exchange:customerIndexA: " << customerIndexA << " - ";
+        // std::cout << "exchange:customerA->demand: " << customerA->demand << "\n";
+        // std::cout << "exchange:successiveMemberIndexB: " << successiveMemberIndexB << " - ";
+        // std::cout << "exchange:customerIndexB: " << customerIndexB << " - ";
+        // std::cout << "exchange:customerB->demand: " << customerB->demand << "\n";
+
+        swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
+    }
+}
+
+void SubRoute::revertExchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount) {
+
+    for(int successiveIndex = successiveVerticesCount - 1; successiveIndex >= 0; successiveIndex--) {
+
+        int successiveMemberIndexA = memberIndexA + successiveIndex;
+        int successiveMemberIndexB = memberIndexB + successiveIndex;
+
+        int customerIndexA = members[successiveMemberIndexA];
+        int customerIndexB = members[successiveMemberIndexB];
+
+        Customer* customerA = &problemInstance.customers[customerIndexA];
+        Customer* customerB = &problemInstance.customers[customerIndexB];
+
+        // std::cout << "revert:successiveIndex: " << successiveIndex << "\n";
+        // std::cout << "revert:successiveMemberIndexA: " << successiveMemberIndexA << " - ";
+        // std::cout << "revert:customerIndexA: " << customerIndexA << " - ";
+        // std::cout << "revert:customerA->demand: " << customerA->demand << "\n";
+        // std::cout << "revert:successiveMemberIndexB: " << successiveMemberIndexB << " - ";
+        // std::cout << "revert:customerIndexB: " << customerIndexB << " - ";
+        // std::cout << "revert:customerB->demand: " << customerB->demand << "\n";
+
+        swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
+    }
+}
+
 void SubRoute::print() const {
 
     for(int index = 0; index < length; index++) {
