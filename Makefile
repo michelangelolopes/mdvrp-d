@@ -29,3 +29,7 @@ run_gdb:
 run_valgrind:
 	@echo "running with valgrind..."
 	@valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes ./bin/mdvrp-d $(ARGS)
+
+run_valgrind_gdb:
+	@echo "running with valgrind and gdb"
+	@valgrind -s --leak-check=full --show-leak-kinds=all --track-origins=yes --vgdb-error=0 ./bin/mdvrp-d $(ARGS)
