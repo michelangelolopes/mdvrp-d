@@ -190,3 +190,45 @@ void exchangeMembersBetweenSubRoutes(
         swap(subRouteA.members[subRouteAMemberIndex], subRouteB.members[subRouteBMemberIndex]);
     }
 }
+
+void moveMembersBetweenSubRoutes(
+    const ProblemInstance& problemInstance,
+    SubRoute& subRouteA,
+    SubRoute& subRouteB,
+    int memberIndexA,
+    int memberIndexB,
+    int successiveVerticesCount
+) {
+
+    // std::cout << "--------------------------\nMove.Before\n";
+    // subRouteA.print();
+    // std::cout << "\n";
+    // subRouteB.print();
+    // std::cout << "\n";
+
+    shiftRightArray(subRouteB.members, subRouteB.length, memberIndexB, successiveVerticesCount);
+    subRouteB.length += successiveVerticesCount;
+
+    for(int successiveIndex = 0; successiveIndex < successiveVerticesCount; successiveIndex++) {
+
+        int subRouteAMemberIndex = memberIndexA + successiveIndex;
+        int subRouteBMemberIndex = memberIndexB + successiveIndex;
+
+        int subRouteACustomerIndex = subRouteA.members[subRouteAMemberIndex];
+        Customer* subRouteACustomer = &problemInstance.customers[subRouteACustomerIndex];
+
+        subRouteB.members[subRouteBMemberIndex] = subRouteACustomerIndex;
+
+        subRouteA.load -= subRouteACustomer->demand;
+        subRouteB.load += subRouteACustomer->demand;
+    }
+
+    shiftLeftArray(subRouteA.members, subRouteA.length, memberIndexA, successiveVerticesCount);
+    subRouteA.length -= successiveVerticesCount;
+
+    // std::cout << "Move.After\n";
+    // subRouteA.print();
+    // std::cout << "\n";
+    // subRouteB.print();
+    // std::cout << "\n";
+}

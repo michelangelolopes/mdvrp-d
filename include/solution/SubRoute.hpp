@@ -53,5 +53,13 @@ void exchangeMembersBetweenSubRoutes(
     int successiveVerticesCount
 );
 
+void moveMembersBetweenSubRoutes(
+    const ProblemInstance& problemInstance,
+    SubRoute& subRouteA,
+    SubRoute& subRouteB,
+    int memberIndexA,
+    int memberIndexB,
+    int successiveVerticesCount
+);
 
 #endif
