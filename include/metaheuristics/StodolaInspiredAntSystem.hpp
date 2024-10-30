@@ -142,6 +142,20 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             SubRoute& exchangeSubRoute,
             int successiveVerticesCount
         );
+
+        void moveMembersInSolution(Solution& moveSolution);
+        void moveMembersInRoutes(
+            Solution& moveSolution, 
+            Route& route,
+            Route& destRoute,
+            int successiveVerticesCount
+        );
+        int moveMembersInSubRoutes(
+            Solution& moveSolution, 
+            SubRoute& subRoute,
+            SubRoute& destSubRoute,
+            int successiveVerticesCount
+        );
 };
 
 void normalizeValues(double* selectionProbability, int candidatesCount);

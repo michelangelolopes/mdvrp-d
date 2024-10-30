@@ -652,6 +652,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
     newSolution.copy(generationBestSolution);
 
     exchangeMembersInSolution(newSolution);
+    moveMembersInSolution(newSolution);
 
     swap(generationBestSolution, newSolution);
     newSolution.finalize();
@@ -813,6 +814,152 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
             }
         }
     }
+}
+
+void StodolaInspiredAntSystem::moveMembersInSolution(Solution& moveSolution) {
+
+    Route* route;
+    Route* destRoute;
+
+    for(int successiveVerticesCount = maxExchangeSuccessiveVertices; successiveVerticesCount > 0; successiveVerticesCount--) {
+        for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+            
+            route = &moveSolution.routes[depotIndex];
+
+            for(int destDepotIndex = 0; destDepotIndex < problemInstance.depotsCount; destDepotIndex++) {
+
+                destRoute = &moveSolution.routes[destDepotIndex];
+
+                // std::cout << "depotIndex: [" << depotIndex << "] - ";
+                // std::cout << "[" << destDepotIndex << "] - ";
+                // std::cout << "size: " << route->size << " - " << destRoute->size << "\n";
+                moveMembersInRoutes(moveSolution, *route, *destRoute, successiveVerticesCount);
+            }
+        }
+    }
+}
+
+void StodolaInspiredAntSystem::moveMembersInRoutes(
+    Solution& moveSolution, 
+    Route& route,
+    Route& destRoute,
+    int successiveVerticesCount
+) {
+    
+    SubRoute* subRoute;
+    SubRoute* destSubRoute;
+
+    int isSameRoute = (route.depotIndex == destRoute.depotIndex);
+    int isSameSubRoute;
+
+    int subRouteIndex = 0;
+    int destSubRouteIndex = 0;
+
+    while(subRouteIndex < route.size) {
+
+        subRoute = &route.subRoutes[subRouteIndex];
+        if(subRoute->length < successiveVerticesCount) {
+            subRouteIndex++;
+            continue;
+        }
+
+        int hasLeftShiftedSubRoute = 0;
+        while(!hasLeftShiftedSubRoute && destSubRouteIndex < destRoute.size) {
+
+            destSubRoute = &destRoute.subRoutes[destSubRouteIndex];
+
+            isSameSubRoute = isSameRoute && (subRoute->subRouteIndex == destSubRoute->subRouteIndex);
+            if(isSameSubRoute) {
+                destSubRouteIndex++;
+                continue;
+            }
+
+            // std::cout << "subRoute: [" << subRouteIndex << "] - ";
+            // std::cout << "[" << destSubRouteIndex << "] - ";
+            // std::cout << "length: " << subRoute->length << " - " << destSubRoute->length << "\n";
+
+            hasLeftShiftedSubRoute = moveMembersInSubRoutes(moveSolution, *subRoute, *destSubRoute, successiveVerticesCount);
+            destSubRouteIndex++;
+        }
+
+        if(!hasLeftShiftedSubRoute) {
+            subRouteIndex++;
+        }
+    }
+}
+
+int StodolaInspiredAntSystem::moveMembersInSubRoutes(
+    Solution& moveSolution, 
+    SubRoute& subRoute,
+    SubRoute& destSubRoute,
+    int successiveVerticesCount
+) {
+
+    auto willSuccessiveExceedSubRoute = [successiveVerticesCount](int memberIndex, SubRoute& subRoute) {
+        return (memberIndex + successiveVerticesCount) > subRoute.length;
+    };
+    auto willExceedSubRoute = [](int memberIndex, SubRoute& subRoute) {
+        return memberIndex > subRoute.length;
+    };
+
+    double baseFitness = moveSolution.fitness;
+    int memberIndex = 0;
+    int destMemberIndex = 0;
+
+    Route* route = &moveSolution.routes[subRoute.depotIndex];
+    Route* destRoute = &moveSolution.routes[destSubRoute.depotIndex];
+
+    while( !willSuccessiveExceedSubRoute(memberIndex, subRoute) ) {
+
+        int isBetterSolution = 0;
+        while( !isBetterSolution && !willExceedSubRoute(destMemberIndex, destSubRoute) ) {
+
+            // std::cout << "member: [" << memberIndex << "] - ";
+            // std::cout << "[" << destMemberIndex << "]\n";
+
+            moveMembersBetweenSubRoutes(problemInstance, subRoute, destSubRoute, memberIndex, destMemberIndex, successiveVerticesCount);
+
+            int hasLeftShiftedSubRoute = (subRoute.length == 0);
+            if(hasLeftShiftedSubRoute) {
+                // std::cout << "RemovedSubRoute: " << subRoute.subRouteIndex << "\n";
+                // std::cout << "Before - route->size: " << route->size << "\n";
+                route->shiftLeftSubRoutes(subRoute.subRouteIndex);
+                // std::cout << "After - route->size: " << route->size << "\n";
+            }
+
+            moveSolution.updateFitness(problemInstance);
+
+            int isSubRouteContraintsSatisfied = subRoute.constraints(problemInstance);
+            int isRandomSubRouteConstraintsSatisfied = destSubRoute.constraints(problemInstance);
+
+            isBetterSolution = isSubRouteContraintsSatisfied && isRandomSubRouteConstraintsSatisfied && (moveSolution.fitness < baseFitness);
+            if(isBetterSolution) {
+
+                // std::cout << "new.fitness: " << moveSolution.fitness << " *improved\n";
+                baseFitness = moveSolution.fitness;
+
+                if(hasLeftShiftedSubRoute) {
+                    return 1;
+                }
+
+                memberIndex--;
+            } else {
+
+                if(hasLeftShiftedSubRoute) {
+                    route->shiftRightSubRoutes(subRoute.subRouteIndex);
+                }
+
+                moveMembersBetweenSubRoutes(problemInstance, destSubRoute, subRoute, destMemberIndex, memberIndex, successiveVerticesCount);
+                moveSolution.updateFitness(problemInstance);
+
+                destMemberIndex++;
+            }
+        }
+
+        memberIndex++;
+    }
+
+    return 0;
 }
 
 void normalizeValues(double* selectionProbability, int candidatesCount) {
