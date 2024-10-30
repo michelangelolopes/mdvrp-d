@@ -6,6 +6,24 @@
 
 void** mallocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
 
+template <typename T> void shiftLeftArray(T* array, int consideredObjectCount, int originIndex, int shiftSize) {
+
+    for(int shiftIndex = originIndex + shiftSize; shiftIndex < consideredObjectCount; shiftIndex++) {
+        
+        int destIndex = shiftIndex - shiftSize;
+        array[destIndex] = array[shiftIndex];
+    }
+}
+
+template <typename T> void shiftRightArray(T* array, int consideredObjectCount, int originIndex, int shiftSize) {
+
+    for(int shiftIndex = consideredObjectCount - 1; shiftIndex >= originIndex; shiftIndex--) {
+        
+        int destIndex = shiftIndex + shiftSize;
+        array[destIndex] = array[shiftIndex];
+    }
+}
+
 template <typename T> void printIndexesArray(T* array, int objectCount, T value) {
     
     for(int i = 0; i < objectCount; i++) {
