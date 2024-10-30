@@ -33,6 +33,8 @@ class Route {
         double getCurrentLoad();
         void incrementCurrentLoad(double demand);
         void initializeSubRoutes(int subRouteMaxLength);
+        void shiftLeftSubRoutes(int subRouteOriginIndex);
+        void shiftRightSubRoutes(int subRouteOriginIndex);
 
         void print() const;
         void updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex);

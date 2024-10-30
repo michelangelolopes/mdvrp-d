@@ -20,10 +20,38 @@ void Route::initializeSubRoutes(int subRouteMaxLength) {
     initializeNextSubRoute(subRouteMaxLength);
 }
 
+void Route::shiftLeftSubRoutes(int subRouteOriginIndex) {
+
+    SubRoute removedSubRoute = subRoutes[subRouteOriginIndex];
+    shiftLeftArray(subRoutes, size, subRouteOriginIndex, 1);
+    size--;
+
+    subRoutes[size] = removedSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
+    }
+
+}
+
+void Route::shiftRightSubRoutes(int subRouteOriginIndex) {
+
+    SubRoute removedSubRoute = subRoutes[size];
+    shiftRightArray(subRoutes, size, subRouteOriginIndex, 1);
+    size++;
+
+    subRoutes[removedSubRoute.subRouteIndex] = removedSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
+    }
+
+}
+
 void Route::initializeNextSubRoute(int subRouteMaxLength) {
 
     int nextSubRouteIndex = size - 1;
-    subRoutes[nextSubRouteIndex] = SubRoute(depotIndex, subRouteMaxLength);
+    subRoutes[nextSubRouteIndex] = SubRoute(depotIndex, nextSubRouteIndex, subRouteMaxLength);
 }
 
 void Route::finalize() {
@@ -79,7 +107,7 @@ void Route::copy(const Route& routeToCopy) {
 
         int subRouteMaxLength = subRoutes[0].maxLength;
         for(int subRouteIndex = maxSize; subRouteIndex < routeToCopy.size; subRouteIndex++) {
-            subRoutes[subRouteIndex] = SubRoute(depotIndex, subRouteMaxLength);
+            subRoutes[subRouteIndex] = SubRoute(depotIndex, subRouteIndex, subRouteMaxLength);
         }
 
         maxSize = routeToCopy.size;

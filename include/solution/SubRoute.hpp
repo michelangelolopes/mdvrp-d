@@ -8,7 +8,11 @@
 
 class SubRoute {
     public:
-        SubRoute(int depotIndex, int maxLength) : depotIndex(depotIndex), maxLength(maxLength) {
+        SubRoute(int depotIndex, int subRouteIndex, int maxLength) : 
+        depotIndex(depotIndex), 
+        subRouteIndex(subRouteIndex), 
+        maxLength(maxLength) 
+        {
             init();
         }
 
@@ -19,6 +23,7 @@ class SubRoute {
         double timeSpent;
 
         int depotIndex;
+        int subRouteIndex;
         int maxLength;
         int* members;
 
