@@ -124,12 +124,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         void localOptimization(Solution& generationBestSolution);
 
-        void exchangeMembersInSameRoute(
-            Solution& exchangeSolution, 
-            Route& route,
-            int successiveVerticesCount
-        );
-        void exchangeMembersInDifferentRoutes(
+        void exchangeMembersInRoutes(
             Solution& exchangeSolution, 
             Route& route,
             Route& exchangeRoute,

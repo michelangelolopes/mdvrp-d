@@ -660,7 +660,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
             route = &exchangeSolution.routes[depotIndex];
 
             // std::cout << "depotIndex: [" << depotIndex << "] - size: " << route->size << " - " << exchangeRoute->size << "\n";
-            exchangeMembersInSameRoute(exchangeSolution, *route, successiveVerticesCount);
+            exchangeMembersInRoutes(exchangeSolution, *route, *route, successiveVerticesCount);
 
             for(int exchangeDepotIndex = depotIndex + 1; exchangeDepotIndex < problemInstance.depotsCount; exchangeDepotIndex++) {
 
@@ -669,7 +669,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
                 // std::cout << "depotIndex: [" << depotIndex << "] - ";
                 // std::cout << "[" << exchangeDepotIndex << "] - ";
                 // std::cout << "size: " << route->size << " - " << exchangeRoute->size << "\n";
-                exchangeMembersInDifferentRoutes(exchangeSolution, *route, *exchangeRoute, successiveVerticesCount);
+                exchangeMembersInRoutes(exchangeSolution, *route, *exchangeRoute, successiveVerticesCount);
             }
         }
     }
@@ -678,42 +678,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
     exchangeSolution.finalize();
 }
 
-void StodolaInspiredAntSystem::exchangeMembersInSameRoute(
-    Solution& exchangeSolution, 
-    Route& route,
-    int successiveVerticesCount
-) {
-    
-    SubRoute* subRoute;
-    SubRoute* exchangeSubRoute;
-
-    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
-
-        subRoute = &route.subRoutes[subRouteIndex];
-        if(subRoute->length < successiveVerticesCount) {
-            break;
-        }
-        
-        // std::cout << "subRoute: [" << subRouteIndex << "] - length: " << subRoute->length << "\n";
-        exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
-
-        for(int exchangeSubRouteIndex = subRouteIndex + 1; exchangeSubRouteIndex < route.size; exchangeSubRouteIndex++) {
-
-            exchangeSubRoute = &route.subRoutes[exchangeSubRouteIndex];
-            if(exchangeSubRoute->length < successiveVerticesCount) {
-                break;
-            }
-
-            // std::cout << "subRoute: [" << subRouteIndex << "] - ";
-            // std::cout << "[" << exchangeSubRouteIndex << "] - ";
-            // std::cout << "length: " << subRoute->length << " - " << exchangeSubRoute->length << "\n";
-
-            exchangeMembersInDifferentSubRoutes(exchangeSolution, *subRoute, *exchangeSubRoute, successiveVerticesCount);
-        }
-    }
-}
-
-void StodolaInspiredAntSystem::exchangeMembersInDifferentRoutes(
+void StodolaInspiredAntSystem::exchangeMembersInRoutes(
     Solution& exchangeSolution, 
     Route& route,
     Route& exchangeRoute,
@@ -723,6 +688,8 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentRoutes(
     SubRoute* subRoute;
     SubRoute* exchangeSubRoute;
 
+    int isSameRoute = (route.depotIndex == exchangeRoute.depotIndex);
+
     for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
 
         subRoute = &route.subRoutes[subRouteIndex];
@@ -730,9 +697,13 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentRoutes(
             break;
         }
 
-        exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
+        int startExchangeSubRouteIndex = 0;
+        if(isSameRoute) {
+            startExchangeSubRouteIndex = subRouteIndex + 1;
+            exchangeMembersInSameSubRoute(exchangeSolution, *subRoute, successiveVerticesCount);
+        }
 
-        for(int exchangeSubRouteIndex = 0; exchangeSubRouteIndex < exchangeRoute.size; exchangeSubRouteIndex++) {
+        for(int exchangeSubRouteIndex = startExchangeSubRouteIndex; exchangeSubRouteIndex < exchangeRoute.size; exchangeSubRouteIndex++) {
 
             exchangeSubRoute = &exchangeRoute.subRoutes[exchangeSubRouteIndex];
             if(exchangeSubRoute->length < successiveVerticesCount) {
