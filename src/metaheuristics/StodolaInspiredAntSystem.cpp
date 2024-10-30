@@ -643,13 +643,21 @@ int StodolaInspiredAntSystem::updateGenerationEdgesOccurrenceCount(const Solutio
 
 void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolution) {
 
-    Solution exchangeSolution(
+    Solution newSolution(
         problemInstance.depotsCount,
         problemInstance.minimizationType,
         problemInstance.customersCount
     );
 
-    exchangeSolution.copy(generationBestSolution);
+    newSolution.copy(generationBestSolution);
+
+    exchangeMembersInSolution(newSolution);
+
+    swap(generationBestSolution, newSolution);
+    newSolution.finalize();
+}
+
+void StodolaInspiredAntSystem::exchangeMembersInSolution(Solution& exchangeSolution) {
 
     Route* route;
     Route* exchangeRoute;
@@ -673,9 +681,6 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
             }
         }
     }
-
-    swap(generationBestSolution, exchangeSolution);
-    exchangeSolution.finalize();
 }
 
 void StodolaInspiredAntSystem::exchangeMembersInRoutes(
