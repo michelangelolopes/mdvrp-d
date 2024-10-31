@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "../../include/utils/ArrayUtils.hpp"
+#include "../../include/utils/MathUtils.hpp"
 
 void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClusterMaxSize) {
     createClusters(primarySubClustersMaxCount, subClusterMaxSize);
@@ -165,8 +166,6 @@ int StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCoun
 }
 
 void StodolaInspiredAntSystem::run() {
-
-    srand((unsigned int)time(0));
 
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
@@ -960,31 +959,4 @@ int StodolaInspiredAntSystem::moveMembersInSubRoutes(
     }
 
     return 0;
-}
-
-void normalizeValues(double* selectionProbability, int candidatesCount) {
-    
-    double probabilitiesSum = sumArray(selectionProbability, candidatesCount);
-
-    for(int index = 0; index < candidatesCount; index++) {
-        selectionProbability[index] /= probabilitiesSum;
-    }
-}
-
-int rouletteWheelSelection(double* selectionProbability, int candidatesCount) {
-    
-    normalizeValues(selectionProbability, candidatesCount);
-    
-    double randomValue = ((double)rand() / RAND_MAX);
-    
-    double cumulativeProbability = 0;
-    for(int index = 0; index < candidatesCount; index++) {
-
-        cumulativeProbability += selectionProbability[index];
-        if (randomValue <= cumulativeProbability) {
-            return index;
-        }
-    }
-
-    return -1;
 }

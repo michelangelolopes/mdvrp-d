@@ -13,6 +13,8 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance);
 
 int main(int argc, char** argv) {
 
+    srand((unsigned int)time(0));
+
     if(argc != 9) {
         std::cout << "ERROR! The program needs more args...\n";
         exit(0);
