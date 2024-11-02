@@ -7,7 +7,7 @@
 #include "../enum/ProblemTypeEnum.hpp"
 #include "../general/Position2D.hpp"
 #include "Truck.hpp"
-#include "Uav.hpp"
+#include "Drone.hpp"
 
 #include "../utils/ArrayUtils.hpp"
 
@@ -15,7 +15,7 @@ class Depot {
     public:
         Position2D position;
         Truck truck;
-        Uav uav;
+        Drone drone;
 
         inline void print(const ProblemType& problemType) const {
 
@@ -28,8 +28,8 @@ class Depot {
             std::cout << "\n";
 
             if(problemType == ProblemType::VRP_D || problemType == ProblemType::MDVRP_D) {
-                std::cout << "Uav --- ";
-                uav.print();
+                std::cout << "Drone --- ";
+                drone.print();
                 std::cout << "\n";
             }
         }

@@ -1,10 +1,10 @@
-#ifndef UAV_HPP
-#define UAV_HPP
+#ifndef DRONE_HPP
+#define DRONE_HPP
 
 #include <iostream>
 #include "Vehicle.hpp"
 
-class Uav : public Vehicle {
+class Drone : public Vehicle {
     public:
         double endurance;
         double launchTime;

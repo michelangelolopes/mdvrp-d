@@ -265,7 +265,7 @@ int ProblemInstance::loadDepotInfo(const string& info, const string& value, int 
     }
 
     if(info.compare("DroneVelocity") == 0) {
-        valueStream >> depots[depotIndex].uav.speed;
+        valueStream >> depots[depotIndex].drone.speed;
         return 1;
     }
 
@@ -275,7 +275,7 @@ int ProblemInstance::loadDepotInfo(const string& info, const string& value, int 
     }
 
     if(info.compare("DroneCapacity") == 0) {
-        valueStream >> depots[depotIndex].uav.capacity;
+        valueStream >> depots[depotIndex].drone.capacity;
         return 1;
     }
 
@@ -285,7 +285,7 @@ int ProblemInstance::loadDepotInfo(const string& info, const string& value, int 
     }
     
     if(info.compare("DroneEndurance") == 0) {
-        valueStream >> depots[depotIndex].uav.endurance;
+        valueStream >> depots[depotIndex].drone.endurance;
         return 1;
     }
 
@@ -295,17 +295,17 @@ int ProblemInstance::loadDepotInfo(const string& info, const string& value, int 
     }
 
     if(info.compare("DroneServiceTime") == 0) {
-        valueStream >> depots[depotIndex].uav.serviceTime;
+        valueStream >> depots[depotIndex].drone.serviceTime;
         return 1;
     }
 
     if(info.compare("DroneLaunchTime") == 0) {
-        valueStream >> depots[depotIndex].uav.launchTime;
+        valueStream >> depots[depotIndex].drone.launchTime;
         return 1;
     }
 
     if(info.compare("DroneRecoveryTime") == 0) {
-        valueStream >> depots[depotIndex].uav.recoveryTime;
+        valueStream >> depots[depotIndex].drone.recoveryTime;
         return 1;
     }
 
