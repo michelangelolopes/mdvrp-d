@@ -29,6 +29,7 @@ class Route {
         void reset();
         void copy(const Route& routeToCopy);
 
+        void incrementCurrentDuration(double deliveryDuration);
         void incrementCurrentLoad(double demand);
         void shiftLeftSubRoutes(int subRouteOriginIndex);
         void shiftRightSubRoutes(int subRouteOriginIndex);
@@ -36,6 +37,7 @@ class Route {
         void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
 
         int last() const;
+        double getCurrentDuration() const;
         double getCurrentLoad() const;
         void print() const;
 

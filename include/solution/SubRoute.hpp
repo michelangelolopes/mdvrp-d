@@ -17,6 +17,7 @@ class SubRoute {
         }
 
         int length;
+        double duration;
         double load;
 
         double distanceTraveled;
@@ -33,6 +34,7 @@ class SubRoute {
         void copy(const SubRoute& subRouteToCopy);
         int constraints(const ProblemInstance& problemInstance);
         
+        void incrementDuration(double deliveryDuration);
         void incrementLoad(double demand);
         void updateDistanceTraveled(const ProblemInstance& problemInstance);
         void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);

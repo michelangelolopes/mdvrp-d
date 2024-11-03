@@ -117,6 +117,10 @@ void Route::copy(const Route& routeToCopy) {
     }
 }
 
+void Route::incrementCurrentDuration(double deliveryDuration) {
+
+    subRoutes[size - 1].incrementDuration(deliveryDuration);
+}
 
 void Route::incrementCurrentLoad(double demand) {
 
@@ -157,6 +161,11 @@ void Route::updateTimeSpent(const ProblemInstance& problemInstance, int depotInd
 int Route::last() const {
 
     return subRoutes[size - 1].last();
+}
+
+double Route::getCurrentDuration() const {
+
+    return subRoutes[size - 1].duration;
 }
 
 double Route::getCurrentLoad() const {

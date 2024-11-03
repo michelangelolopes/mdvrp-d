@@ -9,6 +9,7 @@ void SubRoute::init() {
 void SubRoute::initializeValues() {
 
     length = 0;
+    duration = 0;
     load = 0;
     distanceTraveled = -1;
     timeSpent = -1;
@@ -54,6 +55,11 @@ int SubRoute::constraints(const ProblemInstance& problemInstance) {
 void SubRoute::incrementLoad(double demand) {
 
     load += demand;
+}
+
+void SubRoute::incrementDuration(double deliveryDuration) {
+
+    duration += deliveryDuration;
 }
 
 void SubRoute::updateDistanceTraveled(const ProblemInstance& problemInstance) {
