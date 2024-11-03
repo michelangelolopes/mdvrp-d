@@ -26,23 +26,23 @@ class Route {
         void finalize();
         void expand();
         void insert(int customerIndex);
-        int last();
         void reset();
         void copy(const Route& routeToCopy);
 
-        double getCurrentLoad();
         void incrementCurrentLoad(double demand);
-        void initializeSubRoutes(int subRouteMaxLength);
         void shiftLeftSubRoutes(int subRouteOriginIndex);
         void shiftRightSubRoutes(int subRouteOriginIndex);
-
-        void print() const;
         void updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex);
         void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
+
+        int last() const;
+        double getCurrentLoad() const;
+        void print() const;
 
     private:
         void init(int subRouteMaxLength);
         void initializeValues();
+        void initializeSubRoutes(int subRouteMaxLength);
         void initializeNextSubRoute(int subRouteMaxLength);
 };
 

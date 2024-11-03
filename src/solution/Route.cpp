@@ -85,11 +85,6 @@ void Route::insert(int customerIndex) {
     subRoutes[size - 1].insert(customerIndex);
 }
 
-int Route::last() {
-
-    return subRoutes[size - 1].last();
-}
-
 void Route::reset() {
 
     for(int subRouteIndex = 0; subRouteIndex < maxSize; subRouteIndex++) {
@@ -122,10 +117,6 @@ void Route::copy(const Route& routeToCopy) {
     }
 }
 
-double Route::getCurrentLoad() {
-
-    return subRoutes[size - 1].load;
-}
 
 void Route::incrementCurrentLoad(double demand) {
 
@@ -161,6 +152,16 @@ void Route::updateTimeSpent(const ProblemInstance& problemInstance, int depotInd
 
     double truckSpeed = problemInstance.depots[depotIndex].truck.speed;
     timeSpent = (distanceTraveled / truckSpeed);
+}
+
+int Route::last() const {
+
+    return subRoutes[size - 1].last();
+}
+
+double Route::getCurrentLoad() const {
+
+    return subRoutes[size - 1].load;
 }
 
 void Route::print() const {
