@@ -55,6 +55,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         double distanceProbabilityCoef;
         double pheromoneProbabilityCoef;
+        double (*weightedValue)(double, double);
 
         int maxExchangeSuccessiveVertices;
 
@@ -75,7 +76,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
         void initializePheromoneMatrices();
-        void updatePheromoneMatrix(const Solution& consideredSolution, double updateValue, int isSumOperation);
+        void updatePheromoneMatrix(const Solution& consideredSolution, double updateValue, double (*operationFunction) (double, double));
 
         void reinforcePheromoneMatrixWithProbability(const Solution& generationBestSolution);
         void reinforcePheromoneMatrix(const Solution& consideredSolution);
@@ -106,18 +107,11 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             double* pheromoneConcentrationAverage,
             Cluster* cluster
         );
-        void calculatePrimarySubClusterSelectionProbabilityWithCoefOne( 
-            double* primarySubClusterSelectionProbability,
-            double* heuristicInformationAverage, 
-            double* pheromoneConcentrationAverage,
-            Cluster* cluster
-        );
 
         int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
 
         int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
         void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
-        void updateCustomerSelectionProbabilityWithCoefOne(int* visitedCustomersIndexes, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
         double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
         int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
@@ -157,8 +151,5 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             int successiveVerticesCount
         );
 };
-
-void normalizeValues(double* selectionProbability, int candidatesCount);
-int rouletteWheelSelection(double* selectionProbability, int candidatesCount);
 
 #endif

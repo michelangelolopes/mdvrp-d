@@ -6,6 +6,14 @@
 #include "../general/Position2D.hpp"
 #include "../utils/ArrayUtils.hpp"
 
+inline double add(double x, double y) { 
+    return x + y; 
+}
+
+inline double multiply(double x, double y) {
+    return x * y; 
+}
+
 inline double calculateEuclidianDistance(Position2D positionA, Position2D positionB) {
 
     return sqrt(pow(positionB.x - positionA.x, 2) + pow(positionB.y - positionA.y, 2));
