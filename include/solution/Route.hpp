@@ -37,8 +37,8 @@ class Route {
         void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
 
         int last() const;
-        double getCurrentDuration() const;
-        double getCurrentLoad() const;
+        double currentDuration() const;
+        double currentLoad() const;
         void print() const;
 
     private:

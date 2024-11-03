@@ -32,7 +32,6 @@ class SubRoute {
         void insert(int customerIndex);
         void reset();
         void copy(const SubRoute& subRouteToCopy);
-        int constraints(const ProblemInstance& problemInstance);
         
         void incrementDuration(double deliveryDuration);
         void incrementLoad(double demand);
@@ -41,6 +40,8 @@ class SubRoute {
         void exchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
         void revertExchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
 
+        int checkWeightConstraint(const ProblemInstance& problemInstance) const;
+        int checkTimeConstraint(const ProblemInstance& problemInstance) const;
         void print() const;
         int first() const;
         int last() const;

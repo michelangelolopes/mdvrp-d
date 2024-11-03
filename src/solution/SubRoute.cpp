@@ -38,6 +38,7 @@ void SubRoute::reset() {
 void SubRoute::copy(const SubRoute& subRouteToCopy) {
 
     length = subRouteToCopy.length;
+    duration = subRouteToCopy.duration;
     load = subRouteToCopy.load;
     distanceTraveled = subRouteToCopy.distanceTraveled;
     timeSpent = subRouteToCopy.timeSpent;
@@ -45,11 +46,6 @@ void SubRoute::copy(const SubRoute& subRouteToCopy) {
     for(int memberIndex = 0; memberIndex < subRouteToCopy.length; memberIndex++) {
         members[memberIndex] = subRouteToCopy.members[memberIndex];
     }
-}
-
-int SubRoute::constraints(const ProblemInstance& problemInstance) {
-
-    return load <= problemInstance.depots[depotIndex].truck.capacity;
 }
 
 void SubRoute::incrementLoad(double demand) {
@@ -130,6 +126,16 @@ void SubRoute::revertExchangeMembers(const ProblemInstance& problemInstance, int
 
         swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
     }
+}
+
+int SubRoute::checkWeightConstraint(const ProblemInstance& problemInstance) const {
+
+    return load <= problemInstance.depots[depotIndex].truck.capacity;
+}
+
+int SubRoute::checkTimeConstraint(const ProblemInstance& problemInstance) const {
+
+    return duration <= problemInstance.depots[depotIndex].truck.routeMaxDuration;
 }
 
 void SubRoute::print() const {

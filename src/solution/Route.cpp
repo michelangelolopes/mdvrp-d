@@ -163,12 +163,12 @@ int Route::last() const {
     return subRoutes[size - 1].last();
 }
 
-double Route::getCurrentDuration() const {
+double Route::currentDuration() const {
 
     return subRoutes[size - 1].duration;
 }
 
-double Route::getCurrentLoad() const {
+double Route::currentLoad() const {
 
     return subRoutes[size - 1].load;
 }

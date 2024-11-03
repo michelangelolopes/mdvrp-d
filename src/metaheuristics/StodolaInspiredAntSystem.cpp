@@ -336,7 +336,7 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
         Customer* nextCustomer = &problemInstance.customers[customerIndex];
         Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
 
-        double updatedTruckLoad = ( currentRoute->getCurrentLoad() + nextCustomer->demand );
+        double updatedTruckLoad = ( currentRoute->currentLoad() + nextCustomer->demand );
         bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
 
         if(willTruckExceedCapacity) {
@@ -777,11 +777,11 @@ void StodolaInspiredAntSystem::exchangeMembersInDifferentSubRoutes(
             exchangeMembersBetweenSubRoutes(problemInstance, subRoute, exchangeSubRoute, memberIndex, exchangeMemberIndex, successiveVerticesCount);
             exchangeSolution.updateFitness(problemInstance);
 
-            int isSubRouteContraintsSatisfied = subRoute.constraints(problemInstance);
-            int isRandomSubRouteConstraintsSatisfied = exchangeSubRoute.constraints(problemInstance);
+            int isSubRouteContraintSatisfied = subRoute.checkWeightConstraint(problemInstance);
+            int isExchangeSubRouteConstraintSatisfied = exchangeSubRoute.checkWeightConstraint(problemInstance);
             int isBetterSolution = (exchangeSolution.fitness < baseFitness);
 
-            if(isSubRouteContraintsSatisfied && isRandomSubRouteConstraintsSatisfied && isBetterSolution) {
+            if(isSubRouteContraintSatisfied && isExchangeSubRouteConstraintSatisfied && isBetterSolution) {
 
                 // std::cout << "new.fitness: " << exchangeSolution.fitness << " *improved - ";
                 baseFitness = exchangeSolution.fitness;
@@ -907,10 +907,10 @@ int StodolaInspiredAntSystem::moveMembersInSubRoutes(
 
             moveSolution.updateFitness(problemInstance);
 
-            int isSubRouteContraintsSatisfied = subRoute.constraints(problemInstance);
-            int isRandomSubRouteConstraintsSatisfied = destSubRoute.constraints(problemInstance);
+            int isSubRouteContraintSatisfied = subRoute.checkWeightConstraint(problemInstance);
+            int isDestSubRouteConstraintSatisfied = destSubRoute.checkWeightConstraint(problemInstance);
 
-            isBetterSolution = isSubRouteContraintsSatisfied && isRandomSubRouteConstraintsSatisfied && (moveSolution.fitness < baseFitness);
+            isBetterSolution = isSubRouteContraintSatisfied && isDestSubRouteConstraintSatisfied && (moveSolution.fitness < baseFitness);
             if(isBetterSolution) {
 
                 // std::cout << "new.fitness: " << moveSolution.fitness << " *improved\n";
