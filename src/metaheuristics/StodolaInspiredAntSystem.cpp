@@ -631,7 +631,7 @@ void StodolaInspiredAntSystem::localOptimization(Solution& generationBestSolutio
     newSolution.copy(generationBestSolution);
 
     exchangeMembersInSolution(newSolution);
-    moveMembersInSolution(newSolution);
+    // moveMembersInSolution(newSolution);
 
     swap(generationBestSolution, newSolution);
     newSolution.finalize();
