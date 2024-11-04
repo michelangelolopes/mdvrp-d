@@ -155,7 +155,6 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
             }
         }
 
-        // std::cout << "route->getCurrentLoad(): " << route->getCurrentLoad() << "\n";
     }
     
     example.updateFitness(problemInstance);

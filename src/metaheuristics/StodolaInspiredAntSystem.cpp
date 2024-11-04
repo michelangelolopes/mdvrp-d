@@ -1006,14 +1006,133 @@ void StodolaInspiredAntSystem::buildDroneAntRoutes(Solution& antSolution, int* v
 
         visitedCustomersIndexes[customerIndex] = 1;
         unvisitedCustomersCount--;
+
+        int droneSubClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex, dronePheromoneMatrix);
+        int droneCustomerIndex = selectDroneCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, droneSubClusterIndex, currentVertexIndex, customerIndex, *currentRoute);
     }
 
     antSolution.updateFitness(problemInstance);
 }
 
+int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route) {
+
+    int droneCustomerIndex = -1;
+    double maxPheromoneConcentration = 0;
+
+    Cluster* cluster = &verticesClusters[launchVertexIndex];
+    SubCluster* subCluster = &cluster->subClusters[droneSubClusterIndex];
+
+    bool* candidateMembersIndex = (bool*) calloc(subCluster->size, sizeof(bool));
+    int candidatesCount = 0;
+
+    Depot* depot = &problemInstance.depots[depotIndex];
+    Truck* truck = &depot->truck;
+    Drone* drone = &depot->drone;
+    
+    for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
+        
+        int neighborCustomerIndex = subCluster->elements[memberIndex];
+        if(visitedCustomersIndexes[neighborCustomerIndex] != 1) {
+
+            Sortie sortie(launchVertexIndex, neighborCustomerIndex, recoveryVertexIndex);
+            Customer* droneCustomer = &problemInstance.customers[neighborCustomerIndex];
+
+            if(canDroneVisitCustomer(route, sortie, *droneCustomer, *truck, *drone)) {
+                candidateMembersIndex[memberIndex] = true;
+                candidatesCount++;
+
+                maxPheromoneConcentration = max(
+                    maxPheromoneConcentration, 
+                    dronePheromoneMatrix[depotIndex][launchVertexIndex][neighborCustomerIndex]
+                );
+            }
+        }
+    }
+
+    if(candidatesCount > 0) {
+
+        double droneUsageProbability = 1 - (1 / exp(maxPheromoneConcentration));
+        double randomValue = ((double)rand() / RAND_MAX);
+
+        if(randomValue <= droneUsageProbability) {
+
+            updateDroneCustomerSelectionProbability(candidateMembersIndex, selectionProbability, depotIndex, launchVertexIndex, *subCluster);
+            
+            droneCustomerIndex = rouletteWheelSelection(
+                selectionProbability,
+                subCluster->size
+            );
+        }
+    }
+
+    return droneCustomerIndex;
+}
+
+void StodolaInspiredAntSystem::updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster) {
+
+    fillArray(customerSelectionProbability, subCluster.size, 0.0);
+
+    for(int memberIndex = 0; memberIndex < subCluster.size; memberIndex++) {
+        
+        if(candidateMembersIndex[memberIndex]) {
+
+            int neighborCustomerIndex = subCluster.elements[memberIndex];
+
+            double weightedPheromoneConcentration = weightedValue(
+                dronePheromoneMatrix[depotIndex][vertexIndex][neighborCustomerIndex], 
+                pheromoneProbabilityCoef
+            );
+
+            double weightedDistance = weightedValue(
+                problemInstance.verticesDistanceMatrix[vertexIndex][neighborCustomerIndex], 
+                distanceProbabilityCoef
+            );
+
+            customerSelectionProbability[memberIndex] = weightedPheromoneConcentration;
+            customerSelectionProbability[memberIndex] /= weightedDistance;
+        }
+    }
+}
+
+bool StodolaInspiredAntSystem::canDroneVisitCustomer(const Route& route, const Sortie& sortie, const Customer& customer, const Truck& truck, const Drone& drone) {
+
+    if(customer.demand > drone.capacity) {
+        return false;
+    }
+
+    if(route.currentLoad() + customer.demand > truck.capacity) {
+        return false;
+    }
+
+    double droneDeliveryDuration = calculateDroneDeliveryDuration(drone, sortie);
+    if(droneDeliveryDuration > drone.endurance) {
+        return false;
+    }
+
+    if(route.currentDuration() + droneDeliveryDuration > truck.routeMaxDuration) {
+        return false;
+    }
+
+    double customerDeliveryDuration = calculateDeliveryDuration(truck, sortie.launchVertexIndex, sortie.recoveryVertexIndex);
+    if(route.currentDuration() + customerDeliveryDuration + drone.launchTime + drone.recoveryTime > drone.endurance) {
+        return false;
+    }
+
+    return true;
+}
+
 double StodolaInspiredAntSystem::calculateDeliveryDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
 
     return calculateMovementTime(vehicle, sourceIndex, destIndex) + vehicle.serviceTime;
+}
+
+double StodolaInspiredAntSystem::calculateDroneDeliveryDuration(const Drone& drone, const Sortie& sortie) {
+
+    return calculateMovementTime(drone, sortie.launchVertexIndex, sortie.deliveryVertexIndex) + 
+        calculateMovementTime(drone, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex) +
+        drone.launchTime +
+        drone.recoveryTime +
+        drone.serviceTime;
 }
 
 double StodolaInspiredAntSystem::calculateMovementTime(const Vehicle& vehicle, int sourceIndex, int destIndex) {
