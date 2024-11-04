@@ -940,3 +940,13 @@ int StodolaInspiredAntSystem::moveMembersInSubRoutes(
 
     return 0;
 }
+
+void StodolaInspiredAntSystem::initializeDronePheromoneMatrices() {
+
+    dronePheromoneMatrix = (double***) malloc(problemInstance.depotsCount * sizeof(double**));
+
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        dronePheromoneMatrix[depotIndex] = (double**) mallocMatrix(problemInstance.verticesCount, problemInstance.customersCount, sizeof(double*), sizeof(double));
+        fillMatrix(dronePheromoneMatrix[depotIndex], problemInstance.verticesCount, problemInstance.customersCount, 1.0);
+    }
+}

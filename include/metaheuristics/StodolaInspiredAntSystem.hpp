@@ -67,6 +67,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         Cluster* verticesClusters = nullptr;
         Frame frame;
 
+        double*** dronePheromoneMatrix;
+
         void finalize();
         void print();
         void run();
@@ -151,6 +153,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             SubRoute& destSubRoute,
             int successiveVerticesCount
         );
+
+        void initializeDronePheromoneMatrices();
 };
 
 #endif
