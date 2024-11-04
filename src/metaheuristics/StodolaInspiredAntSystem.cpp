@@ -327,7 +327,7 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution, int* visite
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
 
-        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex);
+        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex, pheromoneMatrix);
         // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
 
         int customerIndex = selectCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex, subClusterIndex);
@@ -398,11 +398,11 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbability(int* visitedCustom
     return consideredCustomersCount;
 }
 
-int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int depotIndex, int vertexIndex) {
+int StodolaInspiredAntSystem::selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int depotIndex, int vertexIndex, double*** pheromoneMatrix) {
     
     int selectedSubClusterIndex = -1;
 
-    int hasUnvisitedCustomers = updatePrimarySubClusterSelectionProbability(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, vertexIndex);
+    int hasUnvisitedCustomers = updatePrimarySubClusterSelectionProbability(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, vertexIndex, pheromoneMatrix);
     if(hasUnvisitedCustomers) {
 
         Cluster* cluster = &verticesClusters[vertexIndex];
@@ -423,7 +423,8 @@ int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(
     double* heuristicInformationAverage, 
     double* pheromoneConcentrationAverage,
     int depotIndex,
-    int vertexIndex
+    int vertexIndex,
+    double*** pheromoneMatrix
 ) {
 
     Cluster* cluster = &verticesClusters[vertexIndex];
