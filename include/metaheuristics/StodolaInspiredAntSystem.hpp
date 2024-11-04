@@ -155,6 +155,10 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         );
 
         void initializeDronePheromoneMatrices();
+
+        void buildDroneAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
+        double calculateDeliveryDuration(const Vehicle& vehicle, int sourceIndex, int destIndex);
+        double calculateMovementTime(const Vehicle& vehicle, int sourceIndex, int destIndex);
 };
 
 #endif

@@ -950,3 +950,73 @@ void StodolaInspiredAntSystem::initializeDronePheromoneMatrices() {
         fillMatrix(dronePheromoneMatrix[depotIndex], problemInstance.verticesCount, problemInstance.customersCount, 1.0);
     }
 }
+
+void StodolaInspiredAntSystem::buildDroneAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage) {
+
+    antSolution.reset();
+
+    int unvisitedCustomersCount = problemInstance.customersCount;
+    fillArray(visitedCustomersIndexes, unvisitedCustomersCount, 0);
+
+    while(unvisitedCustomersCount > 0) {
+
+        // std::cout << "--------- unvisitedCustomersCount: " << unvisitedCustomersCount << "\n";
+        // std::cout << "--------- unvisitedCustomers: ";
+        // printIndexesArray(visitedCustomersIndexes, problemInstance.customersCount, 0);
+
+        int depotIndex = selectDepot(visitedCustomersIndexes, selectionProbability, antSolution.routes);
+        // std::cout << "------------ depotIndex: " << depotIndex << "\n";
+
+        Route* currentRoute = &antSolution.routes[depotIndex];
+
+        // std::cout << "------------ currentRoute: ";
+        // currentRoute->print();
+        // std::cout << "\n";
+
+        int currentVertexIndex = currentRoute->last();
+        // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
+        // std::cout << "------------ currentCluster: ";
+        // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
+
+        int subClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex, pheromoneMatrix);
+        // std::cout << "------------ subClusterIndex: " << subClusterIndex << "\n";
+
+        int customerIndex = selectCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, currentVertexIndex, subClusterIndex);
+        // std::cout << "------------ customerIndex: " << customerIndex << "\n";
+
+        Customer* nextCustomer = &problemInstance.customers[customerIndex];
+        Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
+
+        double updatedTruckLoad = ( currentRoute->currentLoad() + nextCustomer->demand );
+        bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
+
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        double customerDeliveryDuration = calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
+        double depotReturnDuration = calculateMovementTime(*currentTruck, customerIndex, depotVertexIndex);
+        double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration); 
+        bool willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
+
+        if(willTruckExceedCapacity || willTruckExceedMaxDuration) {
+            currentRoute->expand();
+            //TODO: define logic for drone launch and recovery at depot
+        }
+
+        currentRoute->insert(customerIndex);
+        currentRoute->incrementCurrentLoad(nextCustomer->demand);
+
+        visitedCustomersIndexes[customerIndex] = 1;
+        unvisitedCustomersCount--;
+    }
+
+    antSolution.updateFitness(problemInstance);
+}
+
+double StodolaInspiredAntSystem::calculateDeliveryDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
+
+    return calculateMovementTime(vehicle, sourceIndex, destIndex) + vehicle.serviceTime;
+}
+
+double StodolaInspiredAntSystem::calculateMovementTime(const Vehicle& vehicle, int sourceIndex, int destIndex) {
+
+    return problemInstance.verticesDistanceMatrix[sourceIndex][destIndex] / vehicle.speed;
+}
