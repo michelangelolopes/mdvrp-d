@@ -2,8 +2,11 @@
 
 void Solution::init(int subRouteMaxLength) {
 
+    int maxSize = (subRouteMaxLength / 2) + 1;
+
     initializeValues();
     initializeRoutes(subRouteMaxLength);
+    initializeDroneRoutes(maxSize);
 }
 
 void Solution::initializeValues() {
@@ -24,6 +27,15 @@ void Solution::initializeRoutes(int subRouteMaxLength) {
     }
 }
 
+void Solution::initializeDroneRoutes(int maxSize) {
+
+    droneRoutes = (DroneRoute*) malloc(depotsCount * sizeof(DroneRoute));
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        droneRoutes[depotIndex] = DroneRoute(depotIndex, maxSize);
+    }
+}
+
 void Solution::finalize() {
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
@@ -31,6 +43,12 @@ void Solution::finalize() {
     }
 
     free(routes);
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        droneRoutes[depotIndex].finalize();
+    }
+
+    free(droneRoutes);
 }
 
 void Solution::reset() {

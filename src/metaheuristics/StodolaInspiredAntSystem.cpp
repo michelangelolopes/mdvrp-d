@@ -1009,6 +1009,28 @@ void StodolaInspiredAntSystem::buildDroneAntRoutes(Solution& antSolution, int* v
 
         int droneSubClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex, dronePheromoneMatrix);
         int droneCustomerIndex = selectDroneCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, droneSubClusterIndex, currentVertexIndex, customerIndex, *currentRoute);
+
+        if(droneCustomerIndex != -1) {
+            DroneRoute* currentDroneRoute = &antSolution.droneRoutes[depotIndex];
+            Customer* nextDroneCustomer = &problemInstance.customers[droneCustomerIndex];
+            Drone* currentDrone = &problemInstance.depots[depotIndex].drone;
+
+            Sortie sortie(currentVertexIndex, droneCustomerIndex, customerIndex);
+
+            currentDroneRoute->insert(sortie);
+
+            double truckFullDuration = customerDeliveryDuration + currentDrone->launchTime + currentDrone->recoveryTime;
+            double droneDeliveryDuration = calculateDroneDeliveryDuration(*currentDrone, sortie);
+            double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
+            
+            currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
+            currentRoute->incrementCurrentDuration(vehicleLongestDuration);
+
+            visitedCustomersIndexes[droneCustomerIndex] = 1;
+            unvisitedCustomersCount--;
+        } else {
+            currentRoute->incrementCurrentDuration(customerDeliveryDuration);
+        }
     }
 
     antSolution.updateFitness(problemInstance);

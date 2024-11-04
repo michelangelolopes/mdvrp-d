@@ -8,6 +8,7 @@
 #include "../problem/ProblemInstance.hpp"
 
 #include "Route.hpp"
+#include "DroneRoute.hpp"
 
 class Solution {
     public:
@@ -28,6 +29,7 @@ class Solution {
         int depotsCount;
         MinimizationType minimizationType;
         Route* routes;
+        DroneRoute* droneRoutes;
 
         void finalize();
         void reset();
@@ -39,6 +41,7 @@ class Solution {
         void init(int subRouteMaxLength);
         void initializeValues();
         void initializeRoutes(int subRouteMaxLength);
+        void initializeDroneRoutes(int maxSize);
 };
 
 #endif
