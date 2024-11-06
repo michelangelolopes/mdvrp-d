@@ -1303,6 +1303,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
     free(heuristicInformationAverage);
     free(pheromoneConcentrationAverage);
     freeMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount);
+    freeMatrix(generationDroneEdgesOccurrenceCount, problemInstance.verticesCount);
 }
 
 int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
@@ -1325,4 +1326,54 @@ int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const So
     }
 
     return edgesCount;
+}
+
+
+void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbabilityWithDrone(const Solution& generationBestSolution) {
+
+    double bestSolutionProbability = generationBestSolution.fitness - bestSolution.fitness;
+    bestSolutionProbability /= bestSolution.fitness;
+    bestSolutionProbability /= temperatureUpdateCoef;
+    bestSolutionProbability *= -1;
+    bestSolutionProbability = exp(bestSolutionProbability);
+
+    double generationBestSolutionProbability = 1 - bestSolutionProbability;
+    double randomValue = ((double)rand() / RAND_MAX);
+
+    if(randomValue <= generationBestSolutionProbability) {
+        reinforcePheromoneMatrix(generationBestSolution);
+    } else {
+        reinforcePheromoneMatrix(bestSolution);
+    }
+}
+
+void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& consideredSolution) {
+
+    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
+
+    for(int depotIndex = 0; depotIndex < consideredSolution.depotsCount; depotIndex++) {
+        
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        Route* route = &consideredSolution.routes[depotIndex];
+
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+
+            int firstCustomerIndex = subRoute->first();
+            int lastCustomerIndex = subRoute->last();
+
+            pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] += pheromoneReinforcingValue;
+            pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] += pheromoneReinforcingValue;
+
+            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+
+                int customerIndex = subRoute->members[memberIndex];
+                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+                pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] += pheromoneReinforcingValue;
+            }
+        }
+    }
+    
+    temperatureUpdateCoef *= temperatureCoolingCoef;
 }
