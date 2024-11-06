@@ -951,7 +951,7 @@ void StodolaInspiredAntSystem::initializeDronePheromoneMatrices() {
     }
 }
 
-void StodolaInspiredAntSystem::buildDroneAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage) {
+void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage) {
 
     antSolution.reset();
 
@@ -992,7 +992,7 @@ void StodolaInspiredAntSystem::buildDroneAntRoutes(Solution& antSolution, int* v
 
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
         double customerDeliveryDuration = calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
-        double depotReturnDuration = calculateMovementTime(*currentTruck, customerIndex, depotVertexIndex);
+        double depotReturnDuration = calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
         double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration); 
         bool willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
 
@@ -1145,19 +1145,19 @@ bool StodolaInspiredAntSystem::canDroneVisitCustomer(const Route& route, const S
 
 double StodolaInspiredAntSystem::calculateDeliveryDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
 
-    return calculateMovementTime(vehicle, sourceIndex, destIndex) + vehicle.serviceTime;
+    return calculateMovementDuration(vehicle, sourceIndex, destIndex) + vehicle.serviceTime;
 }
 
 double StodolaInspiredAntSystem::calculateDroneDeliveryDuration(const Drone& drone, const Sortie& sortie) {
 
-    return calculateMovementTime(drone, sortie.launchVertexIndex, sortie.deliveryVertexIndex) + 
-        calculateMovementTime(drone, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex) +
+    return calculateMovementDuration(drone, sortie.launchVertexIndex, sortie.deliveryVertexIndex) + 
+        calculateMovementDuration(drone, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex) +
         drone.launchTime +
         drone.recoveryTime +
         drone.serviceTime;
 }
 
-double StodolaInspiredAntSystem::calculateMovementTime(const Vehicle& vehicle, int sourceIndex, int destIndex) {
+double StodolaInspiredAntSystem::calculateMovementDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
 
     return problemInstance.verticesDistanceMatrix[sourceIndex][destIndex] / vehicle.speed;
 }
