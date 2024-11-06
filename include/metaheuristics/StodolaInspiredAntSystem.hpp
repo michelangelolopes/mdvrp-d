@@ -72,6 +72,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void finalize();
         void print();
         void run();
+        void runWithDrone();
     
     private:
         void create(int primarySubClustersMaxCount, int subClusterMaxSize);

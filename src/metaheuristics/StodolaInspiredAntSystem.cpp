@@ -1161,3 +1161,141 @@ double StodolaInspiredAntSystem::calculateMovementDuration(const Vehicle& vehicl
 
     return problemInstance.verticesDistanceMatrix[sourceIndex][destIndex] / vehicle.speed;
 }
+
+void StodolaInspiredAntSystem::runWithDrone() {
+
+    std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point endOptimizationTime = startOptimizationTime;
+    std::chrono::duration<double> currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+    
+    int primarySubClustersCout = verticesClusters[0].primariesCount;
+    int generationEdgesCount = 0;
+    int globalImprovementsCount = 0;
+    int iterationsCount = 0;
+    int iterationsWithoutImprovementCount = 0;
+    double informationEntropy = -1;
+    double informationEntropyMin = -1;
+    double informationEntropyMax = -1;
+    double informationEntropyCoef = 100;
+
+    int* visitedCustomersIndexes = (int*) malloc(problemInstance.customersCount * sizeof(int));
+    double* selectionProbability = (double*) malloc(problemInstance.customersCount * sizeof(double));
+    double* heuristicInformationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
+    double* pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
+
+    int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.verticesCount, problemInstance.verticesCount, sizeof(int*), sizeof(int));
+
+    Solution antSolution(
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
+
+    Solution generationBestSolution(
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
+
+    //initial solution
+    bestSolution = Solution(
+        problemInstance.depotsCount,
+        problemInstance.minimizationType,
+        problemInstance.customersCount
+    );
+
+    buildAntRoutes(bestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+
+    while(!hasAchievedTerminationCondition(
+        iterationsCount, 
+        iterationsWithoutImprovementCount,
+        currentOptimizationTime.count(),
+        informationEntropyCoef
+    )) 
+    {
+
+        // std::cout << "--- generation: " << iterationsCount << "\n";
+        fillMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount, problemInstance.verticesCount, 0);
+
+        //first ant
+        // std::cout << "------ ant: " << 0 << "\n";
+        buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+        generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
+        
+        //others ants
+        for(int antIndex = 1; antIndex < antsCount; antIndex++) {
+
+            // std::cout << "------ ant: " << antIndex << "\n";
+
+            buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+            generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
+
+            if(antSolution.fitness < generationBestSolution.fitness) {
+                swap(generationBestSolution, antSolution);
+            }
+        }
+
+        //TODO: local optimization inter-route exchange
+        if(iterationsCount % localOptimizationFrequency == 0) {
+            localOptimization(generationBestSolution);
+        }
+
+        if(generationBestSolution.fitness < bestSolution.fitness) {
+
+            swap(bestSolution, generationBestSolution);
+            reinforcePheromoneMatrix(bestSolution);
+
+            globalImprovementsCount += 1;
+
+            std::cout << "--------------------------------------------------\n";
+            std::cout << "globalImproves: " << globalImprovementsCount << " - ";
+            std::cout << "fitness: " << bestSolution.fitness << " - ";
+            std::cout << "generations: " << iterationsCount << " - ";
+            std::cout << "generationsUntilImprove: " << iterationsWithoutImprovementCount  << " - ";
+
+            iterationsWithoutImprovementCount = 0;
+        } else {
+            reinforcePheromoneMatrixWithProbability(generationBestSolution);
+        }
+
+        informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
+        informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
+        informationEntropyMax = -1 * log2(1.00 / generationEdgesCount);
+        informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
+
+        updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
+        evaporatePheromoneMatrix();
+
+        endOptimizationTime = std::chrono::high_resolution_clock::now();
+        currentOptimizationTime = endOptimizationTime - startOptimizationTime;
+
+        if(iterationsWithoutImprovementCount == 0) {
+
+            std::cout << "timer: " << currentOptimizationTime.count() << "\n";
+            std::cout << "informationEntropy: coef: " << informationEntropyCoef << " - ";
+            std::cout << "min: " << informationEntropyMin << " - ";
+            std::cout << "cur: " << informationEntropy << " - ";
+            std::cout << "max: " << informationEntropyMax << "\n";
+        }
+
+        iterationsCount += 1;
+        iterationsWithoutImprovementCount += 1;
+        generationEdgesCount = 0;
+    }
+
+    std::cout << "--------------------------------------------------\n";
+    std::cout << "generations: " << iterationsCount << " - ";
+    std::cout << "generationsWithoutImprove: " << iterationsWithoutImprovementCount  << " - ";
+    std::cout << "timer: " << currentOptimizationTime.count() << "\n";
+    
+    bestSolution.print();
+
+    antSolution.finalize();
+    generationBestSolution.finalize();
+    
+    free(visitedCustomersIndexes);
+    free(selectionProbability);
+    free(heuristicInformationAverage);
+    free(pheromoneConcentrationAverage);
+    freeMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount);
+}
