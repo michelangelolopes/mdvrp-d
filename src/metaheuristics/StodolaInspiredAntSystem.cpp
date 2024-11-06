@@ -1184,6 +1184,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
     double* pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCout * sizeof(double));
 
     int** generationEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.verticesCount, problemInstance.verticesCount, sizeof(int*), sizeof(int));
+    int** generationDroneEdgesOccurrenceCount = (int**) mallocMatrix(problemInstance.verticesCount, problemInstance.verticesCount, sizeof(int*), sizeof(int));
 
     Solution antSolution(
         problemInstance.depotsCount,
@@ -1204,7 +1205,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
         problemInstance.customersCount
     );
 
-    buildAntRoutes(bestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+    buildAntRoutesWithDrone(bestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
 
     while(!hasAchievedTerminationCondition(
         iterationsCount, 
@@ -1216,10 +1217,11 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
         fillMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount, problemInstance.verticesCount, 0);
+        fillMatrix(generationDroneEdgesOccurrenceCount, problemInstance.verticesCount, problemInstance.verticesCount, 0);
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
-        buildAntRoutes(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+        buildAntRoutesWithDrone(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
         generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
         
         //others ants
@@ -1227,7 +1229,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
             // std::cout << "------ ant: " << antIndex << "\n";
 
-            buildAntRoutes(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
+            buildAntRoutesWithDrone(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
             generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
@@ -1235,10 +1237,10 @@ void StodolaInspiredAntSystem::runWithDrone() {
             }
         }
 
-        //TODO: local optimization inter-route exchange
-        if(iterationsCount % localOptimizationFrequency == 0) {
-            localOptimization(generationBestSolution);
-        }
+        // //TODO: local optimization inter-route exchange
+        // if(iterationsCount % localOptimizationFrequency == 0) {
+        //     localOptimization(generationBestSolution);
+        // }
 
         if(generationBestSolution.fitness < bestSolution.fitness) {
 
@@ -1298,4 +1300,39 @@ void StodolaInspiredAntSystem::runWithDrone() {
     free(heuristicInformationAverage);
     free(pheromoneConcentrationAverage);
     freeMatrix(generationEdgesOccurrenceCount, problemInstance.verticesCount);
+}
+
+int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
+
+    //TODO: it could be needed to use the depot-customer edges
+
+    int edgesCount = 0;
+    for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
+        
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        Route* route = &solution.routes[depotIndex];
+
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            
+            int firstCustomerIndex = subRoute->first();
+            int lastCustomerIndex = subRoute->last();
+
+            edgesOccurrenceCount[depotVertexIndex][firstCustomerIndex] += 1;
+            edgesOccurrenceCount[lastCustomerIndex][depotVertexIndex] += 1;
+
+            edgesCount += 2;
+
+            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+                int customerIndex = subRoute->members[memberIndex];
+                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+
+                edgesOccurrenceCount[customerIndex][neighborCustomerIndex] += 1;
+                edgesCount += 1;
+            }
+        }
+    }
+
+    return edgesCount;
 }
