@@ -1170,6 +1170,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
     
     int primarySubClustersCout = verticesClusters[0].primariesCount;
     int generationEdgesCount = 0;
+    int generationDroneEdgesCount = 0;
     int globalImprovementsCount = 0;
     int iterationsCount = 0;
     int iterationsWithoutImprovementCount = 0;
@@ -1223,6 +1224,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
         // std::cout << "------ ant: " << 0 << "\n";
         buildAntRoutesWithDrone(generationBestSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
         generationEdgesCount += updateGenerationEdgesOccurrenceCount(generationBestSolution, generationEdgesOccurrenceCount);
+        generationDroneEdgesCount += updateGenerationDroneEdgesOccurrenceCount(generationBestSolution, generationDroneEdgesOccurrenceCount);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
@@ -1231,6 +1233,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
             buildAntRoutesWithDrone(antSolution, visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage);
             generationEdgesCount += updateGenerationEdgesOccurrenceCount(antSolution, generationEdgesOccurrenceCount);
+            generationDroneEdgesCount += updateGenerationDroneEdgesOccurrenceCount(generationBestSolution, generationDroneEdgesOccurrenceCount);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
                 swap(generationBestSolution, antSolution);
@@ -1304,33 +1307,20 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
 int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount) {
 
-    //TODO: it could be needed to use the depot-customer edges
-
     int edgesCount = 0;
     for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
         
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* route = &solution.routes[depotIndex];
+        DroneRoute* droneRoute = &solution.droneRoutes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
 
-            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
-            
-            int firstCustomerIndex = subRoute->first();
-            int lastCustomerIndex = subRoute->last();
+            Sortie* sortie = &droneRoute->sorties[sortieIndex];
 
-            edgesOccurrenceCount[depotVertexIndex][firstCustomerIndex] += 1;
-            edgesOccurrenceCount[lastCustomerIndex][depotVertexIndex] += 1;
+            edgesOccurrenceCount[sortie->launchVertexIndex][sortie->deliveryVertexIndex] += 1;
+            edgesOccurrenceCount[sortie->deliveryVertexIndex][sortie->recoveryVertexIndex] += 1;
 
             edgesCount += 2;
-
-            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
-                int customerIndex = subRoute->members[memberIndex];
-                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
-
-                edgesOccurrenceCount[customerIndex][neighborCustomerIndex] += 1;
-                edgesCount += 1;
-            }
         }
     }
 
