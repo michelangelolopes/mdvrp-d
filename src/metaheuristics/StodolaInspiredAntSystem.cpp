@@ -1265,9 +1265,9 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
         updateTemperatureCoef();
 
-        informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
-        informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
-        informationEntropyMax = -1 * log2(1.00 / generationEdgesCount);
+        informationEntropy = calculateInformationEntropyWithDrone(generationEdgesOccurrenceCount, generationDroneEdgesOccurrenceCount, generationEdgesCount, generationDroneEdgesCount);
+        informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount + generationDroneEdgesCount);
+        informationEntropyMax = -1 * log2(1.00 / generationEdgesCount + generationDroneEdgesCount);
         informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
 
         updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
@@ -1369,28 +1369,30 @@ void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& con
 }
 
 
-double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int generationEdgesCount) {
+double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int** droneEdgesOccurrenceCount, int generationEdgesCount, int generationDroneEdgesCount) {
     
     double informationEntropy = 0;
 
     for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
         for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.verticesCount; neighborVertexIndex++) {
 
-            double edgeOcurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
+            double truckEdgeOccurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
+            double droneEdgeOccurrenceCount = droneEdgesOccurrenceCount[vertexIndex][neighborVertexIndex];
 
-            if(edgeOcurrenceCount > 0) {
+            if(truckEdgeOccurrenceCount > 0 && droneEdgeOccurrenceCount > 0) {
 
                 // std::cout << "(" << vertexIndex << ", " << neighborVertexIndex << "): ";
-                // std::cout << edgeOcurrenceCount << " - ";
+                // std::cout << edgeOccurrenceCount << " - ";
                 // std::cout << generationEdgesCount << " - ";
 
-                double edgeOcurrenceProbability = edgeOcurrenceCount / generationEdgesCount;
-                // std::cout << edgeOcurrenceProbability << " - ";
+                double edgeOccurrenceProbability = truckEdgeOccurrenceCount + droneEdgeOccurrenceCount;
+                edgeOccurrenceProbability /= generationEdgesCount + generationDroneEdgesCount;
+                // std::cout << edgeOccurrenceProbability << " - ";
 
-                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log2(edgeOcurrenceProbability));
-                // std::cout << balancedEdgeOcurrenceProbability << "\n";
+                double balancedEdgeOccurrenceProbability = (edgeOccurrenceProbability * log2(edgeOccurrenceProbability));
+                // std::cout << balancedEdgeOccurrenceProbability << "\n";
 
-                informationEntropy += balancedEdgeOcurrenceProbability;
+                informationEntropy += balancedEdgeOccurrenceProbability;
             }
         }
     }
