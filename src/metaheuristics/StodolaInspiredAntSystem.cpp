@@ -561,21 +561,21 @@ double StodolaInspiredAntSystem::calculateInformationEntropy(int** edgesOccurren
     for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
         for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.verticesCount; neighborVertexIndex++) {
 
-            double edgeOcurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
+            double edgeOccurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
 
-            if(edgeOcurrenceCount > 0) {
+            if(edgeOccurrenceCount > 0) {
 
                 // std::cout << "(" << vertexIndex << ", " << neighborVertexIndex << "): ";
-                // std::cout << edgeOcurrenceCount << " - ";
+                // std::cout << edgeOccurrenceCount << " - ";
                 // std::cout << generationEdgesCount << " - ";
 
-                double edgeOcurrenceProbability = edgeOcurrenceCount / generationEdgesCount;
-                // std::cout << edgeOcurrenceProbability << " - ";
+                double edgeOccurrenceProbability = edgeOccurrenceCount / generationEdgesCount;
+                // std::cout << edgeOccurrenceProbability << " - ";
 
-                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log2(edgeOcurrenceProbability));
-                // std::cout << balancedEdgeOcurrenceProbability << "\n";
+                double balancedEdgeOccurrenceProbability = (edgeOccurrenceProbability * log2(edgeOccurrenceProbability));
+                // std::cout << balancedEdgeOccurrenceProbability << "\n";
 
-                informationEntropy += balancedEdgeOcurrenceProbability;
+                informationEntropy += balancedEdgeOccurrenceProbability;
             }
         }
     }

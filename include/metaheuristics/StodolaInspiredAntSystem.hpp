@@ -117,8 +117,8 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
         void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
-        double calculateInformationEntropy(int** edgesOcurrenceCount, int generationEdgesCount);
-        int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOcurrenceCount);
+        double calculateInformationEntropy(int** edgesOccurrenceCount, int generationEdgesCount);
+        int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount);
 
         void localOptimization(Solution& generationBestSolution);
 
