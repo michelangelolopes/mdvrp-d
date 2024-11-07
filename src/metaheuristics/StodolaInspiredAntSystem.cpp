@@ -20,6 +20,7 @@ void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClu
 
     createClusters(primarySubClustersMaxCount, subClusterMaxSize);
     initializePheromoneMatrices();
+    initializeDronePheromoneMatrices();
 }
 
 void StodolaInspiredAntSystem::finalize() {
@@ -34,6 +35,15 @@ void StodolaInspiredAntSystem::finalize() {
         }
 
         free(pheromoneMatrix);
+    }
+
+    if(dronePheromoneMatrix != nullptr) {
+
+        for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+            freeMatrix(dronePheromoneMatrix[depotIndex], problemInstance.verticesCount);
+        }
+
+        free(dronePheromoneMatrix);
     }
 
     frame.finalize();
