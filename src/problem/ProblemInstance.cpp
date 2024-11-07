@@ -346,18 +346,23 @@ int ProblemInstance::loadCustomerInfo(const string& info, const string& value, i
 void ProblemInstance::createDistanceMatrices() {
 
     verticesCount = customersCount + depotsCount;
-    verticesDistanceMatrix = (double**) mallocMatrix(verticesCount, customersCount, sizeof(double*), sizeof(double));
+    verticesDistanceMatrix = (double**) mallocMatrix(verticesCount, verticesCount, sizeof(double*), sizeof(double));
 
     for(int customerIndex = 0; customerIndex < customersCount; customerIndex++) {
-        for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
+        
+        verticesDistanceMatrix[customerIndex][customerIndex] = 0;
+        for(int neighborCustomerIndex = customerIndex + 1; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
             
             verticesDistanceMatrix[customerIndex][neighborCustomerIndex] = calculateEuclidianDistance(
                 customers[customerIndex].position,
                 customers[neighborCustomerIndex].position
             );
+
+            verticesDistanceMatrix[neighborCustomerIndex][customerIndex] = verticesDistanceMatrix[customerIndex][neighborCustomerIndex];
         }
     }
 
+    //do not need to fill depot-depot distances, because this kind of movement will not happen
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         for(int neighborCustomerIndex = 0; neighborCustomerIndex < customersCount; neighborCustomerIndex++) {
 
@@ -366,6 +371,8 @@ void ProblemInstance::createDistanceMatrices() {
                 depots[depotIndex].position,
                 customers[neighborCustomerIndex].position
             );
+
+            verticesDistanceMatrix[neighborCustomerIndex][depotVertexIndex] = verticesDistanceMatrix[depotVertexIndex][neighborCustomerIndex];
         }
     }
 }
