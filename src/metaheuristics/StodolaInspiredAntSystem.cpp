@@ -1367,3 +1367,35 @@ void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& con
         }
     }
 }
+
+
+double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int generationEdgesCount) {
+    
+    double informationEntropy = 0;
+
+    for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
+        for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.verticesCount; neighborVertexIndex++) {
+
+            double edgeOcurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
+
+            if(edgeOcurrenceCount > 0) {
+
+                // std::cout << "(" << vertexIndex << ", " << neighborVertexIndex << "): ";
+                // std::cout << edgeOcurrenceCount << " - ";
+                // std::cout << generationEdgesCount << " - ";
+
+                double edgeOcurrenceProbability = edgeOcurrenceCount / generationEdgesCount;
+                // std::cout << edgeOcurrenceProbability << " - ";
+
+                double balancedEdgeOcurrenceProbability = (edgeOcurrenceProbability * log2(edgeOcurrenceProbability));
+                // std::cout << balancedEdgeOcurrenceProbability << "\n";
+
+                informationEntropy += balancedEdgeOcurrenceProbability;
+            }
+        }
+    }
+    
+    informationEntropy *= -1;
+
+    return informationEntropy;
+}
