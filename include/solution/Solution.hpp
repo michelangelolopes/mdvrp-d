@@ -35,6 +35,7 @@ class Solution {
         void reset();
         void copy(Solution solutionToCopy);
         void updateFitness(const ProblemInstance& problemInstance);
+        void updateFitnessWithDrone(const ProblemInstance& problemInstance);
 
         void print() const;
     private:
