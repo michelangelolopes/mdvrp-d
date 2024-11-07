@@ -135,8 +135,6 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrix(const Solution& consider
     double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
 
     updatePheromoneMatrix(consideredSolution, pheromoneReinforcingValue, add);
-    
-    temperatureUpdateCoef *= temperatureCoolingCoef;
 }
 
 void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
@@ -257,6 +255,8 @@ void StodolaInspiredAntSystem::run() {
         } else {
             reinforcePheromoneMatrixWithProbability(generationBestSolution);
         }
+
+        updateTemperatureCoef();
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
         informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
@@ -1248,7 +1248,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
         if(generationBestSolution.fitness < bestSolution.fitness) {
 
             swap(bestSolution, generationBestSolution);
-            reinforcePheromoneMatrix(bestSolution);
+            reinforceDronePheromoneMatrix(bestSolution);
 
             globalImprovementsCount += 1;
 
@@ -1260,8 +1260,10 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
             iterationsWithoutImprovementCount = 0;
         } else {
-            reinforcePheromoneMatrixWithProbability(generationBestSolution);
+            reinforcePheromoneMatrixWithProbabilityWithDrone(generationBestSolution);
         }
+
+        updateTemperatureCoef();
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
         informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
@@ -1310,8 +1312,7 @@ int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const So
 
     int edgesCount = 0;
     for(int depotIndex = 0; depotIndex < solution.depotsCount; depotIndex++) {
-        
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
         DroneRoute* droneRoute = &solution.droneRoutes[depotIndex];
 
         for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
@@ -1342,8 +1343,10 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbabilityWithDrone(
 
     if(randomValue <= generationBestSolutionProbability) {
         reinforcePheromoneMatrix(generationBestSolution);
+        reinforceDronePheromoneMatrix(generationBestSolution);
     } else {
         reinforcePheromoneMatrix(bestSolution);
+        reinforceDronePheromoneMatrix(bestSolution);
     }
 }
 
@@ -1352,28 +1355,15 @@ void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& con
     double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
 
     for(int depotIndex = 0; depotIndex < consideredSolution.depotsCount; depotIndex++) {
-        
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* route = &consideredSolution.routes[depotIndex];
 
-        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
-        
-            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+        DroneRoute* droneRoute = &consideredSolution.droneRoutes[depotIndex];
 
-            int firstCustomerIndex = subRoute->first();
-            int lastCustomerIndex = subRoute->last();
+        for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
 
-            pheromoneMatrix[depotIndex][depotVertexIndex][firstCustomerIndex] += pheromoneReinforcingValue;
-            pheromoneMatrix[depotIndex][depotVertexIndex][lastCustomerIndex] += pheromoneReinforcingValue;
+            Sortie* sortie = &droneRoute->sorties[sortieIndex];
 
-            for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
-
-                int customerIndex = subRoute->members[memberIndex];
-                int neighborCustomerIndex = subRoute->members[memberIndex + 1];
-                pheromoneMatrix[depotIndex][customerIndex][neighborCustomerIndex] += pheromoneReinforcingValue;
-            }
+            dronePheromoneMatrix[depotIndex][sortie->launchVertexIndex][sortie->deliveryVertexIndex] += pheromoneReinforcingValue;
+            dronePheromoneMatrix[depotIndex][sortie->deliveryVertexIndex][sortie->recoveryVertexIndex] += pheromoneReinforcingValue;
         }
     }
-    
-    temperatureUpdateCoef *= temperatureCoolingCoef;
 }

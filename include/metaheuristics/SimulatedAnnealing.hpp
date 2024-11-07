@@ -8,6 +8,10 @@ class SimulatedAnnealing {
 
         double temperatureUpdateCoef;
         double temperatureCoolingCoef;
+
+        inline void updateTemperatureCoef() {
+            temperatureUpdateCoef *= temperatureCoolingCoef;
+        }
 };
 
 #endif
