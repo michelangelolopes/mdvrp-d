@@ -124,37 +124,20 @@ void Solution::updateFitnessWithDrone(const ProblemInstance& problemInstance) {
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
 
-        routes[depotIndex].updateTimeSpent(problemInstance, depotIndex);
+        Route* route = &routes[depotIndex];
+        double routeDuration = 0;
 
-        double distanceTraveledInRoute = routes[depotIndex].distanceTraveled;
-        double timeSpentInRoute = routes[depotIndex].timeSpent;
-
-        if(maxDistanceTraveled == -1 || maxDistanceTraveled < distanceTraveledInRoute) {
-            maxDistanceTraveled = distanceTraveledInRoute;
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+            routeDuration += subRoute->duration;
         }
 
-        if(maxTimeSpent == -1 || maxTimeSpent < timeSpentInRoute) {
-            maxTimeSpent = timeSpentInRoute;
+        if(maxTimeSpent == -1 || maxTimeSpent < routeDuration) {
+            maxTimeSpent = routeDuration;
         }
-
-        totalDistanceTraveled += distanceTraveledInRoute;
-        totalTimeSpent += timeSpentInRoute;
     }
 
-    switch(minimizationType) {
-        case TOTAL_DISTANCE_TRAVELED:
-            fitness = totalDistanceTraveled;
-            break;
-        case TOTAL_TIME_SPENT:
-            fitness = totalTimeSpent;
-            break;
-        case MAX_DISTANCE_TRAVELED:
-            fitness = maxDistanceTraveled;
-            break;
-        case MAX_TIME_SPENT:
-            fitness = maxTimeSpent;
-            break;
-    }
+    fitness = maxTimeSpent;
 }
 
 void Solution::print() const {

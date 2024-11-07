@@ -1033,7 +1033,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
         }
     }
 
-    antSolution.updateFitness(problemInstance);
+    antSolution.updateFitnessWithDrone(problemInstance);
 }
 
 int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route) {
