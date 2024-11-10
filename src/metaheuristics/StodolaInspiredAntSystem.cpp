@@ -151,7 +151,13 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
 
     double pheromoneEvaporatingValue = (1 - pheromoneEvaporationCoef);
 
-    updatePheromoneMatrix(bestSolution, pheromoneEvaporatingValue, multiply);
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
+            for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+                pheromoneMatrix[depotIndex][vertexIndex][neighborCustomerIndex] *= pheromoneEvaporatingValue;
+            }
+        }
+    }
 }
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
