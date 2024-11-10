@@ -28,6 +28,8 @@ class DroneRoute {
         void finalize();
         void insert(const Sortie& sortie);
         void reset();
+        void updateRecoveryVertexIndex(int recoveryVertexIndex);
+        void print() const;
 
     private:
         void init(int maxSize);

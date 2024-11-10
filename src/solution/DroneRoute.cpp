@@ -24,6 +24,17 @@ void DroneRoute::reset() {
     initializeValues();
 }
 
+void DroneRoute::updateRecoveryVertexIndex(int recoveryVertexIndex) {
+    sorties[size - 1].recoveryVertexIndex = recoveryVertexIndex;
+}
+
+void DroneRoute::print() const {
+
+    for(int index = 0; index < size; index++) {
+        sorties[index].print();
+    }
+}
+
 void DroneRoute::finalize() {
 
     if(sorties != nullptr) {
