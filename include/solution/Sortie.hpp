@@ -3,8 +3,7 @@
 
 #include <cstdlib>
 #include <iostream>
-
-#include "../problem/ProblemInstance.hpp"
+#include <string>
 
 class Sortie {
     public:
@@ -17,6 +16,20 @@ class Sortie {
         int launchVertexIndex;
         int deliveryVertexIndex;
         int recoveryVertexIndex;
+
+        void print() const {
+
+            std::cout << toString();
+        }
+
+        string toString() const {
+
+            return "(" + 
+                to_string(launchVertexIndex) + ", " +
+                to_string(deliveryVertexIndex) + ", " +
+                to_string(recoveryVertexIndex) +
+                ")";
+        }
 };
 
 #endif
