@@ -19,6 +19,11 @@ void DroneRoute::insert(const Sortie& sortie) {
     sorties[size++] = sortie;
 }
 
+void DroneRoute::reset() {
+
+    initializeValues();
+}
+
 void DroneRoute::finalize() {
 
     if(sorties != nullptr) {

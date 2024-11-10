@@ -27,6 +27,7 @@ class DroneRoute {
 
         void finalize();
         void insert(const Sortie& sortie);
+        void reset();
 
     private:
         void init(int maxSize);

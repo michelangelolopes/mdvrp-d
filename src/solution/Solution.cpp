@@ -55,6 +55,7 @@ void Solution::reset() {
 
     for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
         routes[depotIndex].reset();
+        droneRoutes[depotIndex].reset();
     }
 
     initializeValues();
