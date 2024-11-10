@@ -177,7 +177,7 @@ void Route::print() const {
 
     for(int index = 0; index < size; index++) {
         
-        std::cout << "D ";
+        std::cout << "# ";
         subRoutes[index].print();
 
         if(index != size - 1) {
@@ -185,5 +185,5 @@ void Route::print() const {
         }
     }
 
-    std::cout << " D";
+    std::cout << " #";
 }
