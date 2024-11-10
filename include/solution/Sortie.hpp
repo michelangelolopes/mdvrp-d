@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 class Sortie {
     public:
         Sortie(int launchVertexIndex, int deliveryVertexIndex, int recoveryVertexIndex) : 
