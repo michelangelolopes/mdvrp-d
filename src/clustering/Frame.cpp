@@ -106,7 +106,7 @@ void Frame::splitSectorsHorizontally(double xTotal) {
 
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         
-        sectorEnd = sectorStart + (sectorTotalSize - 1);
+        sectorEnd = sectorStart + sectorTotalSize;
 
         sectors[sectorIndex] = Sector(Position2D(sectorStart, min.y), Position2D(sectorEnd, max.y));
 
@@ -122,7 +122,7 @@ void Frame::splitSectorsVertically(double yTotal) {
 
     for(int sectorIndex = 0; sectorIndex < sectorsCount; sectorIndex++) {
         
-        sectorEnd = sectorStart + (sectorTotalSize - 1);
+        sectorEnd = sectorStart + sectorTotalSize;
 
         sectors[sectorIndex] = Sector(Position2D(min.x, sectorStart), Position2D(max.x, sectorEnd));
 
