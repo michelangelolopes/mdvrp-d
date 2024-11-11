@@ -1398,24 +1398,18 @@ double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edge
     
     double informationEntropy = 0;
 
+    int totalGenerationEdgesCount = generationEdgesCount + generationDroneEdgesCount;
     for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
         for(int neighborVertexIndex = 0; neighborVertexIndex < problemInstance.verticesCount; neighborVertexIndex++) {
 
             double truckEdgeOccurrenceCount = edgesOccurrenceCount[vertexIndex][neighborVertexIndex];
             double droneEdgeOccurrenceCount = droneEdgesOccurrenceCount[vertexIndex][neighborVertexIndex];
 
-            if(truckEdgeOccurrenceCount > 0 && droneEdgeOccurrenceCount > 0) {
+            int vehicleEdgeOccurrenceCount = truckEdgeOccurrenceCount + droneEdgeOccurrenceCount;
+            if(vehicleEdgeOccurrenceCount > 0) {
 
-                // std::cout << "(" << vertexIndex << ", " << neighborVertexIndex << "): ";
-                // std::cout << edgeOccurrenceCount << " - ";
-                // std::cout << generationEdgesCount << " - ";
-
-                double edgeOccurrenceProbability = truckEdgeOccurrenceCount + droneEdgeOccurrenceCount;
-                edgeOccurrenceProbability /= generationEdgesCount + generationDroneEdgesCount;
-                // std::cout << edgeOccurrenceProbability << " - ";
-
+                double edgeOccurrenceProbability = (double) vehicleEdgeOccurrenceCount / (double) totalGenerationEdgesCount;
                 double balancedEdgeOccurrenceProbability = (edgeOccurrenceProbability * log2(edgeOccurrenceProbability));
-                // std::cout << balancedEdgeOccurrenceProbability << "\n";
 
                 informationEntropy += balancedEdgeOccurrenceProbability;
             }
