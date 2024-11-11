@@ -162,7 +162,11 @@ void StodolaInspiredAntSystem::evaporatePheromoneMatrix() {
 
 void StodolaInspiredAntSystem::updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
 
-    double relevantInformationEntropyCoef = (informationEntropy - informationEntropyMin) / (informationEntropyMax - informationEntropyMin);
+    double informationEntropyMaxMinDiff = (informationEntropyMax - informationEntropyMin);
+    double relevantInformationEntropyCoef = 1;
+    if(informationEntropyMaxMinDiff > 0) {
+        relevantInformationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMaxMinDiff;
+    }
 
     pheromoneEvaporationCoef = pheromoneEvaporationCoefMin;
     pheromoneEvaporationCoef += (pheromoneEvaporationCoefMax - pheromoneEvaporationCoefMin) * relevantInformationEntropyCoef;
