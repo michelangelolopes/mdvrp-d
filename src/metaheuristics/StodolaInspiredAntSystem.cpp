@@ -1269,6 +1269,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
         if(generationBestSolution.fitness < bestSolution.fitness) {
 
             swap(bestSolution, generationBestSolution);
+            reinforcePheromoneMatrix(bestSolution);
             reinforceDronePheromoneMatrix(bestSolution);
 
             globalImprovementsCount += 1;
@@ -1286,13 +1287,15 @@ void StodolaInspiredAntSystem::runWithDrone() {
 
         updateTemperatureCoef();
 
+        int totalGenerationEdgesCount = generationEdgesCount + generationDroneEdgesCount;
         informationEntropy = calculateInformationEntropyWithDrone(generationEdgesOccurrenceCount, generationDroneEdgesOccurrenceCount, generationEdgesCount, generationDroneEdgesCount);
-        informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount + generationDroneEdgesCount);
-        informationEntropyMax = -1 * log2(1.00 / generationEdgesCount + generationDroneEdgesCount);
+        informationEntropyMin = -1 * log2((double)antsCount / totalGenerationEdgesCount);
+        informationEntropyMax = -1 * log2(1.00 / totalGenerationEdgesCount);
         informationEntropyCoef = (informationEntropy - informationEntropyMin) / informationEntropyMin;
 
         updateEvaporationCoef(informationEntropy, informationEntropyMin, informationEntropyMax);
         evaporatePheromoneMatrix();
+        evaporateDronePheromoneMatrix();
 
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;
@@ -1309,6 +1312,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
         iterationsCount += 1;
         iterationsWithoutImprovementCount += 1;
         generationEdgesCount = 0;
+        generationDroneEdgesCount = 0;
     }
 
     std::cout << "--------------------------------------------------\n";
@@ -1316,7 +1320,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
     std::cout << "generationsWithoutImprove: " << iterationsWithoutImprovementCount  << " - ";
     std::cout << "timer: " << currentOptimizationTime.count() << "\n";
     
-    bestSolution.print();
+    bestSolution.printWithDrone();   
 
     antSolution.finalize();
     generationBestSolution.finalize();
