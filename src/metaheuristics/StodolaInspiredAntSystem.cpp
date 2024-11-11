@@ -1422,3 +1422,16 @@ double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edge
 
     return informationEntropy;
 }
+
+void StodolaInspiredAntSystem::evaporateDronePheromoneMatrix() {
+
+    double pheromoneEvaporatingValue = (1 - pheromoneEvaporationCoef);
+
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        for(int vertexIndex = 0; vertexIndex < problemInstance.verticesCount; vertexIndex++) {
+            for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+                dronePheromoneMatrix[depotIndex][vertexIndex][neighborCustomerIndex] *= pheromoneEvaporatingValue;
+            }
+        }
+    }
+}

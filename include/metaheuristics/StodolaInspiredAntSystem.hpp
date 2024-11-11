@@ -169,6 +169,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void reinforcePheromoneMatrixWithProbabilityWithDrone(const Solution& generationBestSolution);
         void reinforceDronePheromoneMatrix(const Solution& consideredSolution);
         double calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int** droneEdgesOccurrenceCount, int generationEdgesCount, int generationDroneEdgesCount);
+        void evaporateDronePheromoneMatrix();
 };
 
 #endif
