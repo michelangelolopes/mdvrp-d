@@ -171,3 +171,107 @@ void Solution::print() const {
 
     std::cout << "--------------------------------------------------\n";
 }
+
+void Solution::printWithDrone() const {
+
+    std::cout << "--------------------------------------------------\n";
+    
+    if(fitness != -1) {
+
+        switch(minimizationType) {
+            case TOTAL_DISTANCE_TRAVELED:
+                std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
+                break;
+            case TOTAL_TIME_SPENT:
+                std::cout << "Total Time Spent: " << totalTimeSpent << "\n";
+                break;
+            case MAX_DISTANCE_TRAVELED:
+                std::cout << "Max Distance Traveled: " << maxDistanceTraveled << "\n";
+                break;
+            case MAX_TIME_SPENT:
+                std::cout << "Max Time Spent: " << maxTimeSpent << "\n";
+                break;
+            }
+    }
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+        std::cout << "Route[" << depotIndex << "]: ";
+        printWithDrone(depotIndex);
+        std::cout << "\n";
+    }
+
+    std::cout << "--------------------------------------------------\n";
+}
+
+void Solution::printWithDrone(int depotIndex) const {
+
+    Route* route = &routes[depotIndex];
+    DroneRoute* droneRoute = &droneRoutes[depotIndex];
+
+    // droneRoute->print();
+
+    int sortieIndex = 0;
+    Sortie* sortie = &droneRoute->sorties[sortieIndex];
+    int depotVertexIndex = depotIndex + route->subRoutes[0].maxLength;
+    int customersInRouteCount = 0;
+    bool hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+
+    for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+        
+        std::cout << "# ";
+        SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+        customersInRouteCount += subRoute->length;
+
+        if(!hasDroneRouteEnded && depotVertexIndex == sortie->launchVertexIndex && subRoute->first() == sortie->recoveryVertexIndex) {
+            // std::cout << endl;
+            // std::cout << "depotVertexIndex: " << depotVertexIndex << endl;
+            // std::cout << "launchVertexIndex: " << sortie->launchVertexIndex << endl;
+            // std::cout << "subRoute->first(): " << subRoute->first() << endl;
+            // std::cout << "recoveryVertexIndex: " << sortie->recoveryVertexIndex << endl;
+            std::cout << "D" << sortie->deliveryVertexIndex;
+            std::cout << " ";
+            sortieIndex++;
+
+            hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+            if(!hasDroneRouteEnded) {
+                sortie = &droneRoute->sorties[sortieIndex];
+            }
+        }
+
+        for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
+            
+            int customerIndex = subRoute->members[memberIndex];
+            std::cout << customerIndex;
+
+            if(!hasDroneRouteEnded && customerIndex == sortie->launchVertexIndex) {
+
+                // std::cout << endl;
+                // std::cout << "customerIndex: " << customerIndex << endl;
+                // std::cout << "launchVertexIndex: " << sortie->launchVertexIndex << endl;
+                // std::cout << "sortieIndex: " << sortieIndex << endl;
+                // std::cout << "droneRoute->size: " << droneRoute->size << endl;
+
+                std::cout << " ";
+                std::cout << "D" << sortie->deliveryVertexIndex;
+                sortieIndex++;
+                
+                hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+                if(!hasDroneRouteEnded) {
+                    sortie = &droneRoute->sorties[sortieIndex];
+                }
+            }
+
+            if(memberIndex != subRoute->length - 1) {
+                std::cout << " ";
+            }
+        }
+
+        if(subRouteIndex != route->size - 1) {
+            std::cout << " ";
+        }
+    }
+
+    std::cout << " #";
+    std::cout << " - (" << customersInRouteCount;
+    std::cout << ", " << droneRoute->size << ")";
+}

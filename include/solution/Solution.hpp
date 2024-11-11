@@ -38,6 +38,8 @@ class Solution {
         void updateFitnessWithDrone(const ProblemInstance& problemInstance);
 
         void print() const;
+        void printWithDrone() const;
+        void printWithDrone(int depotIndex) const;
     private:
         void init(int subRouteMaxLength);
         void initializeValues();
