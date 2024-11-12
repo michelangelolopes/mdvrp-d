@@ -6,6 +6,7 @@
 
 #include "../enum/MinimizationTypeEnum.hpp"
 #include "../enum/ProblemTypeEnum.hpp"
+#include "../solution/Sortie.hpp"
 
 #include "Customer.hpp"
 #include "Depot.hpp"
@@ -34,6 +35,23 @@ class ProblemInstance {
         void finalize();
 
         void print(int printDistanceMatrix) const;
+
+        inline double calculateDeliveryDuration(const Truck& truck, int sourceIndex, int destIndex) const {
+            return calculateMovementDuration(truck, sourceIndex, destIndex) + truck.serviceTime;
+        }
+
+        inline double calculateDeliveryDuration(const Drone& drone, const Sortie& sortie) const {
+
+            return calculateMovementDuration(drone, sortie.launchVertexIndex, sortie.deliveryVertexIndex) + 
+                calculateMovementDuration(drone, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex) +
+                drone.launchTime +
+                drone.recoveryTime +
+                drone.serviceTime;
+        }
+
+        inline double calculateMovementDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) const {
+            return verticesDistanceMatrix[sourceIndex][destIndex] / vehicle.speed;
+        }
 
         inline int getDepotVertexIndex(int depotIndex) const {
             return depotIndex + customersCount;

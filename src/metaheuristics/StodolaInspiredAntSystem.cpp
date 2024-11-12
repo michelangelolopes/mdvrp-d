@@ -1012,8 +1012,8 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
         bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
 
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        double customerDeliveryDuration = calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
-        double depotReturnDuration = calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
+        double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
+        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
         double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration); 
         bool willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
 
@@ -1041,7 +1041,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
             currentDroneRoute->insert(sortie);
 
             double truckFullDuration = customerDeliveryDuration + currentDrone->launchTime + currentDrone->recoveryTime;
-            double droneDeliveryDuration = calculateDroneDeliveryDuration(*currentDrone, sortie);
+            double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*currentDrone, sortie);
             double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
             
             currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
@@ -1161,7 +1161,7 @@ bool StodolaInspiredAntSystem::canDroneVisitCustomer(const Route& route, const S
         return false;
     }
 
-    double droneDeliveryDuration = calculateDroneDeliveryDuration(drone, sortie);
+    double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(drone, sortie);
     if(droneDeliveryDuration > drone.endurance) {
         return false;
     }
@@ -1170,31 +1170,12 @@ bool StodolaInspiredAntSystem::canDroneVisitCustomer(const Route& route, const S
         return false;
     }
 
-    double customerDeliveryDuration = calculateDeliveryDuration(truck, sortie.launchVertexIndex, sortie.recoveryVertexIndex);
+    double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(truck, sortie.launchVertexIndex, sortie.recoveryVertexIndex);
     if(route.currentDuration() + customerDeliveryDuration + drone.launchTime + drone.recoveryTime > drone.endurance) {
         return false;
     }
 
     return true;
-}
-
-double StodolaInspiredAntSystem::calculateDeliveryDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
-
-    return calculateMovementDuration(vehicle, sourceIndex, destIndex) + vehicle.serviceTime;
-}
-
-double StodolaInspiredAntSystem::calculateDroneDeliveryDuration(const Drone& drone, const Sortie& sortie) {
-
-    return calculateMovementDuration(drone, sortie.launchVertexIndex, sortie.deliveryVertexIndex) + 
-        calculateMovementDuration(drone, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex) +
-        drone.launchTime +
-        drone.recoveryTime +
-        drone.serviceTime;
-}
-
-double StodolaInspiredAntSystem::calculateMovementDuration(const Vehicle& vehicle, int sourceIndex, int destIndex) {
-
-    return problemInstance.verticesDistanceMatrix[sourceIndex][destIndex] / vehicle.speed;
 }
 
 void StodolaInspiredAntSystem::runWithDrone() {
