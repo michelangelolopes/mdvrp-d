@@ -1014,6 +1014,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
 
         bool willTruckExceedMaxDuration = false;
         double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
 
         if(currentTruck->routeMaxDuration > 0) {
 
@@ -1024,8 +1025,49 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
         }
 
         if(willTruckExceedCapacity || willTruckExceedMaxDuration) {
+
+            double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentVertexIndex, depotVertexIndex);
+            bool canDroneDeliver = (unvisitedCustomersCount > 0);
+            bool hasDroneDelivered = false;
+            if(canDroneDeliver) {
+
+                int droneSubClusterIndex = selectSubCluster(visitedCustomersIndexes, selectionProbability, heuristicInformationAverage, pheromoneConcentrationAverage, depotIndex, currentVertexIndex, dronePheromoneMatrix);
+                // std::cout << "------------ droneSubClusterIndex: " << droneSubClusterIndex << "\n";
+                int droneCustomerIndex = selectDroneCustomer(visitedCustomersIndexes, selectionProbability, depotIndex, droneSubClusterIndex, currentVertexIndex, depotVertexIndex, *currentRoute);
+                // std::cout << "------------ droneCustomerIndex: " << droneCustomerIndex << "\n";
+
+                hasDroneDelivered = (droneCustomerIndex != -1);
+                if(hasDroneDelivered) {
+                    DroneRoute* currentDroneRoute = &antSolution.droneRoutes[depotIndex];
+                    Customer* nextDroneCustomer = &problemInstance.customers[droneCustomerIndex];
+                    Drone* currentDrone = &problemInstance.depots[depotIndex].drone;
+
+                    Sortie sortie(currentVertexIndex, droneCustomerIndex, depotVertexIndex);
+
+                    // sortie.print();
+                    // cout << endl;                    
+
+                    currentDroneRoute->insert(sortie);
+
+                    double truckFullDuration = depotReturnDuration + currentDrone->launchTime + currentDrone->recoveryTime;
+                    double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*currentDrone, sortie);
+
+                    double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
+                    
+                    currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
+                    currentRoute->incrementCurrentDuration(vehicleLongestDuration);
+
+                    visitedCustomersIndexes[droneCustomerIndex] = 1;
+                    unvisitedCustomersCount--;
+                }
+            }
+
+            if(!canDroneDeliver || !hasDroneDelivered) {
+                currentRoute->incrementCurrentDuration(depotReturnDuration);
+            }
+
             currentRoute->expand();
-            //TODO: define logic for drone launch and recovery at depot
+            currentVertexIndex = depotVertexIndex;
         }
 
         currentRoute->insert(customerIndex);
