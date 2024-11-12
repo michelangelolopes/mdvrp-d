@@ -1116,6 +1116,15 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
         }
     }
 
+    for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        Route* currentRoute = &antSolution.routes[depotIndex];
+        Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
+        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentRoute->last(), depotVertexIndex);
+        currentRoute->incrementCurrentDuration(depotReturnDuration);
+    }
+
+
     antSolution.updateFitnessWithDrone(problemInstance);
 }
 
