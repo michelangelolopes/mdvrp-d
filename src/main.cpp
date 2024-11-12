@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     int maxIterations = 100000; //100000
     int maxIterationsWithoutImprovement = 100000; //4000
     double maxOptimizationTime = atoi(argv[8]); //60; //20000
-    double minInformationEntropyCoef = 0.1; //0.1
+    double minInformationEntropyCoef = 0; //0.1
 
     std::cout << "--------------------------------------------------\n";
     std::cout << "antsCount: " << antsCount << "\n";
@@ -92,7 +92,8 @@ int main(int argc, char** argv) {
             minInformationEntropyCoef
     );
 
-    antSystem.run();
+    // antSystem.run();
+    antSystem.runWithDrone();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
