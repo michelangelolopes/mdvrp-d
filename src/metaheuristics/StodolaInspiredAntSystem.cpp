@@ -1065,7 +1065,7 @@ int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, 
     Cluster* cluster = &verticesClusters[launchVertexIndex];
     SubCluster* subCluster = &cluster->subClusters[droneSubClusterIndex];
 
-    bool* candidateMembersIndex = (bool*) calloc(subCluster->size, sizeof(bool));
+    bool* candidateMembersIndex = (bool*) malloc(subCluster->size * sizeof(bool));
     int candidatesCount = 0;
 
     Depot* depot = &problemInstance.depots[depotIndex];
@@ -1074,6 +1074,7 @@ int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, 
     
     for(int memberIndex = 0; memberIndex < subCluster->size; memberIndex++) {
         
+        candidateMembersIndex[memberIndex] = false;
         int neighborCustomerIndex = subCluster->elements[memberIndex];
         if(visitedCustomersIndexes[neighborCustomerIndex] != 1) {
 
@@ -1084,6 +1085,7 @@ int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, 
                 candidateMembersIndex[memberIndex] = true;
                 candidatesCount++;
 
+                // std::cout << "pheromoneConcentration: " << dronePheromoneMatrix[depotIndex][launchVertexIndex][neighborCustomerIndex] << "\n";
                 maxPheromoneConcentration = max(
                     maxPheromoneConcentration, 
                     dronePheromoneMatrix[depotIndex][launchVertexIndex][neighborCustomerIndex]
@@ -1092,21 +1094,33 @@ int StodolaInspiredAntSystem::selectDroneCustomer(int* visitedCustomersIndexes, 
         }
     }
 
+    // std::cout << "candidatesCount: " << candidatesCount << "\n";
     if(candidatesCount > 0) {
-
+        
         double droneUsageProbability = 1 - (1 / exp(maxPheromoneConcentration));
         double randomValue = ((double)rand() / RAND_MAX);
+        int selectedMemberIndex = -1;
+        // std::cout << "launchVertexIndex: " << launchVertexIndex << endl;
+        // std::cout << "recoveryVertexIndex: " << recoveryVertexIndex << endl;
+        // std::cout << "maxPheromoneConcentration: " << maxPheromoneConcentration << endl;
+        // std::cout << "droneUsageProbability: " << droneUsageProbability << endl;
+        // std::cout << "randomValue: " << randomValue << endl;
 
         if(randomValue <= droneUsageProbability) {
 
             updateDroneCustomerSelectionProbability(candidateMembersIndex, selectionProbability, depotIndex, launchVertexIndex, *subCluster);
             
-            droneCustomerIndex = rouletteWheelSelection(
+            selectedMemberIndex = rouletteWheelSelection(
                 selectionProbability,
                 subCluster->size
             );
+            
+            droneCustomerIndex = subCluster->elements[selectedMemberIndex];
         }
+
     }
+
+    free(candidateMembersIndex);
 
     return droneCustomerIndex;
 }
