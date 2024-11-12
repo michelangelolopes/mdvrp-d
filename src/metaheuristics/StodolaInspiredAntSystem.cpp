@@ -992,6 +992,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
 
         // std::cout << "------------ currentRoute: ";
         // currentRoute->print();
+        // antSolution.printWithDrone(depotIndex);
         // std::cout << "\n";
 
         int currentVertexIndex = currentRoute->last();
@@ -1011,11 +1012,16 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution, in
         double updatedTruckLoad = ( currentRoute->currentLoad() + nextCustomer->demand );
         bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
 
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        bool willTruckExceedMaxDuration = false;
         double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*currentTruck, currentVertexIndex, customerIndex);
-        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
-        double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration); 
-        bool willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
+
+        if(currentTruck->routeMaxDuration > 0) {
+
+            double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
+            double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration);
+            
+            willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
+        }
 
         if(willTruckExceedCapacity || willTruckExceedMaxDuration) {
             currentRoute->expand();
