@@ -1224,25 +1224,38 @@ void StodolaInspiredAntSystem::updateDroneCustomerSelectionProbability(bool* can
 
 bool StodolaInspiredAntSystem::canDroneVisitCustomer(const Route& route, const Sortie& sortie, const Customer& customer, const Truck& truck, const Drone& drone) {
 
-    if(customer.demand > drone.capacity) {
+    bool willDroneCapacityBeExceeded = customer.demand > drone.capacity;
+    if(willDroneCapacityBeExceeded) {
         return false;
     }
 
-    if(route.currentLoad() + customer.demand > truck.capacity) {
+    bool willTruckCapacityBeExceeded = (route.currentLoad() + customer.demand) > truck.capacity;
+    if(willTruckCapacityBeExceeded) {
         return false;
     }
 
     double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(drone, sortie);
-    if(droneDeliveryDuration > drone.endurance) {
+    bool willDroneEnduranceBeExceededByDroneDelivery = droneDeliveryDuration > drone.endurance;
+    if(willDroneEnduranceBeExceededByDroneDelivery) {
         return false;
     }
 
-    if(route.currentDuration() + droneDeliveryDuration > truck.routeMaxDuration) {
+    bool existsTruckMaxDuration = truck.routeMaxDuration > 0;
+    bool willTruckMaxDurationBeExceeded = existsTruckMaxDuration && (route.currentDuration() + droneDeliveryDuration) > truck.routeMaxDuration;
+    if(willTruckMaxDurationBeExceeded) {
         return false;
     }
 
-    double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(truck, sortie.launchVertexIndex, sortie.recoveryVertexIndex);
-    if(route.currentDuration() + customerDeliveryDuration + drone.launchTime + drone.recoveryTime > drone.endurance) {
+    double customerDeliveryDuration = problemInstance.calculateMovementDuration(truck, sortie.launchVertexIndex, sortie.recoveryVertexIndex);
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(route.depotIndex);
+    
+    bool willDroneRecoveryBeAtDepot = (sortie.recoveryVertexIndex == depotVertexIndex);
+    if(willDroneRecoveryBeAtDepot) {
+        customerDeliveryDuration += truck.serviceTime;
+    }
+    
+    bool willDroneEnduranceBeExceededByTruckDelivery = (customerDeliveryDuration + drone.launchTime + drone.recoveryTime) > drone.endurance;
+    if(willDroneEnduranceBeExceededByTruckDelivery) {
         return false;
     }
 
