@@ -108,55 +108,142 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
     string line;
 
     file.open(filename);
-    std::getline(file, line); //ignore fitness
 
-    Solution example(
-        problemInstance.depotsCount,
-        MinimizationType::TOTAL_DISTANCE_TRAVELED,
-        problemInstance.customersCount
-    );
+    if(problemInstance.problemType == ProblemType::MDVRP) {
 
-    int depotIndex;
-    int vertexIndex;
-    int subRouteIndex;
-    int tempInt;
-    double tempDouble;
+        Solution example(
+            problemInstance.depotsCount,
+            MinimizationType::TOTAL_DISTANCE_TRAVELED,
+            problemInstance.customersCount
+        );
+        std::getline(file, line); //ignore fitness
 
-    while (std::getline(file, line)) {
-        
-        // std::cout << "line: " << line << "\n";
-        istringstream valueStream(line);
 
-        valueStream >> depotIndex;
-        depotIndex--;
+        int depotIndex;
+        int vertexIndex;
+        int subRouteIndex;
+        int tempInt;
+        double tempDouble;
 
-        // std::cout << "depotIndex: " << depotIndex << "\n";
+        while (std::getline(file, line)) {
+            
+            // std::cout << "line: " << line << "\n";
+            istringstream valueStream(line);
 
-        Route* route = &example.routes[depotIndex];
+            valueStream >> depotIndex;
+            depotIndex--;
 
-        // std::cout << "route->size: " << route->size << "\n";
+            // std::cout << "depotIndex: " << depotIndex << "\n";
 
-        valueStream >> subRouteIndex; //subroute index
+            Route* route = &example.routes[depotIndex];
 
-        if(subRouteIndex > 1) {
-            route->expand();
-        }
+            // std::cout << "route->size: " << route->size << "\n";
 
-        // std::cout << "subRouteIndex: " << subRouteIndex << "\n";
+            valueStream >> subRouteIndex; //subroute index
 
-        valueStream >> tempDouble; //subroute fitness
-        valueStream >> tempInt; //subroute load
-        while(valueStream >> vertexIndex) {
-
-            if(vertexIndex > 0) {
-                vertexIndex--;
-                route->insert(vertexIndex);
-                route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+            if(subRouteIndex > 1) {
+                route->expand();
             }
-        }
 
+            // std::cout << "subRouteIndex: " << subRouteIndex << "\n";
+
+            valueStream >> tempDouble; //subroute fitness
+            valueStream >> tempInt; //subroute load
+            while(valueStream >> vertexIndex) {
+
+                if(vertexIndex > 0) {
+                    vertexIndex--;
+                    route->insert(vertexIndex);
+                    route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                }
+            }
+
+        }
+        
+        example.updateFitness(problemInstance);
+        example.print();
+        example.finalize();
+    } else if(problemInstance.problemType == ProblemType::MDVRP_D) {
+        Solution example(
+            problemInstance.depotsCount,
+            MinimizationType::MAX_TIME_SPENT,
+            problemInstance.customersCount
+        );
+        int delimiterFoundCount = 0;
+        int depotIndex = 0;
+        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        while(std::getline(file, line)) {
+            int delimiterIndex = line.find('=');
+
+            if(delimiterIndex != -1) {
+                delimiterFoundCount++;
+            }
+
+            if(delimiterFoundCount > 2) {
+
+                Route* route = &example.routes[depotIndex];
+                DroneRoute* droneRoute = &example.droneRoutes[depotIndex];
+                Truck* truck = &problemInstance.depots[depotIndex].truck;
+                Drone* drone = &problemInstance.depots[depotIndex].drone;
+                // string value = line.substr(delimiterIndex + 1, line.length());
+                // istringstream valueStream(value);
+                bool needRecoveryVertex = false;
+
+                for (size_t i = delimiterIndex + 1; i < line.length(); ++i) {
+                    
+                    char c = line[i];
+
+                    // Skip whitespace
+                    if (isspace(c)) {
+                        continue;
+                    }
+
+                    // Check for 'D' prefix
+                    int vertexIndex;
+                    if (c == 'D') {
+                        string number_str;
+                        while (isdigit(line[++i])) {
+                            number_str += line[i];
+                        }
+                        vertexIndex = stoi(number_str);
+                        vertexIndex--;
+                        droneRoute->insert(Sortie(route->last(), vertexIndex, -1));
+                        needRecoveryVertex = true;
+                        route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                        // cout << "D" << vertexIndex << endl;
+                    } else {
+                        // Extract the number
+                        string number_str;
+                        while (isdigit(c)) {
+                            number_str += c;
+                            c = line[++i];
+                        }
+                        vertexIndex = stoi(number_str);
+                        vertexIndex--;
+                        // cout << vertexIndex << endl;
+                        if(vertexIndex == -1 && route->last() < problemInstance.customersCount && i < line.length() - 1) {
+                            vertexIndex = depotVertexIndex;
+                            route->expand();
+                        } else if(vertexIndex != -1){
+                            route->insert(vertexIndex);
+                            route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                        }
+
+                        if(needRecoveryVertex) {
+                            droneRoute->updateRecoveryVertexIndex(vertexIndex);
+                            needRecoveryVertex = false;
+                        }
+                    }
+
+                }
+
+                route->incrementCurrentDuration(example.calculateRouteDuration(problemInstance, depotIndex));
+                depotVertexIndex = problemInstance.getDepotVertexIndex(++depotIndex);
+            }
+
+        }
+        example.updateFitnessWithDrone(problemInstance);
+        example.printWithDrone();
+        example.finalize();
     }
-    
-    example.updateFitness(problemInstance);
-    example.print();
 }
