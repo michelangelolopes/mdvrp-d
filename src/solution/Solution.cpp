@@ -275,3 +275,78 @@ void Solution::printWithDrone(int depotIndex) const {
     std::cout << " - (" << customersInRouteCount;
     std::cout << ", " << droneRoute->size << ")";
 }
+
+double Solution::calculateRouteDuration(const ProblemInstance& problemInstance, int depotIndex) {
+
+    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+
+    Route* route = &routes[depotIndex];
+    DroneRoute* droneRoute = &droneRoutes[depotIndex];
+
+    Truck* truck = &problemInstance.depots[depotIndex].truck;
+    Drone* drone = &problemInstance.depots[depotIndex].drone;
+
+    int sortieIndex = 0;
+    Sortie* sortie = &droneRoute->sorties[sortieIndex];
+    double routeDuration = 0;
+    bool hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+
+    for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+
+        SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+
+        double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*truck, depotVertexIndex, subRoute->first());
+        if(!hasDroneRouteEnded && sortie->launchVertexIndex == depotVertexIndex && sortie->recoveryVertexIndex == subRoute->first()) { //launched at depot
+
+            double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
+            double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*drone, *sortie);
+            double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
+
+            routeDuration += vehicleLongestDuration;
+
+            sortieIndex++;
+            hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+            if(!hasDroneRouteEnded) {
+                sortie = &droneRoute->sorties[sortieIndex];
+            }
+        } else {
+            routeDuration += customerDeliveryDuration;
+        }
+
+        for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
+            int customerIndex = subRoute->members[memberIndex];
+            int neighborCustomerIndex;
+
+            double customerDeliveryDuration;
+            if(memberIndex + 1 < subRoute->length) {
+                neighborCustomerIndex = subRoute->members[memberIndex + 1];
+                customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
+            } else {
+                neighborCustomerIndex = depotVertexIndex;
+                customerDeliveryDuration = problemInstance.calculateMovementDuration(*truck, customerIndex, neighborCustomerIndex);
+            }
+            
+            // std::cout << to_string(customerIndex) + " -> " + to_string(neighborCustomerIndex) + " = " + to_string(customerDeliveryDuration) + "\n";
+
+            if(!hasDroneRouteEnded && sortie->launchVertexIndex == customerIndex) {
+
+                double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
+                double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*drone, *sortie);
+                double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
+
+                routeDuration += vehicleLongestDuration;
+
+                sortieIndex++;
+                hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
+                if(!hasDroneRouteEnded) {
+                    sortie = &droneRoute->sorties[sortieIndex];
+                }
+            } else {
+                routeDuration += customerDeliveryDuration;
+            }
+        }
+
+    }
+
+    return routeDuration;
+}

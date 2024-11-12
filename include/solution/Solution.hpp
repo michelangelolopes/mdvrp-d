@@ -37,6 +37,8 @@ class Solution {
         void updateFitness(const ProblemInstance& problemInstance);
         void updateFitnessWithDrone(const ProblemInstance& problemInstance);
 
+        double calculateRouteDuration(const ProblemInstance& problemInstance, int depotIndex);
+
         void print() const;
         void printWithDrone() const;
         void printWithDrone(int depotIndex) const;
