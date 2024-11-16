@@ -39,6 +39,7 @@ class Solution {
 
         double calculateRouteDuration(const ProblemInstance& problemInstance, int depotIndex);
 
+        bool checkConstraints(const ProblemInstance& problemInstance) const;
         void print() const;
         void printWithDrone() const;
         void printWithDrone(int depotIndex) const;

@@ -2,7 +2,7 @@ INCLUDE = include/clustering/* include/metaheuristics/* include/problem/* includ
 SRC = src/clustering/* src/metaheuristics/* src/problem/* src/solution/* src/utils/*
 BIN_SOURCE ?= main
 BIN = bin/mdvrp-d_$(BIN_SOURCE)
-ARGS ?= mdvrp 01 192 3 10 10 2 10
+ARGS ?= mdvrp-d 01 192 3 10 10 2 10
 
 compile:
 	@echo "compiling..."

@@ -141,6 +141,47 @@ void Solution::updateFitnessWithDrone(const ProblemInstance& problemInstance) {
     fitness = maxTimeSpent;
 }
 
+bool Solution::checkConstraints(const ProblemInstance& problemInstance) const {
+    //all customers
+
+    int visitedCustomers[problemInstance.customersCount]; //TODO: check if static array declaration makes all false
+
+    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+
+        Route* route = &routes[depotIndex];
+
+        for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
+            SubRoute* subRoute = &route->subRoutes[subRouteIndex];
+
+            if(!subRoute->checkWeightConstraint(problemInstance)) {
+                return false;
+            }
+
+            if(!subRoute->checkTimeConstraint(problemInstance)) {
+                return false;
+            }
+
+            if(subRoute->length == 0) { //the truck starts its route at depot and ends at depot, without visiting any customer 
+                return false;
+            }
+
+            for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
+
+                int customerIndex = subRoute->members[memberIndex];
+                visitedCustomers[customerIndex] += 1;
+            }
+        }
+    }
+
+    for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
+        if(visitedCustomers[customerIndex] != 1) { //not all customers are visited or some customer was visited more than one time
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void Solution::print() const {
 
     std::cout << "--------------------------------------------------\n";

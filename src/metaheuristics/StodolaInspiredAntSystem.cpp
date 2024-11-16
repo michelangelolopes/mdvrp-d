@@ -1399,7 +1399,9 @@ void StodolaInspiredAntSystem::runWithDrone() {
     std::cout << "generationsWithoutImprove: " << iterationsWithoutImprovementCount  << " - ";
     std::cout << "timer: " << currentOptimizationTime.count() << "\n";
     
-    bestSolution.printWithDrone();   
+    bestSolution.printWithDrone();
+
+    cout << "checkConstraints: " << bestSolution.checkConstraints(problemInstance) << endl;
 
     antSolution.finalize();
     generationBestSolution.finalize();
@@ -1432,7 +1434,6 @@ int StodolaInspiredAntSystem::updateGenerationDroneEdgesOccurrenceCount(const So
 
     return edgesCount;
 }
-
 
 void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbabilityWithDrone(const Solution& generationBestSolution) {
 
@@ -1471,7 +1472,6 @@ void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& con
         }
     }
 }
-
 
 double StodolaInspiredAntSystem::calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int** droneEdgesOccurrenceCount, int generationEdgesCount, int generationDroneEdgesCount) {
     
