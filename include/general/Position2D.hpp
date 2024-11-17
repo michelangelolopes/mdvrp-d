@@ -5,7 +5,7 @@
 
 class Position2D {
     public:
-        Position2D() {}
+        Position2D() : x(0), y(0) {}
         Position2D(double x, double y) : x(x), y(y) {}
 
         double x;
