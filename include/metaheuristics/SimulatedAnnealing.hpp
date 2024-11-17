@@ -3,14 +3,14 @@
 
 class SimulatedAnnealing {
     public:
-        SimulatedAnnealing(double temperatureUpdateCoef, double temperatureCoolingCoef) :
-        temperatureUpdateCoef(temperatureUpdateCoef), temperatureCoolingCoef(temperatureCoolingCoef) {}
+        SimulatedAnnealing(double temperature, double temperatureCoolingCoef) :
+        temperature(temperature), temperatureCoolingCoef(temperatureCoolingCoef) {}
 
-        double temperatureUpdateCoef;
+        double temperature;
         double temperatureCoolingCoef;
 
-        inline void updateTemperatureCoef() {
-            temperatureUpdateCoef *= temperatureCoolingCoef;
+        inline void coolDownTemperature() {
+            temperature *= temperatureCoolingCoef;
         }
 };
 

@@ -126,7 +126,7 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(const Sol
 
     double bestSolutionProbability = generationBestSolution.fitness - bestSolution.fitness;
     bestSolutionProbability /= bestSolution.fitness;
-    bestSolutionProbability /= temperatureUpdateCoef;
+    bestSolutionProbability /= temperature;
     bestSolutionProbability *= -1;
     bestSolutionProbability = exp(bestSolutionProbability);
 
@@ -263,7 +263,7 @@ void StodolaInspiredAntSystem::run() {
             reinforcePheromoneMatrixWithProbability(generationBestSolution);
         }
 
-        updateTemperatureCoef();
+        coolDownTemperature();
 
         informationEntropy = calculateInformationEntropy(generationEdgesOccurrenceCount, generationEdgesCount);
         informationEntropyMin = -1 * log2((double)antsCount / generationEdgesCount);
@@ -1334,7 +1334,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
             reinforcePheromoneMatrixWithProbabilityWithDrone(generationBestSolution);
         }
 
-        updateTemperatureCoef();
+        coolDownTemperature();
 
         int totalGenerationEdgesCount = generationEdgesCount + generationDroneEdgesCount;
         informationEntropy = calculateInformationEntropyWithDrone(generationEdgesOccurrenceCount, generationDroneEdgesOccurrenceCount, generationEdgesCount, generationDroneEdgesCount);
@@ -1409,7 +1409,7 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbabilityWithDrone(
 
     double bestSolutionProbability = generationBestSolution.fitness - bestSolution.fitness;
     bestSolutionProbability /= bestSolution.fitness;
-    bestSolutionProbability /= temperatureUpdateCoef;
+    bestSolutionProbability /= temperature;
     bestSolutionProbability *= -1;
     bestSolutionProbability = exp(bestSolutionProbability);
 

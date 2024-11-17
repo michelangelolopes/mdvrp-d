@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 
     int antsCount = atoi(argv[3]); //192;
     double pheromoneUpdateCoef = atoi(argv[4]); //3
-    double temperatureUpdateCoef = 0.1; //0.1
+    double temperature = 0.1; //0.1
     double temperatureCoolingCoef = 1; //1
     int sectorsCount = atoi(argv[5]);//10; //16;
     int subClusterMaxSize = atoi(argv[6]);//10;//24;
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
             problemInstance, 
             antsCount, 
             pheromoneUpdateCoef, 
-            temperatureUpdateCoef,
+            temperature,
             temperatureCoolingCoef,
             sectorsCount, 
             primarySubClustersMaxCount,
