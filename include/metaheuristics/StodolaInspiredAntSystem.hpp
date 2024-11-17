@@ -3,10 +3,13 @@
 
 #include "../clustering/Cluster.hpp"
 #include "../clustering/Frame.hpp"
-#include "AntSystem.hpp"
+#include "../problem/ProblemInstance.hpp"
+#include "../solution/Solution.hpp"
+
+#include "Pheromone.hpp"
 #include "SimulatedAnnealing.hpp"
 
-class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
+class StodolaInspiredAntSystem : public SimulatedAnnealing {
     public:
         StodolaInspiredAntSystem(
             const ProblemInstance& problemInstance, 
@@ -27,13 +30,14 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             int maxIterationsWithoutImprovement,
             double maxOptimizationTime,
             double minInformationEntropyCoef
-        ) : 
-        AntSystem(problemInstance, antsCount, pheromoneReinforcementCoef), 
+        ) :
         SimulatedAnnealing(temperature, temperatureCoolingCoef),
+        problemInstance(problemInstance),
+        bestSolution(problemInstance),
         frame(problemInstance, sectorsCount),
+        pheromone(problemInstance, pheromoneReinforcementCoef, pheromoneEvaporationCoefMin, pheromoneEvaporationCoefMax),
+        antsCount(antsCount),
         localOptimizationFrequency(localOptimizationFrequency),
-        pheromoneEvaporationCoefMin(pheromoneEvaporationCoefMin),
-        pheromoneEvaporationCoefMax(pheromoneEvaporationCoefMax),
         distanceProbabilityCoef(distanceProbabilityCoef),
         pheromoneProbabilityCoef(pheromoneProbabilityCoef),
         maxExchangeSuccessiveVertices(maxExchangeSuccessiveVertices),
@@ -50,13 +54,11 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         }
 
         int localOptimizationFrequency;
-        double pheromoneEvaporationCoefMin;
-        double pheromoneEvaporationCoefMax;
-
         double distanceProbabilityCoef;
         double pheromoneProbabilityCoef;
         double (*weightedValue)(double, double);
 
+        int antsCount;
         int maxExchangeSuccessiveVertices;
 
         int maxIterations;
@@ -66,8 +68,9 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
 
         Cluster* verticesClusters = nullptr;
         Frame frame;
-
-        double*** dronePheromoneMatrix;
+        Pheromone pheromone;
+        ProblemInstance problemInstance;
+        Solution bestSolution;
 
         void finalize();
         void print();
@@ -78,16 +81,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         void create(int primarySubClustersMaxCount, int subClusterMaxSize);
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
-        void initializePheromoneMatrices();
-        void updatePheromoneMatrix(const Solution& consideredSolution, double updateValue, double (*operationFunction) (double, double));
-
-        void reinforcePheromoneMatrixWithProbability(const Solution& generationBestSolution);
-        void reinforcePheromoneMatrix(const Solution& consideredSolution);
-
-        void evaporatePheromoneMatrix();
-
-        void updateEvaporationCoef(double informationEntropy, double informationEntropyMin, double informationEntropyMax);
-
+        bool useWorseSolution(const Solution& generationBestSolution);
         int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
 
         void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
@@ -155,18 +149,12 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             int successiveVerticesCount
         );
 
-        void initializeDronePheromoneMatrices();
-
         void buildAntRoutesWithDrone(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
         int selectDroneCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route);
         void updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
         bool canDroneVisitCustomer(const Route& route, const Sortie& sortie, const Customer& customer, const Truck& truck, const Drone& drone);
-
         int updateGenerationDroneEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount);
-        void reinforcePheromoneMatrixWithProbabilityWithDrone(const Solution& generationBestSolution);
-        void reinforceDronePheromoneMatrix(const Solution& consideredSolution);
         double calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int** droneEdgesOccurrenceCount, int generationEdgesCount, int generationDroneEdgesCount);
-        void evaporateDronePheromoneMatrix();
 };
 
 #endif
