@@ -142,7 +142,7 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbability(const Sol
 
 void StodolaInspiredAntSystem::reinforcePheromoneMatrix(const Solution& consideredSolution) {
 
-    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
+    double pheromoneReinforcingValue = pheromoneReinforcementCoef * (bestSolution.fitness / consideredSolution.fitness);
 
     updatePheromoneMatrix(consideredSolution, pheromoneReinforcingValue, add);
 }
@@ -1427,7 +1427,7 @@ void StodolaInspiredAntSystem::reinforcePheromoneMatrixWithProbabilityWithDrone(
 
 void StodolaInspiredAntSystem::reinforceDronePheromoneMatrix(const Solution& consideredSolution) {
 
-    double pheromoneReinforcingValue = pheromoneUpdateCoef * (bestSolution.fitness / consideredSolution.fitness);
+    double pheromoneReinforcingValue = pheromoneReinforcementCoef * (bestSolution.fitness / consideredSolution.fitness);
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
 

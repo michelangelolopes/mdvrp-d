@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     ProblemInstance problemInstance(problemInstanceFilePath, problemType);
 
     int antsCount = atoi(argv[3]); //192;
-    double pheromoneUpdateCoef = atoi(argv[4]); //3
+    double pheromoneReinforcementCoef = atoi(argv[4]); //3
     double temperature = 0.1; //0.1
     double temperatureCoolingCoef = 1; //1
     int sectorsCount = atoi(argv[5]);//10; //16;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 
     std::cout << "--------------------------------------------------\n";
     std::cout << "antsCount: " << antsCount << "\n";
-    std::cout << "pheromoneUpdateCoef: " << pheromoneUpdateCoef << "\n";
+    std::cout << "pheromoneReinforcementCoef: " << pheromoneReinforcementCoef << "\n";
     std::cout << "sectorsCount: " << sectorsCount << "\n";
     std::cout << "subClusterMaxSize: " << subClusterMaxSize << "\n";
     std::cout << "primarySubClustersMaxCount: " << primarySubClustersMaxCount << "\n";
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     StodolaInspiredAntSystem antSystem(
             problemInstance, 
             antsCount, 
-            pheromoneUpdateCoef, 
+            pheromoneReinforcementCoef, 
             temperature,
             temperatureCoolingCoef,
             sectorsCount, 

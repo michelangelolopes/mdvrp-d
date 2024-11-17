@@ -11,7 +11,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
         StodolaInspiredAntSystem(
             const ProblemInstance& problemInstance, 
             int antsCount, 
-            double pheromoneUpdateCoef, 
+            double pheromoneReinforcementCoef, 
             double temperature,
             double temperatureCoolingCoef,
             int sectorsCount, 
@@ -28,7 +28,7 @@ class StodolaInspiredAntSystem : public AntSystem, public SimulatedAnnealing {
             double maxOptimizationTime,
             double minInformationEntropyCoef
         ) : 
-        AntSystem(problemInstance, antsCount, pheromoneUpdateCoef), 
+        AntSystem(problemInstance, antsCount, pheromoneReinforcementCoef), 
         SimulatedAnnealing(temperature, temperatureCoolingCoef),
         frame(problemInstance, sectorsCount),
         localOptimizationFrequency(localOptimizationFrequency),
