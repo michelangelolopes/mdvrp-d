@@ -11,7 +11,7 @@ void SubCluster::finalize() {
     free(elements);
 }
 
-void SubCluster::print() {
+void SubCluster::print() const {
 
     for(int index = 0; index < size; index++) {
         std::cout << elements[index];
@@ -22,7 +22,7 @@ void SubCluster::print() {
     }
 }
 
-void SubCluster::print(int* visitedCustomersIndexes) {
+void SubCluster::print(int* visitedCustomersIndexes) const {
 
     for(int index = 0; index < size; index++) {
         

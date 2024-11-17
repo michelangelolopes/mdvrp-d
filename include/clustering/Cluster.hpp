@@ -11,8 +11,9 @@
 class Cluster {
     public:
         Cluster() {}
-        Cluster(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
-            create(problemInstance, frame, primarySubClustersMaxCount, subClusterMaxSize, vertexIndex);
+        Cluster(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) :
+        problemInstance(&problemInstance), frame(&frame) {
+            create(primarySubClustersMaxCount, subClusterMaxSize, vertexIndex);
         }
 
         int size;
@@ -24,14 +25,17 @@ class Cluster {
         void print(int* visitedCustomersIndexes);
 
     private:
-        void create(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex);
+        const ProblemInstance* problemInstance;
+        const Frame* frame;
+
+        void create(int primarySubClustersMaxCount, int subClusterMaxSize, int baseIndex);
 
         void initializeSubClusters(int primarySubClustersMaxCount, int subClusterMaxSize, int neighborcustomersCount);
-        void createFirstSubCluster(const ProblemInstance& problemInstance, const Frame& frame, int baseIndex, int* consideredCustomersIndexes);
-        void createOthersSubClusters(const ProblemInstance& problemInstance, int baseIndex, int* consideredCustomersIndexes);
+        void createFirstSubCluster(int baseIndex, int* consideredCustomersIndexes);
+        void createOthersSubClusters(int baseIndex, int* consideredCustomersIndexes);
 
-        int findClosestCustomer(const ProblemInstance& problemInstance, int baseIndex, int* consideredCustomersIndexes);
-        int findClosestCustomerInSector(const ProblemInstance& problemInstance, int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes, int* customerSectorMap);
+        int findClosestCustomer(int baseIndex, int* consideredCustomersIndexes);
+        int findClosestCustomerInSector(int currentSectorIndex, int baseIndex, int* consideredCustomersIndexes);
 };
 
 #endif

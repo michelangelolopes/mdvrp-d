@@ -11,8 +11,8 @@ class SubCluster {
         int* elements;
 
         void finalize();
-        void print();
-        void print(int* visitedCustomersIndexes);
+        void print() const;
+        void print(int* visitedCustomersIndexes) const;
 
     private:
         void initialize();

@@ -7,19 +7,19 @@
 #include "../../include/utils/ArrayUtils.hpp"
 #include "../../include/utils/MathUtils.hpp"
 
-void Cluster::create(const ProblemInstance& problemInstance, const Frame& frame, int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
+void Cluster::create(int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
     
-    int neighborCustomersCount = problemInstance.customersCount;
-    int* consideredCustomersIndexes = (int*) calloc(problemInstance.customersCount, sizeof(int));
+    int neighborCustomersCount = problemInstance->customersCount;
+    int* consideredCustomersIndexes = (int*) calloc(problemInstance->customersCount, sizeof(int));
 
-    if(vertexIndex < problemInstance.customersCount) { //customerVertex
+    if(vertexIndex < problemInstance->customersCount) { //customerVertex
         neighborCustomersCount--;
         consideredCustomersIndexes[vertexIndex] = 1; //mark itself as visited
     }
 
     initializeSubClusters(primarySubClustersMaxCount, subClusterMaxSize, neighborCustomersCount);
-    createFirstSubCluster(problemInstance, frame, vertexIndex, consideredCustomersIndexes);
-    createOthersSubClusters(problemInstance, vertexIndex, consideredCustomersIndexes);
+    createFirstSubCluster(vertexIndex, consideredCustomersIndexes);
+    createOthersSubClusters(vertexIndex, consideredCustomersIndexes);
 
     free(consideredCustomersIndexes);
 }
@@ -51,15 +51,15 @@ void Cluster::initializeSubClusters(int primarySubClustersMaxCount, int subClust
     }
 }
 
-void Cluster::createFirstSubCluster(const ProblemInstance& problemInstance, const Frame& frame, int vertexIndex, int* consideredCustomersIndexes) {
+void Cluster::createFirstSubCluster(int vertexIndex, int* consideredCustomersIndexes) {
 
     int consideredCustomersCount = 0;
 
     //fill the first subcluster with the closest customer in each sector
-    if(frame.sectorsCount <= subClusters[0].size) {
+    if(frame->sectorsCount <= subClusters[0].size) {
 
-        for(int sectionIndex = 0; sectionIndex < frame.sectorsCount; sectionIndex++) {
-            int closestCustomerIndex = findClosestCustomerInSector(problemInstance, vertexIndex, sectionIndex, consideredCustomersIndexes, frame.customerSectorMap);
+        for(int sectionIndex = 0; sectionIndex < frame->sectorsCount; sectionIndex++) {
+            int closestCustomerIndex = findClosestCustomerInSector(vertexIndex, sectionIndex, consideredCustomersIndexes);
             
             //when the sector is not empty
             if(closestCustomerIndex != -1) {
@@ -70,7 +70,7 @@ void Cluster::createFirstSubCluster(const ProblemInstance& problemInstance, cons
     }
 
     for(int elementIndex = consideredCustomersCount; elementIndex < subClusters[0].size; elementIndex++) {
-        int closestCustomerIndex = findClosestCustomer(problemInstance, vertexIndex, consideredCustomersIndexes);
+        int closestCustomerIndex = findClosestCustomer(vertexIndex, consideredCustomersIndexes);
         consideredCustomersIndexes[closestCustomerIndex] = 1; //visited
         subClusters[0].elements[elementIndex] = closestCustomerIndex;
     }
@@ -83,7 +83,7 @@ void Cluster::createFirstSubCluster(const ProblemInstance& problemInstance, cons
     // }
 }
 
-void Cluster::createOthersSubClusters(const ProblemInstance& problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
+void Cluster::createOthersSubClusters(int vertexIndex, int* consideredCustomersIndexes) {
 
     int subClusterIndex = 1;
     while(subClusterIndex < size) {
@@ -91,7 +91,7 @@ void Cluster::createOthersSubClusters(const ProblemInstance& problemInstance, in
         int elementIndex = 0;
         while(elementIndex < subClusters[subClusterIndex].size) {
 
-            int closestCustomerIndex = findClosestCustomer(problemInstance, vertexIndex, consideredCustomersIndexes);
+            int closestCustomerIndex = findClosestCustomer(vertexIndex, consideredCustomersIndexes);
 
             subClusters[subClusterIndex].elements[elementIndex++] = closestCustomerIndex;
             consideredCustomersIndexes[closestCustomerIndex] = 1; //visited
@@ -172,16 +172,16 @@ void Cluster::print(int* visitedCustomersIndexes) {
     // std::cout << "--------------------------------------------------\n";       
 }
 
-int Cluster::findClosestCustomer(const ProblemInstance& problemInstance, int vertexIndex, int* consideredCustomersIndexes) {
+int Cluster::findClosestCustomer(int vertexIndex, int* consideredCustomersIndexes) {
 
     int memberIndex = -1;
     double minDistance = -1;
 
-    for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+    for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance->customersCount; neighborCustomerIndex++) {
 
         if(consideredCustomersIndexes[neighborCustomerIndex] != 1) {
 
-            double distance = problemInstance.verticesDistanceMatrix[vertexIndex][neighborCustomerIndex];
+            double distance = problemInstance->verticesDistanceMatrix[vertexIndex][neighborCustomerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = neighborCustomerIndex;
@@ -193,16 +193,16 @@ int Cluster::findClosestCustomer(const ProblemInstance& problemInstance, int ver
     return memberIndex;
 }
 
-int Cluster::findClosestCustomerInSector(const ProblemInstance& problemInstance, int vertexIndex, int sectorIndex, int* consideredCustomersIndexes, int* customerSectorMap) {
+int Cluster::findClosestCustomerInSector(int vertexIndex, int sectorIndex, int* consideredCustomersIndexes) {
 
     int memberIndex = -1;
     double minDistance = -1;
 
-    for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance.customersCount; neighborCustomerIndex++) {
+    for(int neighborCustomerIndex = 0; neighborCustomerIndex < problemInstance->customersCount; neighborCustomerIndex++) {
 
-        if(consideredCustomersIndexes[neighborCustomerIndex] != 1 && customerSectorMap[neighborCustomerIndex] == sectorIndex) {
+        if(consideredCustomersIndexes[neighborCustomerIndex] != 1 && frame->customerSectorMap[neighborCustomerIndex] == sectorIndex) {
 
-            double distance = problemInstance.verticesDistanceMatrix[vertexIndex][neighborCustomerIndex];
+            double distance = problemInstance->verticesDistanceMatrix[vertexIndex][neighborCustomerIndex];
 
             if(minDistance == -1 || minDistance > distance) {
                 memberIndex = neighborCustomerIndex;
