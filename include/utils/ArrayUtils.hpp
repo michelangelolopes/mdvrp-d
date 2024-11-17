@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 
+void** mallocMatrix(int count, int pointerSize, int objectSize);
 void** mallocMatrix(int pointerCount, int objectCount, int pointerSize, int objectSize);
 
 template <typename T> void shiftLeftArray(T* array, int consideredObjectCount, int originIndex, int shiftSize) {
@@ -46,6 +47,25 @@ template <typename T> T sumArray(T* array, int objectCount) {
     return sum;
 }
 
+template <typename T> void transformArray(T* array, int objectCount, T coef, T (*operation)(T, T)) {
+
+    for(int i = 0; i < objectCount; i++) {
+        array[i] = operation(array[i], coef);
+    }
+}
+
+template <typename T> void transformMatrix(T** matrix, int pointerCount, int objectCount, T coef, T (*operation)(T, T)) {
+
+    for(int i = 0; i < pointerCount; i++) {
+        transformArray(matrix[i], objectCount, coef, operation);
+    }
+}
+
+template <typename T> void transformMatrix(T** matrix, int count, T coef, T (*operation)(T, T)) {
+
+    transformMatrix(matrix, count, count, coef, operation);
+}
+
 template <typename T> void fillArray(T* array, int objectCount, T value) {
 
     for(int i = 0; i < objectCount; i++) {
@@ -58,6 +78,11 @@ template <typename T> void fillMatrix(T** matrix, int pointerCount, int objectCo
     for(int i = 0; i < pointerCount; i++) {
         fillArray(matrix[i], objectCount, value);
     }
+}
+
+template <typename T> void fillMatrix(T** matrix, int count, T value) {
+
+    fillMatrix(matrix, count, count, value);
 }
 
 template <typename T> void freeMatrix(T** matrix, int pointerCount) {
