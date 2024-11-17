@@ -7,7 +7,7 @@
 class AntSystem {
     public:
         AntSystem(const ProblemInstance& problemInstance, int antsCount, double pheromoneUpdateCoef) :
-        problemInstance(problemInstance), antsCount(antsCount), pheromoneUpdateCoef(pheromoneUpdateCoef) {}
+        problemInstance(problemInstance), antsCount(antsCount), pheromoneUpdateCoef(pheromoneUpdateCoef), bestSolution(problemInstance) {}
 
         int antsCount;
         double pheromoneUpdateCoef;

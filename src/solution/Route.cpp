@@ -1,10 +1,10 @@
 #include "../../include/solution/Route.hpp"
 
-void Route::init(int subRouteMaxLength) {
+void Route::init() {
 
     maxSize = 1;
     initializeValues();
-    initializeSubRoutes(subRouteMaxLength);
+    initializeSubRoutes();
 }
 
 void Route::initializeValues() {
@@ -14,10 +14,10 @@ void Route::initializeValues() {
     timeSpent = -1;
 }
 
-void Route::initializeSubRoutes(int subRouteMaxLength) {
+void Route::initializeSubRoutes() {
 
     subRoutes = (SubRoute*) malloc(size * sizeof(SubRoute));
-    initializeNextSubRoute(subRouteMaxLength);
+    initializeNextSubRoute();
 }
 
 void Route::shiftLeftSubRoutes(int subRouteOriginIndex) {
@@ -48,10 +48,11 @@ void Route::shiftRightSubRoutes(int subRouteOriginIndex) {
 
 }
 
-void Route::initializeNextSubRoute(int subRouteMaxLength) {
+void Route::initializeNextSubRoute() {
 
     int nextSubRouteIndex = size - 1;
-    subRoutes[nextSubRouteIndex] = SubRoute(depotIndex, nextSubRouteIndex, subRouteMaxLength);
+    int subRouteMaxLength = problemInstance->customersCount;
+    subRoutes[nextSubRouteIndex] = SubRoute(problemInstance, depotIndex, nextSubRouteIndex, subRouteMaxLength);
 }
 
 void Route::finalize() {
@@ -76,7 +77,7 @@ void Route::expand() {
         subRoutes = (SubRoute*) realloc(subRoutes, size * sizeof(SubRoute));
         
         int subRouteMaxLength = subRoutes[0].maxLength;
-        initializeNextSubRoute(subRouteMaxLength);
+        initializeNextSubRoute();
     }
 }
 
@@ -102,7 +103,7 @@ void Route::copy(const Route& routeToCopy) {
 
         int subRouteMaxLength = subRoutes[0].maxLength;
         for(int subRouteIndex = maxSize; subRouteIndex < routeToCopy.size; subRouteIndex++) {
-            subRoutes[subRouteIndex] = SubRoute(depotIndex, subRouteIndex, subRouteMaxLength);
+            subRoutes[subRouteIndex] = SubRoute(problemInstance, depotIndex, subRouteIndex, subRouteMaxLength);
         }
 
         maxSize = routeToCopy.size;
@@ -127,34 +128,34 @@ void Route::incrementCurrentLoad(double demand) {
     subRoutes[size - 1].incrementLoad(demand);
 }
 
-void Route::updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex) {
+void Route::updateDistanceTraveled(int depotIndex) {
     
     distanceTraveled = 0;
 
     for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
 
-        int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+        int depotVertexIndex = problemInstance->getDepotVertexIndex(depotIndex);
 
         int firstCustomerIndex = subRoutes[subRouteIndex].first();
         int lastCustomerIndex = subRoutes[subRouteIndex].last();
 
-        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][firstCustomerIndex];
-        distanceTraveled += problemInstance.verticesDistanceMatrix[depotVertexIndex][lastCustomerIndex]; //undirected graph -> same distance
+        distanceTraveled += problemInstance->verticesDistanceMatrix[depotVertexIndex][firstCustomerIndex];
+        distanceTraveled += problemInstance->verticesDistanceMatrix[depotVertexIndex][lastCustomerIndex]; //undirected graph -> same distance
         distanceTraveled += subRoutes[subRouteIndex].distanceTraveled;
         
     }
 }
 
-void Route::updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex) {
+void Route::updateTimeSpent(int depotIndex) {
 
     for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
 
-        subRoutes[subRouteIndex].updateTimeSpent(problemInstance, depotIndex);
+        subRoutes[subRouteIndex].updateTimeSpent(depotIndex);
     }
 
-    updateDistanceTraveled(problemInstance, depotIndex);
+    updateDistanceTraveled(depotIndex);
 
-    double truckSpeed = problemInstance.depots[depotIndex].truck.speed;
+    double truckSpeed = problemInstance->depots[depotIndex].truck.speed;
     timeSpent = (distanceTraveled / truckSpeed);
 }
 

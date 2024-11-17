@@ -1,12 +1,10 @@
 #include "../../include/solution/Solution.hpp"
 
-void Solution::init(int subRouteMaxLength) {
-
-    int maxSize = (subRouteMaxLength / 2) + 1;
+void Solution::init() {
 
     initializeValues();
-    initializeRoutes(subRouteMaxLength);
-    initializeDroneRoutes(maxSize);
+    initializeRoutes();
+    initializeDroneRoutes();
 }
 
 void Solution::initializeValues() {
@@ -18,33 +16,33 @@ void Solution::initializeValues() {
     maxTimeSpent = -1;
 }
 
-void Solution::initializeRoutes(int subRouteMaxLength) {
+void Solution::initializeRoutes() {
 
-    routes = (Route*) malloc(depotsCount * sizeof(Route));
+    routes = (Route*) malloc(problemInstance->depotsCount * sizeof(Route));
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        routes[depotIndex] = Route(depotIndex, subRouteMaxLength);
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
+        routes[depotIndex] = Route(problemInstance, depotIndex);
     }
 }
 
-void Solution::initializeDroneRoutes(int maxSize) {
+void Solution::initializeDroneRoutes() {
 
-    droneRoutes = (DroneRoute*) malloc(depotsCount * sizeof(DroneRoute));
+    droneRoutes = (DroneRoute*) malloc(problemInstance->depotsCount * sizeof(DroneRoute));
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
-        droneRoutes[depotIndex] = DroneRoute(depotIndex, maxSize);
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
+        droneRoutes[depotIndex] = DroneRoute(problemInstance, depotIndex);
     }
 }
 
 void Solution::finalize() {
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         routes[depotIndex].finalize();
     }
 
     free(routes);
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         droneRoutes[depotIndex].finalize();
     }
 
@@ -53,7 +51,7 @@ void Solution::finalize() {
 
 void Solution::reset() {
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         routes[depotIndex].reset();
         droneRoutes[depotIndex].reset();
     }
@@ -69,21 +67,21 @@ void Solution::copy(Solution solutionToCopy) {
     maxDistanceTraveled = solutionToCopy.maxDistanceTraveled;
     maxTimeSpent = solutionToCopy.maxTimeSpent;
 
-    for(int depotIndex = 0; depotIndex < solutionToCopy.depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < solutionToCopy.problemInstance->depotsCount; depotIndex++) {
         routes[depotIndex].copy(solutionToCopy.routes[depotIndex]);
     }
 }
 
-void Solution::updateFitness(const ProblemInstance& problemInstance) {
+void Solution::updateFitness() {
 
     totalDistanceTraveled = 0;
     totalTimeSpent = 0;
     maxDistanceTraveled = -1;
     maxTimeSpent = -1;
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
 
-        routes[depotIndex].updateTimeSpent(problemInstance, depotIndex);
+        routes[depotIndex].updateTimeSpent(depotIndex);
 
         double distanceTraveledInRoute = routes[depotIndex].distanceTraveled;
         double timeSpentInRoute = routes[depotIndex].timeSpent;
@@ -100,7 +98,7 @@ void Solution::updateFitness(const ProblemInstance& problemInstance) {
         totalTimeSpent += timeSpentInRoute;
     }
 
-    switch(minimizationType) {
+    switch(problemInstance->minimizationType) {
         case TOTAL_DISTANCE_TRAVELED:
             fitness = totalDistanceTraveled;
             break;
@@ -116,14 +114,14 @@ void Solution::updateFitness(const ProblemInstance& problemInstance) {
     }
 }
 
-void Solution::updateFitnessWithDrone(const ProblemInstance& problemInstance) {
+void Solution::updateFitnessWithDrone() {
 
     totalDistanceTraveled = 0;
     totalTimeSpent = 0;
     maxDistanceTraveled = -1;
     maxTimeSpent = -1;
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
 
         Route* route = &routes[depotIndex];
         double routeDuration = 0;
@@ -141,23 +139,23 @@ void Solution::updateFitnessWithDrone(const ProblemInstance& problemInstance) {
     fitness = maxTimeSpent;
 }
 
-bool Solution::checkConstraints(const ProblemInstance& problemInstance) const {
+bool Solution::checkConstraints() const {
     //all customers
 
-    int visitedCustomers[problemInstance.customersCount]; //TODO: check if static array declaration makes all false
+    int visitedCustomers[problemInstance->customersCount]; //TODO: check if static array declaration makes all false
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
 
         Route* route = &routes[depotIndex];
 
         for(int subRouteIndex = 0; subRouteIndex < route->size; subRouteIndex++) {
             SubRoute* subRoute = &route->subRoutes[subRouteIndex];
 
-            if(!subRoute->checkWeightConstraint(problemInstance)) {
+            if(!subRoute->checkWeightConstraint()) {
                 return false;
             }
 
-            if(!subRoute->checkTimeConstraint(problemInstance)) {
+            if(!subRoute->checkTimeConstraint()) {
                 return false;
             }
 
@@ -173,7 +171,7 @@ bool Solution::checkConstraints(const ProblemInstance& problemInstance) const {
         }
     }
 
-    for(int customerIndex = 0; customerIndex < problemInstance.customersCount; customerIndex++) {
+    for(int customerIndex = 0; customerIndex < problemInstance->customersCount; customerIndex++) {
         if(visitedCustomers[customerIndex] != 1) { //not all customers are visited or some customer was visited more than one time
             return false;
         }
@@ -188,7 +186,7 @@ void Solution::print() const {
     
     if(fitness != -1) {
 
-        switch(minimizationType) {
+        switch(problemInstance->minimizationType) {
             case TOTAL_DISTANCE_TRAVELED:
                 std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
                 break;
@@ -204,7 +202,7 @@ void Solution::print() const {
             }
     }
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         std::cout << "Route[" << depotIndex << "]: ";
         routes[depotIndex].print();
         std::cout << "\n";
@@ -219,7 +217,7 @@ void Solution::printWithDrone() const {
     
     if(fitness != -1) {
 
-        switch(minimizationType) {
+        switch(problemInstance->minimizationType) {
             case TOTAL_DISTANCE_TRAVELED:
                 std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
                 break;
@@ -235,7 +233,7 @@ void Solution::printWithDrone() const {
             }
     }
 
-    for(int depotIndex = 0; depotIndex < depotsCount; depotIndex++) {
+    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         std::cout << "Route[" << depotIndex << "]: ";
         printWithDrone(depotIndex);
         std::cout << "\n";
@@ -317,15 +315,15 @@ void Solution::printWithDrone(int depotIndex) const {
     std::cout << ", " << droneRoute->size << ")";
 }
 
-double Solution::calculateRouteDuration(const ProblemInstance& problemInstance, int depotIndex) {
+double Solution::calculateRouteDuration(int depotIndex) {
 
-    int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
+    int depotVertexIndex = problemInstance->getDepotVertexIndex(depotIndex);
 
     Route* route = &routes[depotIndex];
     DroneRoute* droneRoute = &droneRoutes[depotIndex];
 
-    Truck* truck = &problemInstance.depots[depotIndex].truck;
-    Drone* drone = &problemInstance.depots[depotIndex].drone;
+    Truck* truck = &problemInstance->depots[depotIndex].truck;
+    Drone* drone = &problemInstance->depots[depotIndex].drone;
 
     int sortieIndex = 0;
     Sortie* sortie = &droneRoute->sorties[sortieIndex];
@@ -336,11 +334,11 @@ double Solution::calculateRouteDuration(const ProblemInstance& problemInstance, 
 
         SubRoute* subRoute = &route->subRoutes[subRouteIndex];
 
-        double customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*truck, depotVertexIndex, subRoute->first());
+        double customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, depotVertexIndex, subRoute->first());
         if(!hasDroneRouteEnded && sortie->launchVertexIndex == depotVertexIndex && sortie->recoveryVertexIndex == subRoute->first()) { //launched at depot
 
             double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
-            double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*drone, *sortie);
+            double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
             double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
 
             routeDuration += vehicleLongestDuration;
@@ -361,10 +359,10 @@ double Solution::calculateRouteDuration(const ProblemInstance& problemInstance, 
             double customerDeliveryDuration;
             if(memberIndex + 1 < subRoute->length) {
                 neighborCustomerIndex = subRoute->members[memberIndex + 1];
-                customerDeliveryDuration = problemInstance.calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
+                customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
             } else {
                 neighborCustomerIndex = depotVertexIndex;
-                customerDeliveryDuration = problemInstance.calculateMovementDuration(*truck, customerIndex, neighborCustomerIndex);
+                customerDeliveryDuration = problemInstance->calculateMovementDuration(*truck, customerIndex, neighborCustomerIndex);
             }
             
             // std::cout << to_string(customerIndex) + " -> " + to_string(neighborCustomerIndex) + " = " + to_string(customerDeliveryDuration) + "\n";
@@ -372,7 +370,7 @@ double Solution::calculateRouteDuration(const ProblemInstance& problemInstance, 
             if(!hasDroneRouteEnded && sortie->launchVertexIndex == customerIndex) {
 
                 double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
-                double droneDeliveryDuration = problemInstance.calculateDeliveryDuration(*drone, *sortie);
+                double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
                 double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
 
                 routeDuration += vehicleLongestDuration;

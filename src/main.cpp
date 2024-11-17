@@ -112,11 +112,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
 
     if(problemInstance.problemType == ProblemType::MDVRP) {
 
-        Solution example(
-            problemInstance.depotsCount,
-            MinimizationType::TOTAL_DISTANCE_TRAVELED,
-            problemInstance.customersCount
-        );
+        Solution example(problemInstance);
         std::getline(file, line); //ignore fitness
 
 
@@ -161,15 +157,11 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
 
         }
         
-        example.updateFitness(problemInstance);
+        example.updateFitness();
         example.print();
         example.finalize();
     } else if(problemInstance.problemType == ProblemType::MDVRP_D) {
-        Solution example(
-            problemInstance.depotsCount,
-            MinimizationType::MAX_TIME_SPENT,
-            problemInstance.customersCount
-        );
+        Solution example(problemInstance);
         int delimiterFoundCount = 0;
         int depotIndex = 0;
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
@@ -238,12 +230,12 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
 
                 }
 
-                route->incrementCurrentDuration(example.calculateRouteDuration(problemInstance, depotIndex));
+                route->incrementCurrentDuration(example.calculateRouteDuration(depotIndex));
                 depotVertexIndex = problemInstance.getDepotVertexIndex(++depotIndex);
             }
 
         }
-        example.updateFitnessWithDrone(problemInstance);
+        example.updateFitnessWithDrone();
         example.printWithDrone();
         example.finalize();
     }

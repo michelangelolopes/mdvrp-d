@@ -12,12 +12,8 @@
 
 class Solution {
     public:
-        Solution() {}
-        Solution(int depotsCount, const MinimizationType& minimizationType) : depotsCount(depotsCount), minimizationType(minimizationType) {}
-        Solution(int depotsCount, const MinimizationType& minimizationType, int subRouteMaxLength) : 
-        Solution(depotsCount, minimizationType)
-        {
-            init(subRouteMaxLength);
+        Solution(const ProblemInstance& problemInstance) : problemInstance(&problemInstance) {
+            init();
         }
 
         double fitness;
@@ -25,29 +21,29 @@ class Solution {
         double totalTimeSpent;
         double maxDistanceTraveled;
         double maxTimeSpent;
-        
-        int depotsCount;
-        MinimizationType minimizationType;
+
         Route* routes;
         DroneRoute* droneRoutes;
 
         void finalize();
         void reset();
         void copy(Solution solutionToCopy);
-        void updateFitness(const ProblemInstance& problemInstance);
-        void updateFitnessWithDrone(const ProblemInstance& problemInstance);
+        void updateFitness();
+        void updateFitnessWithDrone();
 
-        double calculateRouteDuration(const ProblemInstance& problemInstance, int depotIndex);
+        double calculateRouteDuration(int depotIndex);
 
-        bool checkConstraints(const ProblemInstance& problemInstance) const;
+        bool checkConstraints() const;
         void print() const;
         void printWithDrone() const;
         void printWithDrone(int depotIndex) const;
     private:
-        void init(int subRouteMaxLength);
+        const ProblemInstance* problemInstance;
+
+        void init();
         void initializeValues();
-        void initializeRoutes(int subRouteMaxLength);
-        void initializeDroneRoutes(int maxSize);
+        void initializeRoutes();
+        void initializeDroneRoutes();
 };
 
 #endif

@@ -8,7 +8,8 @@
 
 class SubRoute {
     public:
-        SubRoute(int depotIndex, int subRouteIndex, int maxLength) : 
+        SubRoute(const ProblemInstance* problemInstance, int depotIndex, int subRouteIndex, int maxLength) :
+        problemInstance(problemInstance),
         depotIndex(depotIndex), 
         subRouteIndex(subRouteIndex), 
         maxLength(maxLength) 
@@ -35,18 +36,20 @@ class SubRoute {
         
         void incrementDuration(double deliveryDuration);
         void incrementLoad(double demand);
-        void updateDistanceTraveled(const ProblemInstance& problemInstance);
-        void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
-        void exchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
-        void revertExchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount);
+        void updateDistanceTraveled();
+        void updateTimeSpent(int depotIndex);
+        void exchangeMembers(int memberIndexA, int memberIndexB, int successiveVerticesCount);
+        void revertExchangeMembers(int memberIndexA, int memberIndexB, int successiveVerticesCount);
 
-        int checkWeightConstraint(const ProblemInstance& problemInstance) const;
-        int checkTimeConstraint(const ProblemInstance& problemInstance) const;
+        int checkWeightConstraint() const;
+        int checkTimeConstraint() const;
         void print() const;
         int first() const;
         int last() const;
     
     private:
+        const ProblemInstance* problemInstance;
+
         void init();
         void initializeValues();
         void initializeMembers();

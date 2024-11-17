@@ -1,8 +1,9 @@
 #include "../../include/solution/DroneRoute.hpp"
 
-void DroneRoute::init(int maxSize) {
+void DroneRoute::init() {
 
-    sorties = (Sortie*) malloc(maxSize * sizeof(Sortie));
+    int maxSortiesCount = (problemInstance->customersCount / 2) + 1;
+    sorties = (Sortie*) malloc(maxSortiesCount * sizeof(Sortie));
 
     initializeValues();
 }

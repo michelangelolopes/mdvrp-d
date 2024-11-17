@@ -9,16 +9,13 @@
 
 class DroneRoute {
     public:
-        DroneRoute(int depotIndex, int maxSize) : 
-        depotIndex(depotIndex), 
-        maxSize(maxSize) 
+        DroneRoute(const ProblemInstance* problemInstance, int depotIndex) : problemInstance(problemInstance), depotIndex(depotIndex)
         {
-            init(maxSize);
+            init();
         }
 
         int depotIndex;
         int size;
-        int maxSize;
 
         double distanceTraveled;
         double timeSpent;
@@ -32,7 +29,9 @@ class DroneRoute {
         void print() const;
 
     private:
-        void init(int maxSize);
+        const ProblemInstance* problemInstance;
+
+        void init();
         void initializeValues();
 };
 

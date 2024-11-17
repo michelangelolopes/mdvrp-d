@@ -58,7 +58,7 @@ void SubRoute::incrementDuration(double deliveryDuration) {
     duration += deliveryDuration;
 }
 
-void SubRoute::updateDistanceTraveled(const ProblemInstance& problemInstance) {
+void SubRoute::updateDistanceTraveled() {
 
     distanceTraveled = 0;
 
@@ -66,19 +66,19 @@ void SubRoute::updateDistanceTraveled(const ProblemInstance& problemInstance) {
 
         int sourceIndex = members[customerIndex];
         int destIndex = members[customerIndex + 1];
-        distanceTraveled += problemInstance.verticesDistanceMatrix[sourceIndex][destIndex];
+        distanceTraveled += problemInstance->verticesDistanceMatrix[sourceIndex][destIndex];
     }
 }
 
-void SubRoute::updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex) {
+void SubRoute::updateTimeSpent(int depotIndex) {
 
-    updateDistanceTraveled(problemInstance);
-    double truckSpeed = problemInstance.depots[depotIndex].truck.speed;
+    updateDistanceTraveled();
+    double truckSpeed = problemInstance->depots[depotIndex].truck.speed;
 
     timeSpent = (distanceTraveled / truckSpeed);
 }
 
-void SubRoute::exchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount) {
+void SubRoute::exchangeMembers(int memberIndexA, int memberIndexB, int successiveVerticesCount) {
 
     for(int successiveIndex = 0; successiveIndex < successiveVerticesCount; successiveIndex++) {
 
@@ -88,8 +88,8 @@ void SubRoute::exchangeMembers(const ProblemInstance& problemInstance, int membe
         int customerIndexA = members[successiveMemberIndexA];
         int customerIndexB = members[successiveMemberIndexB];
 
-        Customer* customerA = &problemInstance.customers[customerIndexA];
-        Customer* customerB = &problemInstance.customers[customerIndexB];
+        Customer* customerA = &problemInstance->customers[customerIndexA];
+        Customer* customerB = &problemInstance->customers[customerIndexB];
 
         // std::cout << "exchange:successiveIndex: " << successiveIndex << "\n";
         // std::cout << "exchange:successiveMemberIndexA: " << successiveMemberIndexA << " - ";
@@ -103,7 +103,7 @@ void SubRoute::exchangeMembers(const ProblemInstance& problemInstance, int membe
     }
 }
 
-void SubRoute::revertExchangeMembers(const ProblemInstance& problemInstance, int memberIndexA, int memberIndexB, int successiveVerticesCount) {
+void SubRoute::revertExchangeMembers(int memberIndexA, int memberIndexB, int successiveVerticesCount) {
 
     for(int successiveIndex = successiveVerticesCount - 1; successiveIndex >= 0; successiveIndex--) {
 
@@ -113,8 +113,8 @@ void SubRoute::revertExchangeMembers(const ProblemInstance& problemInstance, int
         int customerIndexA = members[successiveMemberIndexA];
         int customerIndexB = members[successiveMemberIndexB];
 
-        Customer* customerA = &problemInstance.customers[customerIndexA];
-        Customer* customerB = &problemInstance.customers[customerIndexB];
+        Customer* customerA = &problemInstance->customers[customerIndexA];
+        Customer* customerB = &problemInstance->customers[customerIndexB];
 
         // std::cout << "revert:successiveIndex: " << successiveIndex << "\n";
         // std::cout << "revert:successiveMemberIndexA: " << successiveMemberIndexA << " - ";
@@ -128,14 +128,14 @@ void SubRoute::revertExchangeMembers(const ProblemInstance& problemInstance, int
     }
 }
 
-int SubRoute::checkWeightConstraint(const ProblemInstance& problemInstance) const {
+int SubRoute::checkWeightConstraint() const {
 
-    return load <= problemInstance.depots[depotIndex].truck.capacity;
+    return load <= problemInstance->depots[depotIndex].truck.capacity;
 }
 
-int SubRoute::checkTimeConstraint(const ProblemInstance& problemInstance) const {
+int SubRoute::checkTimeConstraint() const {
 
-    return duration <= problemInstance.depots[depotIndex].truck.routeMaxDuration;
+    return duration <= problemInstance->depots[depotIndex].truck.routeMaxDuration;
 }
 
 void SubRoute::print() const {

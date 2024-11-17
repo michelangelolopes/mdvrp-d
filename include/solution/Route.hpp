@@ -10,8 +10,8 @@
 
 class Route {
     public:
-        Route(int depotIndex, int subRouteMaxLength) : depotIndex(depotIndex) {
-            init(subRouteMaxLength);
+        Route(const ProblemInstance* problemInstance, int depotIndex) : problemInstance(problemInstance), depotIndex(depotIndex) {
+            init();
         }
 
         int depotIndex;
@@ -33,8 +33,8 @@ class Route {
         void incrementCurrentLoad(double demand);
         void shiftLeftSubRoutes(int subRouteOriginIndex);
         void shiftRightSubRoutes(int subRouteOriginIndex);
-        void updateDistanceTraveled(const ProblemInstance& problemInstance, int depotIndex);
-        void updateTimeSpent(const ProblemInstance& problemInstance, int depotIndex);
+        void updateDistanceTraveled(int depotIndex);
+        void updateTimeSpent(int depotIndex);
 
         int last() const;
         double currentDuration() const;
@@ -42,10 +42,12 @@ class Route {
         void print() const;
 
     private:
-        void init(int subRouteMaxLength);
+        const ProblemInstance* problemInstance;
+
+        void init();
         void initializeValues();
-        void initializeSubRoutes(int subRouteMaxLength);
-        void initializeNextSubRoute(int subRouteMaxLength);
+        void initializeSubRoutes();
+        void initializeNextSubRoute();
 };
 
 #endif
