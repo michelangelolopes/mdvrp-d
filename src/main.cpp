@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     double pheromoneEvaporationCoefMax = 0.1; //0.1
     double pheromoneProbabilityCoef = 1; //1
     double distanceProbabilityCoef = 1; //1
-    int maxExchangeSuccessiveVertices = 2; //2
+    int maxSuccessiveVertices = 2; //2
     int maxIterations = 100000; //100000
     int maxIterationsWithoutImprovement = 100000; //4000
     double maxOptimizationTime = atoi(argv[8]); //60; //20000
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
             pheromoneEvaporationCoefMax,
             distanceProbabilityCoef,
             pheromoneProbabilityCoef,
-            maxExchangeSuccessiveVertices,
+            maxSuccessiveVertices,
             maxIterations,
             maxIterationsWithoutImprovement,
             maxOptimizationTime,

@@ -6,6 +6,8 @@
 #include "../problem/ProblemInstance.hpp"
 #include "../solution/Solution.hpp"
 
+#include "InformationEntropy.hpp"
+#include "LocalOptimization.hpp"
 #include "Pheromone.hpp"
 #include "SimulatedAnnealing.hpp"
 
@@ -25,7 +27,7 @@ class StodolaInspiredAntSystem : public SimulatedAnnealing {
             double pheromoneEvaporationCoefMax,
             double distanceProbabilityCoef,
             double pheromoneProbabilityCoef,
-            int maxExchangeSuccessiveVertices,
+            int maxSuccessiveVertices,
             int maxIterations,
             int maxIterationsWithoutImprovement,
             double maxOptimizationTime,
@@ -33,14 +35,18 @@ class StodolaInspiredAntSystem : public SimulatedAnnealing {
         ) :
         SimulatedAnnealing(temperature, temperatureCoolingCoef),
         problemInstance(problemInstance),
+        antSolution(problemInstance),
+        generationBestSolution(problemInstance),
         bestSolution(problemInstance),
+        localOptimization(problemInstance, maxSuccessiveVertices),
         frame(problemInstance, sectorsCount),
         pheromone(problemInstance, pheromoneReinforcementCoef, pheromoneEvaporationCoefMin, pheromoneEvaporationCoefMax),
+        informationEntropy(problemInstance, antsCount),
         antsCount(antsCount),
         localOptimizationFrequency(localOptimizationFrequency),
         distanceProbabilityCoef(distanceProbabilityCoef),
         pheromoneProbabilityCoef(pheromoneProbabilityCoef),
-        maxExchangeSuccessiveVertices(maxExchangeSuccessiveVertices),
+        maxSuccessiveVertices(maxSuccessiveVertices),
         maxIterations(maxIterations),
         maxIterationsWithoutImprovement(maxIterationsWithoutImprovement),
         maxOptimizationTime(maxOptimizationTime),
@@ -59,21 +65,29 @@ class StodolaInspiredAntSystem : public SimulatedAnnealing {
         double (*weightedValue)(double, double);
 
         int antsCount;
-        int maxExchangeSuccessiveVertices;
+        int maxSuccessiveVertices;
 
         int maxIterations;
         int maxIterationsWithoutImprovement;
         double maxOptimizationTime;
         double minInformationEntropyCoef;
 
+        int* visitedCustomersIndexes;
+        double* selectionProbability;
+        double* heuristicInformationAverage;
+        double* pheromoneConcentrationAverage;
+
         Cluster* verticesClusters = nullptr;
         Frame frame;
+        LocalOptimization localOptimization;
+        InformationEntropy informationEntropy;
         Pheromone pheromone;
         ProblemInstance problemInstance;
+        Solution generationBestSolution;
         Solution bestSolution;
+        Solution antSolution;
 
         void finalize();
-        void print();
         void run();
         void runWithDrone();
     
@@ -81,80 +95,26 @@ class StodolaInspiredAntSystem : public SimulatedAnnealing {
         void create(int primarySubClustersMaxCount, int subClusterMaxSize);
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
-        bool useWorseSolution(const Solution& generationBestSolution);
-        int hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
+        void buildAntRoutes(Solution& antSolution);
+        void buildAntRoutesWithDrone(Solution& antSolution);
 
-        void buildAntRoutes(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
+        int selectDepot(Route* routes);
+        int updateDepotSelectionProbability(Route* routes);
 
-        int selectDepot(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
-        int updateDepotSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, Route* routes);
+        int selectSubCluster(int depotIndex, int vertexIndex, double*** pheromoneMatrix);
+        int updatePrimarySubClusterSelectionProbability(int depotIndex, int vertexIndex, double*** pheromoneMatrix);
+        void calculatePrimarySubClusterSelectionProbability(Cluster* cluster);
+        int selectSubClusterNonPrimary(int vertexIndex);
 
-        int selectSubCluster(int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage, int depotIndex, int vertexIndex, double*** pheromoneMatrix);
-        int updatePrimarySubClusterSelectionProbability(
-            int* visitedCustomersIndexes, 
-            double* primarySubClusterSelectionProbability,
-            double* heuristicInformationAverage, 
-            double* pheromoneConcentrationAverage,
-            int depotIndex,
-            int vertexIndex,
-            double*** pheromoneMatrix
-        );
-        void calculatePrimarySubClusterSelectionProbability( 
-            double* primarySubClusterSelectionProbability,
-            double* heuristicInformationAverage, 
-            double* pheromoneConcentrationAverage,
-            Cluster* cluster
-        );
+        int selectCustomer(int depotIndex, int vertexIndex, int subClusterIndex);
+        void updateCustomerSelectionProbability(int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
-        int selectSubClusterNonPrimary(int* visitedCustomersIndexes, int vertexIndex);
+        int selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route);
+        void updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
-        int selectCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, int subClusterIndex);
-        void updateCustomerSelectionProbability(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
-
-        double calculateInformationEntropy(int** edgesOccurrenceCount, int generationEdgesCount);
-        int updateGenerationEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount);
-
-        void localOptimization(Solution& generationBestSolution);
-
-        void exchangeMembersInSolution(Solution& exchangeSolution);
-        void exchangeMembersInRoutes(
-            Solution& exchangeSolution, 
-            Route& route,
-            Route& exchangeRoute,
-            int successiveVerticesCount
-        );        
-        void exchangeMembersInSameSubRoute(
-            Solution& exchangeSolution, 
-            SubRoute& subRoute,
-            int successiveVerticesCount
-        );
-        void exchangeMembersInDifferentSubRoutes(
-            Solution& exchangeSolution, 
-            SubRoute& subRoute,
-            SubRoute& exchangeSubRoute,
-            int successiveVerticesCount
-        );
-
-        void moveMembersInSolution(Solution& moveSolution);
-        void moveMembersInRoutes(
-            Solution& moveSolution, 
-            Route& route,
-            Route& destRoute,
-            int successiveVerticesCount
-        );
-        int moveMembersInSubRoutes(
-            Solution& moveSolution, 
-            SubRoute& subRoute,
-            SubRoute& destSubRoute,
-            int successiveVerticesCount
-        );
-
-        void buildAntRoutesWithDrone(Solution& antSolution, int* visitedCustomersIndexes, double* selectionProbability, double* heuristicInformationAverage, double* pheromoneConcentrationAverage);
-        int selectDroneCustomer(int* visitedCustomersIndexes, double* selectionProbability, int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route);
-        void updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, double* customerSelectionProbability, int depotIndex, int vertexIndex, const SubCluster& subCluster);
+        bool hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
+        bool canUseWorseSolution(const Solution& generationBestSolution);
         bool canDroneVisitCustomer(const Route& route, const Sortie& sortie, const Customer& customer, const Truck& truck, const Drone& drone);
-        int updateGenerationDroneEdgesOccurrenceCount(const Solution& solution, int** edgesOccurrenceCount);
-        double calculateInformationEntropyWithDrone(int** edgesOccurrenceCount, int** droneEdgesOccurrenceCount, int generationEdgesCount, int generationDroneEdgesCount);
 };
 
 #endif
