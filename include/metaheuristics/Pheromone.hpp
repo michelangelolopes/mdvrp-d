@@ -3,6 +3,7 @@
 
 #include "../problem/ProblemInstance.hpp"
 #include "../solution/Solution.hpp"
+#include "InformationEntropy.hpp"
 
 class Pheromone {
     public:
@@ -36,7 +37,7 @@ class Pheromone {
         void reinforceDroneMatrices(const Solution& consideredSolution);
 
         void updateReinforcementValue(const Solution& bestSolution, const Solution& consideredSolution);
-        void updateEvaporationValue(double informationEntropy, double informationEntropyMin, double informationEntropyMax);
+        void updateEvaporationValue(const InformationEntropy& informationEntropy);
 
     private:
         const ProblemInstance* problemInstance;

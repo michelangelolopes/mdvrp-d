@@ -34,11 +34,9 @@ void Pheromone::updateReinforcementValue(const Solution& bestSolution, const Sol
     reinforcementValue = reinforcementCoef * (bestSolution.fitness / consideredSolution.fitness);
 }
 
-void Pheromone::updateEvaporationValue(double informationEntropy, double informationEntropyMin, double informationEntropyMax) {
+void Pheromone::updateEvaporationValue(const InformationEntropy& informationEntropy) {
 
-    double informationEntropyMaxMinDiff = (informationEntropyMax - informationEntropyMin);
-    double relevantInformationEntropyCoef = (informationEntropyMaxMinDiff <= 0) ? 1 : (informationEntropy - informationEntropyMin) / informationEntropyMaxMinDiff;
-    double evaporationCoef = relevantInformationEntropyCoef * (evaporationCoefMax - evaporationCoefMin) + evaporationCoefMin;
+    double evaporationCoef = informationEntropy.normalized * (evaporationCoefMax - evaporationCoefMin) + evaporationCoefMin;
 
     evaporationValue = (1 - evaporationCoef);
 }
