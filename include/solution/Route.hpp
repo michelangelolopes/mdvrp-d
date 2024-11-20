@@ -41,6 +41,7 @@ class Route {
         void shiftRightSubRoutes(int subRouteOriginIndex);
         void updateDistanceTraveled(int depotIndex);
         void updateTimeSpent(int depotIndex);
+        double calculateDuration();
 
         int last() const;
         double currentDuration() const;

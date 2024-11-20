@@ -30,8 +30,6 @@ class Solution {
         void updateFitness();
         void updateFitnessWithDrone();
 
-        double calculateRouteDuration(int depotIndex);
-
         bool checkConstraints() const;
         void print() const;
         void printWithDrone() const;

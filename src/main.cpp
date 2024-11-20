@@ -230,7 +230,8 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
 
                 }
 
-                route->incrementCurrentDuration(example.calculateRouteDuration(depotIndex));
+                double routeDuration = route->calculateDuration();
+                route->incrementCurrentDuration(routeDuration);
                 depotVertexIndex = problemInstance.getDepotVertexIndex(++depotIndex);
             }
 
