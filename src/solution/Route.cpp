@@ -20,34 +20,6 @@ void Route::initializeSubRoutes() {
     initializeNextSubRoute();
 }
 
-void Route::shiftLeftSubRoutes(int subRouteOriginIndex) {
-
-    SubRoute removedSubRoute = subRoutes[subRouteOriginIndex];
-    shiftLeftArray(subRoutes, size, subRouteOriginIndex, 1);
-    size--;
-
-    subRoutes[size] = removedSubRoute;
-
-    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
-        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
-    }
-
-}
-
-void Route::shiftRightSubRoutes(int subRouteOriginIndex) {
-
-    SubRoute removedSubRoute = subRoutes[size];
-    shiftRightArray(subRoutes, size, subRouteOriginIndex, 1);
-    size++;
-
-    subRoutes[removedSubRoute.subRouteIndex] = removedSubRoute;
-
-    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
-        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
-    }
-
-}
-
 void Route::initializeNextSubRoute() {
 
     int nextSubRouteIndex = size - 1;
@@ -126,6 +98,34 @@ void Route::incrementCurrentDuration(double deliveryDuration) {
 void Route::incrementCurrentLoad(double demand) {
 
     subRoutes[size - 1].incrementLoad(demand);
+}
+
+void Route::shiftLeftSubRoutes(int subRouteOriginIndex) {
+
+    SubRoute removedSubRoute = subRoutes[subRouteOriginIndex];
+    shiftLeftArray(subRoutes, size, subRouteOriginIndex, 1);
+    size--;
+
+    subRoutes[size] = removedSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
+    }
+
+}
+
+void Route::shiftRightSubRoutes(int subRouteOriginIndex) {
+
+    SubRoute removedSubRoute = subRoutes[size];
+    shiftRightArray(subRoutes, size, subRouteOriginIndex, 1);
+    size++;
+
+    subRoutes[removedSubRoute.subRouteIndex] = removedSubRoute;
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        subRoutes[subRouteIndex].subRouteIndex = subRouteIndex;
+    }
+
 }
 
 void Route::updateDistanceTraveled(int depotIndex) {
