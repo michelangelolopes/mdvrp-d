@@ -23,7 +23,6 @@ class Solution {
         double maxTimeSpent;
 
         Route* routes;
-        DroneRoute* droneRoutes;
 
         void finalize();
         void reset();
@@ -43,7 +42,6 @@ class Solution {
         void init();
         void initializeValues();
         void initializeRoutes();
-        void initializeDroneRoutes();
 };
 
 #endif

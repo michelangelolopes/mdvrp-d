@@ -6,11 +6,16 @@
 
 #include "../problem/ProblemInstance.hpp"
 
+#include "DroneRoute.hpp"
 #include "SubRoute.hpp"
 
 class Route {
     public:
-        Route(const ProblemInstance* problemInstance, int depotIndex) : problemInstance(problemInstance), depotIndex(depotIndex) {
+        Route(const ProblemInstance* problemInstance, int depotIndex) : 
+        problemInstance(problemInstance), 
+        droneRoute(problemInstance, depotIndex),
+        depotIndex(depotIndex)
+        {
             init();
         }
 
@@ -22,6 +27,7 @@ class Route {
         double timeSpent;
 
         SubRoute* subRoutes;
+        DroneRoute droneRoute;
 
         void finalize();
         void expand();

@@ -108,7 +108,7 @@ void Pheromone::reinforceDroneMatrices(const Solution& consideredSolution) {
 
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
 
-        DroneRoute* droneRoute = &consideredSolution.droneRoutes[depotIndex];
+        DroneRoute* droneRoute = &consideredSolution.routes[depotIndex].droneRoute;
 
         for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
 

@@ -79,7 +79,7 @@ void InformationEntropy::updateDroneEdgesOccurrence(const Solution& solution) {
 
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
 
-        DroneRoute* droneRoute = &solution.droneRoutes[depotIndex];
+        DroneRoute* droneRoute = &solution.routes[depotIndex].droneRoute;
 
         for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
 

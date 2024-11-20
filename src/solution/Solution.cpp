@@ -4,7 +4,6 @@ void Solution::init() {
 
     initializeValues();
     initializeRoutes();
-    initializeDroneRoutes();
 }
 
 void Solution::initializeValues() {
@@ -25,15 +24,6 @@ void Solution::initializeRoutes() {
     }
 }
 
-void Solution::initializeDroneRoutes() {
-
-    droneRoutes = (DroneRoute*) malloc(problemInstance->depotsCount * sizeof(DroneRoute));
-
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-        droneRoutes[depotIndex] = DroneRoute(problemInstance, depotIndex);
-    }
-}
-
 void Solution::finalize() {
 
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
@@ -41,19 +31,12 @@ void Solution::finalize() {
     }
 
     free(routes);
-
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-        droneRoutes[depotIndex].finalize();
-    }
-
-    free(droneRoutes);
 }
 
 void Solution::reset() {
 
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         routes[depotIndex].reset();
-        droneRoutes[depotIndex].reset();
     }
 
     initializeValues();
@@ -245,7 +228,7 @@ void Solution::printWithDrone() const {
 void Solution::printWithDrone(int depotIndex) const {
 
     Route* route = &routes[depotIndex];
-    DroneRoute* droneRoute = &droneRoutes[depotIndex];
+    DroneRoute* droneRoute = &route->droneRoute;
 
     // droneRoute->print();
 
@@ -320,7 +303,7 @@ double Solution::calculateRouteDuration(int depotIndex) {
     int depotVertexIndex = problemInstance->getDepotVertexIndex(depotIndex);
 
     Route* route = &routes[depotIndex];
-    DroneRoute* droneRoute = &droneRoutes[depotIndex];
+    DroneRoute* droneRoute = &route->droneRoute;
 
     Truck* truck = &problemInstance->depots[depotIndex].truck;
     Drone* drone = &problemInstance->depots[depotIndex].drone;

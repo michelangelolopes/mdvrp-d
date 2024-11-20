@@ -403,7 +403,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
                 hasDroneDelivered = (droneCustomerIndex != -1);
                 if(hasDroneDelivered) {
-                    DroneRoute* currentDroneRoute = &antSolution.droneRoutes[depotIndex];
+                    DroneRoute* currentDroneRoute = &antSolution.routes[depotIndex].droneRoute;
                     Customer* nextDroneCustomer = &problemInstance.customers[droneCustomerIndex];
                     Drone* currentDrone = &problemInstance.depots[depotIndex].drone;
 
@@ -452,7 +452,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
             // std::cout << "------------ droneCustomerIndex: " << droneCustomerIndex << "\n";
             hasDroneDelivered = (droneCustomerIndex != -1);
             if(hasDroneDelivered) {
-                DroneRoute* currentDroneRoute = &antSolution.droneRoutes[depotIndex];
+                DroneRoute* currentDroneRoute = &antSolution.routes[depotIndex].droneRoute;
                 Customer* nextDroneCustomer = &problemInstance.customers[droneCustomerIndex];
                 Drone* currentDrone = &problemInstance.depots[depotIndex].drone;
 

@@ -175,7 +175,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
             if(delimiterFoundCount > 2) {
 
                 Route* route = &example.routes[depotIndex];
-                DroneRoute* droneRoute = &example.droneRoutes[depotIndex];
+                DroneRoute* droneRoute = &route->droneRoute;
                 Truck* truck = &problemInstance.depots[depotIndex].truck;
                 Drone* drone = &problemInstance.depots[depotIndex].drone;
                 // string value = line.substr(delimiterIndex + 1, line.length());

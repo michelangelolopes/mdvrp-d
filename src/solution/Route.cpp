@@ -29,6 +29,8 @@ void Route::initializeNextSubRoute() {
 
 void Route::finalize() {
 
+    droneRoute.finalize();
+
     if(subRoutes != nullptr) {
 
         for(int index = 0; index < maxSize; index++) {
@@ -59,6 +61,8 @@ void Route::insert(int customerIndex) {
 }
 
 void Route::reset() {
+
+    droneRoute.reset();
 
     for(int subRouteIndex = 0; subRouteIndex < maxSize; subRouteIndex++) {
         subRoutes[subRouteIndex].reset();
