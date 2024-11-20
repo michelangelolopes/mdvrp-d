@@ -43,7 +43,7 @@ class Route {
         void updateTimeSpent(int depotIndex);
         double calculateDuration();
 
-        int last() const;
+        int lastCustomer() const;
         double currentDuration() const;
         double currentLoad() const;
         void print() const;

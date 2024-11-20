@@ -18,6 +18,11 @@ class Sortie {
         int launchVertexIndex;
         int deliveryVertexIndex;
         int recoveryVertexIndex;
+        int subRouteIndex;
+
+        void updateSubRouteIndex(int subRouteIndex) {
+            this->subRouteIndex = subRouteIndex;
+        }
 
         void print() const {
 

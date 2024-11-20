@@ -246,7 +246,7 @@ double Route::calculateDuration() {
     return routeDuration;
 }
 
-int Route::last() const {
+int Route::lastCustomer() const {
 
     return subRoutes[size - 1].last();
 }

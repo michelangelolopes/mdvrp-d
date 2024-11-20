@@ -306,7 +306,7 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution) {
         // currentRoute->print();
         // std::cout << "\n";
 
-        int currentVertexIndex = currentRoute->last();
+        int currentVertexIndex = currentRoute->lastCustomer();
         // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
@@ -360,7 +360,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         // antSolution.printWithDrone(depotIndex);
         // std::cout << "\n";
 
-        int currentVertexIndex = currentRoute->last();
+        int currentVertexIndex = currentRoute->lastCustomer();
         // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
@@ -412,6 +412,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                     // sortie.print();
                     // cout << endl;                    
 
+                    sortie.updateSubRouteIndex(currentRoute->size - 1);
                     currentDroneRoute->insert(sortie);
 
                     double truckFullDuration = depotReturnDuration + currentDrone->launchTime + currentDrone->recoveryTime;
@@ -461,6 +462,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                 // sortie.print();
                 // cout << endl;
 
+                sortie.updateSubRouteIndex(currentRoute->size - 1);
                 currentDroneRoute->insert(sortie);
                 
                 double truckFullDuration = customerDeliveryDuration + currentDrone->launchTime + currentDrone->recoveryTime;
@@ -485,7 +487,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
         Route* currentRoute = &antSolution.routes[depotIndex];
         Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
-        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentRoute->last(), depotVertexIndex);
+        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentRoute->lastCustomer(), depotVertexIndex);
         currentRoute->incrementCurrentDuration(depotReturnDuration);
     }
 
@@ -517,7 +519,7 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbability(Route* routes) {
     int consideredCustomersCount = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
 
-        int vertexIndex = routes[depotIndex].last();
+        int vertexIndex = routes[depotIndex].lastCustomer();
         Cluster* cluster = &verticesClusters[vertexIndex];
 
         for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
