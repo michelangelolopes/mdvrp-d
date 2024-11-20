@@ -197,18 +197,29 @@ double Route::calculateDuration() {
             routeDuration += customerDeliveryDuration;
         }
 
-        for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
-            int customerIndex = subRoute->members[memberIndex];
-            int neighborCustomerIndex;
+        double depotReturningDuration = problemInstance->calculateMovementDuration(*truck, subRoute->last(), depotVertexIndex);
+        if(!hasDroneRouteEnded && sortie->launchVertexIndex == subRoute->last() && sortie->recoveryVertexIndex == depotVertexIndex) { //recovered at depot
 
-            double customerDeliveryDuration;
-            if(memberIndex + 1 < subRoute->length) {
-                neighborCustomerIndex = subRoute->members[memberIndex + 1];
-                customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
-            } else {
-                neighborCustomerIndex = depotVertexIndex;
-                customerDeliveryDuration = problemInstance->calculateMovementDuration(*truck, customerIndex, neighborCustomerIndex);
+            double truckFullDuration = depotReturningDuration + drone->launchTime + drone->recoveryTime;
+            double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
+            double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
+
+            routeDuration += vehicleLongestDuration;
+
+            sortieIndex++;
+            hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
+            if(!hasDroneRouteEnded) {
+                sortie = &droneRoute.sorties[sortieIndex];
             }
+        } else {
+            routeDuration += depotReturningDuration;
+        }
+
+        for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
+
+            int customerIndex = subRoute->members[memberIndex];
+            int neighborCustomerIndex = subRoute->members[memberIndex + 1];
+            double customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
             
             // std::cout << to_string(customerIndex) + " -> " + to_string(neighborCustomerIndex) + " = " + to_string(customerDeliveryDuration) + "\n";
 
