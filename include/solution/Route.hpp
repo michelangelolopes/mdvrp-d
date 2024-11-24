@@ -27,6 +27,7 @@ class Route {
 
         double distanceTraveled;
         double timeSpent;
+        double duration;
 
         SubRoute* subRoutes;
         DroneRoute droneRoute;
@@ -45,10 +46,12 @@ class Route {
         void updateTimeSpent(int depotIndex);
         double calculateDuration();
 
+        SubRoute& last() const;
         int lastCustomer() const;
         double currentDuration() const;
         double currentLoad() const;
         void print() const;
+        void printWithDrone() const;
     private:
         const ProblemInstance* problemInstance;
 

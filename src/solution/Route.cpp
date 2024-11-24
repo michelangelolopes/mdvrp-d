@@ -196,6 +196,10 @@ double Route::calculateDuration() {
     return duration;
 }
 
+SubRoute& Route::last() const {
+    return subRoutes[size - 1];
+}
+
 int Route::lastCustomer() const {
 
     return subRoutes[size - 1].last();
@@ -224,6 +228,74 @@ void Route::print() const {
     }
 
     std::cout << " #";
+}
+
+void Route::printWithDrone() const {
+
+    int sortieIndex = 0;
+    Sortie* sortie = &droneRoute.sorties[sortieIndex];
+    int depotVertexIndex = depotIndex + subRoutes[0].maxLength;
+    int customersInRouteCount = 0;
+    bool hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
+
+    for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
+        
+        std::cout << "# ";
+        SubRoute* subRoute = &subRoutes[subRouteIndex];
+        customersInRouteCount += subRoute->length;
+
+        if(!hasDroneRouteEnded && depotVertexIndex == sortie->launchVertexIndex && subRoute->first() == sortie->recoveryVertexIndex) {
+            // std::cout << endl;
+            // std::cout << "depotVertexIndex: " << depotVertexIndex << endl;
+            // std::cout << "launchVertexIndex: " << sortie->launchVertexIndex << endl;
+            // std::cout << "subRoute->first(): " << subRoute->first() << endl;
+            // std::cout << "recoveryVertexIndex: " << sortie->recoveryVertexIndex << endl;
+            std::cout << "D" << sortie->deliveryVertexIndex;
+            std::cout << " ";
+            sortieIndex++;
+
+            hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
+            if(!hasDroneRouteEnded) {
+                sortie = &droneRoute.sorties[sortieIndex];
+            }
+        }
+
+        for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
+            
+            int customerIndex = subRoute->members[memberIndex];
+            std::cout << customerIndex;
+
+            if(!hasDroneRouteEnded && customerIndex == sortie->launchVertexIndex) {
+
+                // std::cout << endl;
+                // std::cout << "customerIndex: " << customerIndex << endl;
+                // std::cout << "launchVertexIndex: " << sortie->launchVertexIndex << endl;
+                // std::cout << "sortieIndex: " << sortieIndex << endl;
+                // std::cout << "droneRoute.size: " << droneRoute.size << endl;
+
+                std::cout << " ";
+                std::cout << "D" << sortie->deliveryVertexIndex;
+                sortieIndex++;
+                
+                hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
+                if(!hasDroneRouteEnded) {
+                    sortie = &droneRoute.sorties[sortieIndex];
+                }
+            }
+
+            if(memberIndex != subRoute->length - 1) {
+                std::cout << " ";
+            }
+        }
+
+        if(subRouteIndex != size - 1) {
+            std::cout << " ";
+        }
+    }
+
+    std::cout << " #";
+    std::cout << " - (" << customersInRouteCount;
+    std::cout << ", " << droneRoute.size << ")";
 }
 
 double Route::getComposedDuration(const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex, double truckDuration) {
@@ -273,4 +345,3 @@ Sortie* Route::checkSortieVertices(bool* hasConsideredSortie, int subRouteIndex,
 
     return nullptr;
 }
-
