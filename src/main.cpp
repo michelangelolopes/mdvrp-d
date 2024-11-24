@@ -200,7 +200,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
                         }
                         vertexIndex = stoi(number_str);
                         vertexIndex--;
-                        droneRoute->insert(Sortie(route->lastCustomer(), vertexIndex, -1));
+                        droneRoute->insert(Sortie(problemInstance, route->lastCustomer(), vertexIndex, -1));
                         needRecoveryVertex = true;
                         route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
                         // cout << "D" << vertexIndex << endl;
