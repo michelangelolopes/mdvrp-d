@@ -1,5 +1,5 @@
+#include <iostream>
 #include "../../include/metaheuristics/LocalOptimization.hpp"
-
 
 void LocalOptimization::run(Solution& generationBestSolution) {
 
@@ -356,3 +356,107 @@ void LocalOptimization::moveMembersBetweenSubRoutes(SubRoute& subRouteA, SubRout
     // subRouteB.print();
     // std::cout << "\n";
 }
+
+void LocalOptimization::truckDroneExchange(Route& route) {
+
+    Route routeTemp(problemInstance, route.depotIndex);
+    routeTemp.copy(route);
+
+    DroneRoute droneRouteTemp(problemInstance, route.depotIndex);
+    droneRouteTemp.copy(route.droneRoute);
+
+    for(int subRouteIndex = 0; subRouteIndex < route.size; subRouteIndex++) {
+        
+        SubRoute* subRoute = &route.subRoutes[subRouteIndex];
+        for(int memberIndex = 0; memberIndex < subRoute->length; memberIndex++) {
+            int customerIndex = subRoute->members[memberIndex];
+
+            // same subroute
+        }
+    }
+}
+
+void LocalOptimization::droneLaunchExchange(Route& route) {
+
+    // std::cout << "Before: " << route.duration << endl;
+    // route.printWithDrone();
+    // std::cout << endl;
+
+    Truck* truck = &problemInstance->depots[route.depotIndex].truck;
+    Drone* drone = &problemInstance->depots[route.depotIndex].drone;
+
+    DroneRoute droneRouteTemp(problemInstance, route.depotIndex);
+    droneRouteTemp.copy(route.droneRoute);
+
+    int depotVertexIndex = problemInstance->getDepotVertexIndex(route.depotIndex);
+
+    for(int sortieIndex = 0; sortieIndex < droneRouteTemp.size; sortieIndex++) {
+        
+        Sortie* sortie = &droneRouteTemp.sorties[sortieIndex];
+
+        // std::cout << "A: " << sortie->toString() << endl;
+
+        for(int subRouteIndex = sortie->subRouteIndex; subRouteIndex >= 0; subRouteIndex--) {
+            
+            SubRoute* subRoute = &route.subRoutes[subRouteIndex];
+            SubRoute* prevSubRoute = nullptr;
+
+            if(subRouteIndex > 0) {
+                prevSubRoute = &route.subRoutes[subRouteIndex - 1];
+            }
+
+            if(sortie->launchVertexIndex == depotVertexIndex && prevSubRoute != nullptr) {
+                changeSortieLaunch(route, *sortie, depotVertexIndex, prevSubRoute->last());
+                continue;
+            }
+
+            for(int memberIndex = subRoute->length - 1; memberIndex > 0; memberIndex--) {
+
+                int customerIndex = subRoute->members[memberIndex];
+                int prevCustomerIndex = subRoute->members[memberIndex - 1];
+                
+                if(customerIndex == sortie->launchVertexIndex) {
+                    changeSortieLaunch(route, *sortie, customerIndex, prevCustomerIndex);
+                }
+            }
+        }
+    }
+}
+
+bool LocalOptimization::changeSortieLaunch(Route& route, Sortie& sortie, int curVertexIndex, int prevCustomerIndex) {
+
+    Truck* truck = &problemInstance->depots[route.depotIndex].truck;
+    Drone* drone = &problemInstance->depots[route.depotIndex].drone;
+    Customer* customer = &problemInstance->customers[prevCustomerIndex];
+
+    sortie.launchVertexIndex = prevCustomerIndex;
+    // std::cout << "B: " << sortie.toString() << endl;
+
+    bool isChangeFeasible = sortie.isFeasible(route.last(), prevCustomerIndex);
+    // std::cout << "isChangeFeasible: " << (isChangeFeasible ? "true" : "false") << endl;
+    
+    if(isChangeFeasible) {
+
+        double baseDuration = route.duration;
+        route.calculateDuration();
+
+        // std::cout << "After: " << route.duration << endl;
+        // route.printWithDrone();
+        // std::cout << endl;
+
+        if(route.duration < baseDuration) {
+            // std::cout << "baseDuration: " << baseDuration << endl;
+            // std::cout << "newDuration.: " << route.duration << endl;
+            return true;
+        } else {
+            sortie.launchVertexIndex = curVertexIndex;
+            route.duration = baseDuration;
+        }
+    }
+
+    return false;
+}
+
+
+void droneRecoveryExchange(Route& route) {}
+

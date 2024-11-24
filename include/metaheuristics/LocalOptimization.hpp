@@ -15,6 +15,7 @@ class LocalOptimization {
         int maxSuccessiveVertices;
 
         void run(Solution& generationBestSolution);
+        void droneLaunchExchange(Route& route);
 
     private:
         const ProblemInstance* problemInstance;
@@ -29,6 +30,10 @@ class LocalOptimization {
         void moveMembersInRoutes(Solution& moveSolution, Route& route, Route& destRoute, int successiveVerticesCount);
         bool moveMembersInSubRoutes(Solution& moveSolution, SubRoute& subRoute, SubRoute& destSubRoute, int successiveVerticesCount);
         void moveMembersBetweenSubRoutes(SubRoute& subRouteA, SubRoute& subRouteB, int memberIndexA, int memberIndexB, int successiveVerticesCount);
+
+        void truckDroneExchange(Route& route);
+        bool changeSortieLaunch(Route& route, Sortie& sortie, int curVertexIndex, int prevCustomerIndex);
+        void droneRecoveryExchange(Route& route);
 };
 
 #endif
