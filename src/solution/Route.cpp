@@ -170,80 +170,30 @@ double Route::calculateDuration() {
     Truck* truck = &problemInstance->depots[depotIndex].truck;
     Drone* drone = &problemInstance->depots[depotIndex].drone;
 
-    int sortieIndex = 0;
-    Sortie* sortie = &droneRoute.sorties[sortieIndex];
-    double routeDuration = 0;
-    bool hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
+    double duration = 0;
+    bool* hasConsideredSortie = (bool*) calloc(droneRoute.size, sizeof(bool));
 
     for(int subRouteIndex = 0; subRouteIndex < size; subRouteIndex++) {
 
         SubRoute* subRoute = &subRoutes[subRouteIndex];
 
-        double customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, depotVertexIndex, subRoute->first());
-        if(!hasDroneRouteEnded && sortie->launchVertexIndex == depotVertexIndex && sortie->recoveryVertexIndex == subRoute->first()) { //launched at depot
+        int firstCustomerIndex = subRoute->first();
+        int lastCustomerIndex = subRoute->last();
 
-            double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
-            double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
-            double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
-
-            routeDuration += vehicleLongestDuration;
-
-            sortieIndex++;
-            hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
-            if(!hasDroneRouteEnded) {
-                sortie = &droneRoute.sorties[sortieIndex];
-            }
-        } else {
-            routeDuration += customerDeliveryDuration;
-        }
-
-        double depotReturningDuration = problemInstance->calculateMovementDuration(*truck, subRoute->last(), depotVertexIndex);
-        if(!hasDroneRouteEnded && sortie->launchVertexIndex == subRoute->last() && sortie->recoveryVertexIndex == depotVertexIndex) { //recovered at depot
-
-            double truckFullDuration = depotReturningDuration + drone->launchTime + drone->recoveryTime;
-            double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
-            double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
-
-            routeDuration += vehicleLongestDuration;
-
-            sortieIndex++;
-            hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
-            if(!hasDroneRouteEnded) {
-                sortie = &droneRoute.sorties[sortieIndex];
-            }
-        } else {
-            routeDuration += depotReturningDuration;
-        }
+        duration += getComposedDeliveryDuration(*truck, *drone, hasConsideredSortie, subRouteIndex, depotVertexIndex, firstCustomerIndex);
+        duration += getComposedMovementDuration(*truck, *drone, hasConsideredSortie, subRouteIndex, lastCustomerIndex, depotVertexIndex);
 
         for(int memberIndex = 0; memberIndex < subRoute->length - 1; memberIndex++) {
 
             int customerIndex = subRoute->members[memberIndex];
             int neighborCustomerIndex = subRoute->members[memberIndex + 1];
-            double customerDeliveryDuration = problemInstance->calculateDeliveryDuration(*truck, customerIndex, neighborCustomerIndex);
-            
-            // std::cout << to_string(customerIndex) + " -> " + to_string(neighborCustomerIndex) + " = " + to_string(customerDeliveryDuration) + "\n";
-
-            if(!hasDroneRouteEnded && sortie->launchVertexIndex == customerIndex) {
-
-                double truckFullDuration = customerDeliveryDuration + drone->launchTime + drone->recoveryTime;
-                double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, *sortie);
-                double vehicleLongestDuration = max(truckFullDuration, droneDeliveryDuration);
-
-                routeDuration += vehicleLongestDuration;
-
-                sortieIndex++;
-                hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
-                if(!hasDroneRouteEnded) {
-                    sortie = &droneRoute.sorties[sortieIndex];
-                }
-            } else {
-                routeDuration += customerDeliveryDuration;
-            }
+            duration += getComposedDeliveryDuration(*truck, *drone, hasConsideredSortie, subRouteIndex, customerIndex, neighborCustomerIndex);
         }
-
     }
 
-    return routeDuration;
+    free(hasConsideredSortie);
+
+    return duration;
 }
 
 int Route::lastCustomer() const {
@@ -275,3 +225,52 @@ void Route::print() const {
 
     std::cout << " #";
 }
+
+double Route::getComposedDuration(const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex, double truckDuration) {
+
+    Sortie* sortie = checkSortieVertices(hasConsideredSortie, subRouteIndex, sourceIndex, destIndex);
+    if(sortie == nullptr) {
+        return truckDuration;
+    }
+
+    truckDuration += drone.launchTime + drone.recoveryTime;
+    return max(truckDuration, sortie->duration);
+}
+
+double Route::getComposedDeliveryDuration(const Truck& truck, const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex) {
+
+    double truckDuration = problemInstance->calculateDeliveryDuration(truck, sourceIndex, destIndex);
+
+    return getComposedDuration(drone, hasConsideredSortie, subRouteIndex, sourceIndex, destIndex, truckDuration);
+}
+
+double Route::getComposedMovementDuration(const Truck& truck, const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex) {
+
+    double truckDuration = problemInstance->calculateMovementDuration(truck, sourceIndex, destIndex);
+
+    return getComposedDuration(drone, hasConsideredSortie, subRouteIndex, sourceIndex, destIndex, truckDuration);
+}
+
+Sortie* Route::checkSortieVertices(bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex) {
+
+    Sortie* sortie = nullptr;
+    for(int sortieIndex = 0; sortieIndex < droneRoute.size; sortieIndex++) {
+
+        if(hasConsideredSortie[sortieIndex]) {
+           continue; 
+        }
+
+        sortie = &droneRoute.sorties[sortieIndex];
+        if(sortie->subRouteIndex != subRouteIndex) {
+            continue;
+        }
+
+        if(sortie->isSameVertices(sourceIndex, destIndex)) {
+            hasConsideredSortie[sortieIndex] = true;
+            return sortie;
+        }
+    }
+
+    return nullptr;
+}
+

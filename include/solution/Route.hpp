@@ -4,7 +4,9 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "../problem/Drone.hpp"
 #include "../problem/ProblemInstance.hpp"
+#include "../problem/Truck.hpp"
 
 #include "DroneRoute.hpp"
 #include "SubRoute.hpp"
@@ -47,7 +49,6 @@ class Route {
         double currentDuration() const;
         double currentLoad() const;
         void print() const;
-
     private:
         const ProblemInstance* problemInstance;
 
@@ -55,6 +56,10 @@ class Route {
         void initializeValues();
         void initializeSubRoutes();
         void initializeNextSubRoute();
+        double getComposedDuration(const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex, double truckDuration7);
+        double getComposedDeliveryDuration(const Truck& truck, const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex);
+        double getComposedMovementDuration(const Truck& truck, const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex);
+        Sortie* checkSortieVertices(bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex);
 };
 
 #endif
