@@ -11,18 +11,35 @@ void DroneRoute::init() {
 void DroneRoute::initializeValues() {
 
     size = 0;
-    distanceTraveled = -1;
-    timeSpent = -1;
 }
 
-void DroneRoute::insert(const Sortie& sortie) {
+void DroneRoute::finalize() {
 
-    sorties[size++] = sortie;
+    if(sorties != nullptr) {
+        free(sorties);
+    }
 }
 
 void DroneRoute::reset() {
 
     initializeValues();
+}
+
+void DroneRoute::copy(const DroneRoute& droneRouteToCopy) {
+    
+    size = droneRouteToCopy.size;
+    depotIndex = droneRouteToCopy.depotIndex;
+
+    for(int sortieIndex = 0; sortieIndex < size; sortieIndex++) {
+
+        Sortie sortieToCopy = droneRouteToCopy.sorties[sortieIndex];
+        sorties[sortieIndex] = sortieToCopy;
+    }
+}
+
+void DroneRoute::insert(const Sortie& sortie) {
+
+    sorties[size++] = sortie;
 }
 
 void DroneRoute::updateRecoveryVertexIndex(int recoveryVertexIndex) {
@@ -33,12 +50,5 @@ void DroneRoute::print() const {
 
     for(int index = 0; index < size; index++) {
         sorties[index].print();
-    }
-}
-
-void DroneRoute::finalize() {
-
-    if(sorties != nullptr) {
-        free(sorties);
     }
 }

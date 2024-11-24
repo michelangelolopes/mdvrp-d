@@ -9,7 +9,9 @@
 
 class DroneRoute {
     public:
-        DroneRoute(const ProblemInstance* problemInstance, int depotIndex) : problemInstance(problemInstance), depotIndex(depotIndex)
+        DroneRoute(const ProblemInstance* problemInstance, int depotIndex) :
+        problemInstance(problemInstance),
+        depotIndex(depotIndex)
         {
             init();
         }
@@ -17,14 +19,12 @@ class DroneRoute {
         int depotIndex;
         int size;
 
-        double distanceTraveled;
-        double timeSpent;
-
         Sortie* sorties;
 
         void finalize();
-        void insert(const Sortie& sortie);
         void reset();
+        void copy(const DroneRoute& droneRouteToCopy);
+        void insert(const Sortie& sortie);
         void updateRecoveryVertexIndex(int recoveryVertexIndex);
         void print() const;
 
