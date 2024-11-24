@@ -5,11 +5,15 @@
 #include <iostream>
 #include <string>
 
+#include "../problem/ProblemInstance.hpp"
+#include "SubRoute.hpp"
+
 using namespace std;
 
 class Sortie {
     public:
-        Sortie(int launchVertexIndex, int deliveryVertexIndex, int recoveryVertexIndex) : 
+        Sortie(const ProblemInstance& problemInstance, int launchVertexIndex, int deliveryVertexIndex, int recoveryVertexIndex) : 
+        problemInstance(&problemInstance),
         launchVertexIndex(launchVertexIndex),
         deliveryVertexIndex(deliveryVertexIndex),
         recoveryVertexIndex(recoveryVertexIndex) 
@@ -19,9 +23,32 @@ class Sortie {
         int deliveryVertexIndex;
         int recoveryVertexIndex;
         int subRouteIndex;
+        double duration;
 
-        void updateSubRouteIndex(int subRouteIndex) {
-            this->subRouteIndex = subRouteIndex;
+        inline bool isFeasible(const SubRoute& subRoute, int customerIndex) const {
+
+            Truck* truck = &problemInstance->depots[subRoute.depotIndex].truck;
+            Drone* drone = &problemInstance->depots[subRoute.depotIndex].drone;
+            Customer* customer = &problemInstance->customers[customerIndex];
+
+            double droneDeliveryDuration = problemInstance->calculateDeliveryDuration(*drone, launchVertexIndex, deliveryVertexIndex, recoveryVertexIndex);
+            double customerDeliveryDuration = problemInstance->calculateMovementDuration(*truck, launchVertexIndex, recoveryVertexIndex);
+            int depotVertexIndex = problemInstance->getDepotVertexIndex(subRoute.depotIndex);
+            
+            bool willDroneRecoveryBeAtDepot = (recoveryVertexIndex == depotVertexIndex);
+            if(!willDroneRecoveryBeAtDepot) {
+                customerDeliveryDuration += truck->serviceTime;
+            }
+
+            return drone->checkTimeConstraint(customerDeliveryDuration + drone->launchTime + drone->recoveryTime) &&
+                drone->checkTimeConstraint(droneDeliveryDuration) &&
+                drone->checkWeightConstraint(customer->demand) &&
+                truck->checkTimeConstraint(droneDeliveryDuration + subRoute.duration) &&
+                truck->checkWeightConstraint(customer->demand + subRoute.load);
+        }
+
+        inline bool isSameVertices(int sourceVertexIndex, int destVertexIndex) const {
+            return (launchVertexIndex == sourceVertexIndex) && (recoveryVertexIndex == destVertexIndex);
         }
 
         void print() const {
@@ -37,6 +64,9 @@ class Sortie {
                 to_string(recoveryVertexIndex) +
                 ")";
         }
+    
+    private:
+        const ProblemInstance* problemInstance;
 };
 
 #endif
