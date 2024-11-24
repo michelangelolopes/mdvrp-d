@@ -23,7 +23,7 @@ void SubRoute::initializeMembers() {
 void SubRoute::finalize() {
 
     free(members);
-}
+    }
 
 void SubRoute::insert(int customerIndex) {
 
@@ -62,10 +62,10 @@ void SubRoute::updateDistanceTraveled() {
 
     distanceTraveled = 0;
 
-    for(int customerIndex = 0; customerIndex < length - 1; customerIndex++) {
+    for(int memberIndex = 0; memberIndex < length - 1; memberIndex++) {
 
-        int sourceIndex = members[customerIndex];
-        int destIndex = members[customerIndex + 1];
+        int sourceIndex = members[memberIndex];
+        int destIndex = members[memberIndex + 1];
         distanceTraveled += problemInstance->verticesDistanceMatrix[sourceIndex][destIndex];
     }
 }
