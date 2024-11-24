@@ -8,6 +8,15 @@ class Truck : public Vehicle {
     public:
         double routeMaxDuration;
 
+        bool checkTimeConstraint(double duration) const {       
+
+            if(routeMaxDuration == 0) {
+                return true;
+            }
+
+            return (routeMaxDuration >= duration);
+        }
+
         inline void print() const {
             std::cout << "Speed: " << speed << " - ";
             std::cout << "Capacity: " << capacity << " - ";

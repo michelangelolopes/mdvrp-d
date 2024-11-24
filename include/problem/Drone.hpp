@@ -10,6 +10,10 @@ class Drone : public Vehicle {
         double launchTime;
         double recoveryTime;
 
+        inline bool checkTimeConstraint(double duration) const {
+            return (endurance >= duration);
+        }
+
         inline void print() const {
             std::cout << "Speed: " << speed << " - ";
             std::cout << "Capacity: " << capacity << " - ";
