@@ -114,7 +114,6 @@ class StodolaInspiredAntSystem : public SimulatedAnnealing {
 
         bool hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
         bool canUseWorseSolution(const Solution& generationBestSolution);
-        bool canDroneVisitCustomer(const Route& route, const Sortie& sortie, const Customer& customer, const Truck& truck, const Drone& drone);
 };
 
 #endif
