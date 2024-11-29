@@ -1,4 +1,4 @@
-#include "../../include/metaheuristics/StodolaInspiredAntSystem.hpp"
+#include "../../include/metaheuristics/AntSystem.hpp"
 
 #include <chrono>
 #include <cmath>    // ceil()
@@ -9,7 +9,7 @@
 #include "../../include/utils/ArrayUtils.hpp"
 #include "../../include/utils/MathUtils.hpp"
 
-void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClusterMaxSize) {
+void AntSystem::create(int primarySubClustersMaxCount, int subClusterMaxSize) {
 
     if(distanceProbabilityCoef == 1 && pheromoneProbabilityCoef == 1) {
         weightedValue = [](double value, double weight) { return value; };
@@ -27,7 +27,7 @@ void StodolaInspiredAntSystem::create(int primarySubClustersMaxCount, int subClu
     pheromoneConcentrationAverage = (double*) malloc(primarySubClustersCount * sizeof(double));
 }
 
-void StodolaInspiredAntSystem::createClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
+void AntSystem::createClusters(int primarySubClustersMaxCount, int subClusterMaxSize) {
 
     verticesClusters = (Cluster*) malloc(problemInstance.verticesCount * sizeof(Cluster));
 
@@ -36,7 +36,7 @@ void StodolaInspiredAntSystem::createClusters(int primarySubClustersMaxCount, in
     }
 }
 
-void StodolaInspiredAntSystem::finalize() {
+void AntSystem::finalize() {
     
     problemInstance.finalize();
     frame.finalize();
@@ -73,7 +73,7 @@ void StodolaInspiredAntSystem::finalize() {
     }
 }
 
-void StodolaInspiredAntSystem::run() {
+void AntSystem::run() {
 
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
@@ -175,7 +175,7 @@ void StodolaInspiredAntSystem::run() {
     bestSolution.print();
 }
 
-void StodolaInspiredAntSystem::runWithDrone() {
+void AntSystem::runWithDrone() {
 
     std::chrono::time_point startOptimizationTime = std::chrono::high_resolution_clock::now();
     std::chrono::time_point endOptimizationTime = startOptimizationTime;
@@ -284,7 +284,7 @@ void StodolaInspiredAntSystem::runWithDrone() {
     cout << "checkConstraints: " << bestSolution.checkConstraints() << endl;
 }
 
-void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution) {
+void AntSystem::buildAntRoutes(Solution& antSolution) {
 
     antSolution.reset();
 
@@ -337,7 +337,7 @@ void StodolaInspiredAntSystem::buildAntRoutes(Solution& antSolution) {
     antSolution.updateFitness();
 }
 
-void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
+void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
     antSolution.reset();
 
@@ -492,7 +492,7 @@ void StodolaInspiredAntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
     antSolution.updateFitnessWithDrone();
 }
 
-int StodolaInspiredAntSystem::selectDepot(Route* routes) {
+int AntSystem::selectDepot(Route* routes) {
 
     int selectedDepotIndex = -1;
 
@@ -509,7 +509,7 @@ int StodolaInspiredAntSystem::selectDepot(Route* routes) {
     return selectedDepotIndex;
 }
 
-int StodolaInspiredAntSystem::updateDepotSelectionProbability(Route* routes) {
+int AntSystem::updateDepotSelectionProbability(Route* routes) {
 
     fillArray(selectionProbability, problemInstance.depotsCount, 0.0);
 
@@ -537,7 +537,7 @@ int StodolaInspiredAntSystem::updateDepotSelectionProbability(Route* routes) {
     return consideredCustomersCount;
 }
 
-int StodolaInspiredAntSystem::selectSubCluster(int depotIndex, int vertexIndex, double*** pheromoneMatrix) {
+int AntSystem::selectSubCluster(int depotIndex, int vertexIndex, double*** pheromoneMatrix) {
     
     int selectedSubClusterIndex = -1;
 
@@ -556,7 +556,7 @@ int StodolaInspiredAntSystem::selectSubCluster(int depotIndex, int vertexIndex, 
     return selectedSubClusterIndex;
 }
 
-int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(int depotIndex, int vertexIndex, double*** pheromoneMatrix) {
+int AntSystem::updatePrimarySubClusterSelectionProbability(int depotIndex, int vertexIndex, double*** pheromoneMatrix) {
 
     Cluster* cluster = &verticesClusters[vertexIndex];
     
@@ -597,7 +597,7 @@ int StodolaInspiredAntSystem::updatePrimarySubClusterSelectionProbability(int de
     return consideredCustomersCountSum;
 }
 
-void StodolaInspiredAntSystem::calculatePrimarySubClusterSelectionProbability(Cluster* cluster) {
+void AntSystem::calculatePrimarySubClusterSelectionProbability(Cluster* cluster) {
 
     for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
         
@@ -616,7 +616,7 @@ void StodolaInspiredAntSystem::calculatePrimarySubClusterSelectionProbability(Cl
     }
 }
 
-int StodolaInspiredAntSystem::selectSubClusterNonPrimary(int vertexIndex) {
+int AntSystem::selectSubClusterNonPrimary(int vertexIndex) {
     
     Cluster* cluster = &verticesClusters[vertexIndex];
 
@@ -641,7 +641,7 @@ int StodolaInspiredAntSystem::selectSubClusterNonPrimary(int vertexIndex) {
     return -1;
 }
 
-int StodolaInspiredAntSystem::selectCustomer(int depotIndex, int vertexIndex, int subClusterIndex) {
+int AntSystem::selectCustomer(int depotIndex, int vertexIndex, int subClusterIndex) {
 
     SubCluster* subCluster = &verticesClusters[vertexIndex].subClusters[subClusterIndex];
 
@@ -655,7 +655,7 @@ int StodolaInspiredAntSystem::selectCustomer(int depotIndex, int vertexIndex, in
     return subCluster->elements[memberIndex];
 }
 
-void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int depotIndex, int vertexIndex, const SubCluster& subCluster) {
+void AntSystem::updateCustomerSelectionProbability(int depotIndex, int vertexIndex, const SubCluster& subCluster) {
 
     fillArray(selectionProbability, subCluster.size, 0.0);
 
@@ -680,7 +680,7 @@ void StodolaInspiredAntSystem::updateCustomerSelectionProbability(int depotIndex
     }
 }
 
-int StodolaInspiredAntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route) {
+int AntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route) {
 
     int droneCustomerIndex = -1;
     double maxPheromoneConcentration = 0;
@@ -748,7 +748,7 @@ int StodolaInspiredAntSystem::selectDroneCustomer(int depotIndex, int droneSubCl
     return droneCustomerIndex;
 }
 
-void StodolaInspiredAntSystem::updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, int depotIndex, int vertexIndex, const SubCluster& subCluster) {
+void AntSystem::updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, int depotIndex, int vertexIndex, const SubCluster& subCluster) {
 
     fillArray(selectionProbability, subCluster.size, 0.0);
 
@@ -774,7 +774,7 @@ void StodolaInspiredAntSystem::updateDroneCustomerSelectionProbability(bool* can
     }
 }
 
-bool StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef) {
+bool AntSystem::hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef) {
 
     return (iterationsCount >= maxIterations) ||
         (iterationsWithoutImprovementCount >= maxIterationsWithoutImprovement) ||
@@ -782,7 +782,7 @@ bool StodolaInspiredAntSystem::hasAchievedTerminationCondition(int iterationsCou
         (informationEntropyCoef < minInformationEntropyCoef);
 }
 
-bool StodolaInspiredAntSystem::canUseWorseSolution(const Solution& generationBestSolution) {
+bool AntSystem::canUseWorseSolution(const Solution& generationBestSolution) {
 
     double bestSolutionProbability = generationBestSolution.fitness - bestSolution.fitness;
     bestSolutionProbability /= bestSolution.fitness;

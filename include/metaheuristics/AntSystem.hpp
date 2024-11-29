@@ -1,5 +1,5 @@
-#ifndef STODOLA_INSPIRED_ANT_SYSTEM_HPP
-#define STODOLA_INSPIRED_ANT_SYSTEM_HPP
+#ifndef ANT_SYSTEM_HPP
+#define ANT_SYSTEM_HPP
 
 #include "../clustering/Cluster.hpp"
 #include "../clustering/Frame.hpp"
@@ -11,9 +11,9 @@
 #include "Pheromone.hpp"
 #include "SimulatedAnnealing.hpp"
 
-class StodolaInspiredAntSystem : public SimulatedAnnealing {
+class AntSystem : public SimulatedAnnealing {
     public:
-        StodolaInspiredAntSystem(
+        AntSystem(
             const ProblemInstance& problemInstance, 
             int antsCount, 
             double pheromoneReinforcementCoef, 

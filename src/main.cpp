@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "../include/metaheuristics/StodolaInspiredAntSystem.hpp"
+#include "../include/metaheuristics/AntSystem.hpp"
 #include "../include/problem/ProblemInstance.hpp"
 
 using namespace std;
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    StodolaInspiredAntSystem antSystem(
+    AntSystem antSystem(
             problemInstance, 
             antsCount, 
             pheromoneReinforcementCoef, 
