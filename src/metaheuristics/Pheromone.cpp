@@ -5,8 +5,14 @@
 
 void Pheromone::init() {
 
-    initializeTruckMatrices();
-    initializeDroneMatrices();
+    if(truckMatrices == nullptr) {
+        truckMatrices = (double***) malloc(problemInstance->depotsCount * sizeof(double**));
+
+        for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
+            truckMatrices[depotIndex] = (double**) mallocMatrix(problemInstance->verticesCount, sizeof(double*), sizeof(double));
+            fillMatrix(truckMatrices[depotIndex], problemInstance->verticesCount, 1.0);
+        }
+    }
 }
 
 void Pheromone::finalize() {
@@ -19,64 +25,20 @@ void Pheromone::finalize() {
 
         free(truckMatrices);
     }
-
-    if(droneMatrices != nullptr) {
-
-        for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-            freeMatrix(droneMatrices[depotIndex], problemInstance->verticesCount);
-        }
-
-        free(droneMatrices);
-    }
 }
 
-void Pheromone::updateReinforcementValue(const Solution& bestSolution, const Solution& consideredSolution) {
-    reinforcementValue = reinforcementCoef * (bestSolution.fitness / consideredSolution.fitness);
-}
+void Pheromone::evaporateMatrices(const InformationEntropy& informationEntropy) {
 
-void Pheromone::updateEvaporationValue(const InformationEntropy& informationEntropy) {
-
-    double evaporationCoef = informationEntropy.normalized * (evaporationCoefMax - evaporationCoefMin) + evaporationCoefMin;
-
-    evaporationValue = (1 - evaporationCoef);
-}
-
-void Pheromone::initializeTruckMatrices() {
-
-    truckMatrices = (double***) malloc(problemInstance->depotsCount * sizeof(double**));
-
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-        truckMatrices[depotIndex] = (double**) mallocMatrix(problemInstance->verticesCount, sizeof(double*), sizeof(double));
-        fillMatrix(truckMatrices[depotIndex], problemInstance->verticesCount, 1.0);
-    }
-}
-
-void Pheromone::initializeDroneMatrices() {
-
-    droneMatrices = (double***) malloc(problemInstance->depotsCount * sizeof(double**));
-
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-        //depotVertex is considered a possible destination 
-        droneMatrices[depotIndex] = (double**) mallocMatrix(problemInstance->verticesCount, sizeof(double*), sizeof(double));
-        fillMatrix(droneMatrices[depotIndex], problemInstance->verticesCount, 1.0);
-    }
-}
-
-void Pheromone::evaporateTruckMatrices() {
+    updateEvaporationValue(informationEntropy);
 
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
         transformMatrix(truckMatrices[depotIndex], problemInstance->verticesCount, evaporationValue, multiply);
     }
 }
 
-void Pheromone::evaporateDroneMatrices() {
+void Pheromone::reinforceMatrices(const Solution& bestSolution, const Solution& consideredSolution) {
 
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
-        transformMatrix(droneMatrices[depotIndex], problemInstance->verticesCount, evaporationValue, multiply);
-    }
-}
-
-void Pheromone::reinforceTruckMatrices(const Solution& consideredSolution) {
+    updateReinforcementValue(bestSolution, consideredSolution);
 
     //obs: checking precedence is not needed, because only the pheromone of visitedCustomers from the route will be updated
     for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
@@ -104,18 +66,13 @@ void Pheromone::reinforceTruckMatrices(const Solution& consideredSolution) {
     }
 }
 
-void Pheromone::reinforceDroneMatrices(const Solution& consideredSolution) {
+void Pheromone::updateEvaporationValue(const InformationEntropy& informationEntropy) {
 
-    for(int depotIndex = 0; depotIndex < problemInstance->depotsCount; depotIndex++) {
+    double evaporationCoef = informationEntropy.normalized * (evaporationCoefMax - evaporationCoefMin) + evaporationCoefMin;
 
-        DroneRoute* droneRoute = &consideredSolution.routes[depotIndex].droneRoute;
+    evaporationValue = (1 - evaporationCoef);
+}
 
-        for(int sortieIndex = 0; sortieIndex < droneRoute->size; sortieIndex++) {
-
-            Sortie* sortie = &droneRoute->sorties[sortieIndex];
-
-            droneMatrices[depotIndex][sortie->launchVertexIndex][sortie->deliveryVertexIndex] += reinforcementValue;
-            droneMatrices[depotIndex][sortie->deliveryVertexIndex][sortie->recoveryVertexIndex] += reinforcementValue;
-        }
-    }
+void Pheromone::updateReinforcementValue(const Solution& bestSolution, const Solution& consideredSolution) {
+    reinforcementValue = reinforcementCoef * (bestSolution.fitness / consideredSolution.fitness);
 }

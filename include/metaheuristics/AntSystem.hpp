@@ -6,9 +6,9 @@
 #include "../problem/ProblemInstance.hpp"
 #include "../solution/Solution.hpp"
 
-#include "InformationEntropy.hpp"
+#include "HybridInformationEntropy.hpp"
 #include "LocalOptimization.hpp"
-#include "Pheromone.hpp"
+#include "HybridPheromone.hpp"
 #include "SimulatedAnnealing.hpp"
 
 class AntSystem : public SimulatedAnnealing {
@@ -31,7 +31,7 @@ class AntSystem : public SimulatedAnnealing {
             int maxIterations,
             int maxIterationsWithoutImprovement,
             double maxOptimizationTime,
-            double minInformationEntropyCoef
+            double minHybridInformationEntropyCoef
         ) :
         SimulatedAnnealing(temperature, temperatureCoolingCoef),
         problemInstance(problemInstance),
@@ -50,7 +50,7 @@ class AntSystem : public SimulatedAnnealing {
         maxIterations(maxIterations),
         maxIterationsWithoutImprovement(maxIterationsWithoutImprovement),
         maxOptimizationTime(maxOptimizationTime),
-        minInformationEntropyCoef(minInformationEntropyCoef)
+        minInformationEntropyCoef(minHybridInformationEntropyCoef)
         {
             if(sectorsCount > subClusterMaxSize) {
                 std::cout << "Sectors will not be used when clustering\n";
@@ -80,8 +80,8 @@ class AntSystem : public SimulatedAnnealing {
         Cluster* verticesClusters = nullptr;
         Frame frame;
         LocalOptimization localOptimization;
-        InformationEntropy informationEntropy;
-        Pheromone pheromone;
+        HybridInformationEntropy informationEntropy;
+        HybridPheromone pheromone;
         ProblemInstance problemInstance;
         Solution generationBestSolution;
         Solution bestSolution;

@@ -97,12 +97,12 @@ void AntSystem::run() {
     {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
-        informationEntropy.resetTruckEdgesValues();
+        informationEntropy.resetEdgesValues();
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
         buildAntRoutes(generationBestSolution);
-        informationEntropy.updateTruckEdgesOccurrence(generationBestSolution);
+        informationEntropy.updateEdgesOccurrence(generationBestSolution);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
@@ -110,7 +110,7 @@ void AntSystem::run() {
             // std::cout << "------ ant: " << antIndex << "\n";
 
             buildAntRoutes(antSolution);
-            informationEntropy.updateTruckEdgesOccurrence(antSolution);
+            informationEntropy.updateEdgesOccurrence(antSolution);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
                 swap(generationBestSolution, antSolution);
@@ -140,14 +140,10 @@ void AntSystem::run() {
             consideredSolution = &generationBestSolution;
         }
 
-        pheromone.updateReinforcementValue(bestSolution, *consideredSolution);
-        pheromone.reinforceTruckMatrices(*consideredSolution);
+        pheromone.reinforceMatrices(bestSolution, *consideredSolution);
         coolDownTemperature();
-
         informationEntropy.update();
-
-        pheromone.updateEvaporationValue(informationEntropy);
-        pheromone.evaporateTruckMatrices();
+        pheromone.evaporateMatrices(informationEntropy);
 
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;
@@ -199,14 +195,12 @@ void AntSystem::runWithDrone() {
     {
 
         // std::cout << "--- generation: " << iterationsCount << "\n";
-        informationEntropy.resetTruckEdgesValues();
-        informationEntropy.resetDroneEdgesValues();
+        informationEntropy.resetEdgesValues();
 
         //first ant
         // std::cout << "------ ant: " << 0 << "\n";
         buildAntRoutesWithDrone(generationBestSolution);
-        informationEntropy.updateTruckEdgesOccurrence(generationBestSolution);
-        informationEntropy.updateDroneEdgesOccurrence(generationBestSolution);
+        informationEntropy.updateEdgesOccurrence(generationBestSolution);
         
         //others ants
         for(int antIndex = 1; antIndex < antsCount; antIndex++) {
@@ -214,8 +208,7 @@ void AntSystem::runWithDrone() {
             // std::cout << "------ ant: " << antIndex << "\n";
 
             buildAntRoutesWithDrone(antSolution);
-            informationEntropy.updateTruckEdgesOccurrence(antSolution);
-            informationEntropy.updateDroneEdgesOccurrence(antSolution);
+            informationEntropy.updateEdgesOccurrence(antSolution);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
                 swap(generationBestSolution, antSolution);
@@ -245,16 +238,10 @@ void AntSystem::runWithDrone() {
             consideredSolution = &generationBestSolution;
         }
 
-        pheromone.updateReinforcementValue(bestSolution, *consideredSolution);
-        pheromone.reinforceTruckMatrices(*consideredSolution);
-        pheromone.reinforceDroneMatrices(*consideredSolution);
+        pheromone.reinforceMatrices(bestSolution, *consideredSolution);
         coolDownTemperature();
-
-        informationEntropy.updateWithDrone();
-
-        pheromone.updateEvaporationValue(informationEntropy);
-        pheromone.evaporateTruckMatrices();
-        pheromone.evaporateDroneMatrices();
+        informationEntropy.update();
+        pheromone.evaporateMatrices(informationEntropy);
 
         endOptimizationTime = std::chrono::high_resolution_clock::now();
         currentOptimizationTime = endOptimizationTime - startOptimizationTime;

@@ -23,26 +23,17 @@ class Pheromone {
         double evaporationCoefMin;
         double evaporationCoefMax;
         double*** truckMatrices;
-        double*** droneMatrices;
 
-        void finalize();
+        virtual void finalize();
+        virtual void evaporateMatrices(const InformationEntropy& informationEntropy);
+        virtual void reinforceMatrices(const Solution& bestSolution, const Solution& consideredSolution);
 
-        void initializeTruckMatrices();
-        void initializeDroneMatrices();
-
-        void evaporateTruckMatrices();
-        void evaporateDroneMatrices();
-
-        void reinforceTruckMatrices(const Solution& consideredSolution);
-        void reinforceDroneMatrices(const Solution& consideredSolution);
-
-        void updateReinforcementValue(const Solution& bestSolution, const Solution& consideredSolution);
-        void updateEvaporationValue(const InformationEntropy& informationEntropy);
-
-    private:
+    protected:
         const ProblemInstance* problemInstance;
 
-        void init();
+        virtual void init();
+        void updateReinforcementValue(const Solution& bestSolution, const Solution& consideredSolution);
+        void updateEvaporationValue(const InformationEntropy& informationEntropy);
 };
 
 #endif

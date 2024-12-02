@@ -1,8 +1,7 @@
 #ifndef INFORMATION_ENTROPY_HPP
 #define INFORMATION_ENTROPY_HPP
 
-#include "../solution/Route.hpp"
-#include "../solution/SubRoute.hpp"
+#include "../problem/ProblemInstance.hpp"
 #include "../solution/Solution.hpp"
 
 class InformationEntropy {
@@ -15,7 +14,6 @@ class InformationEntropy {
         }
 
         int truckEdgesCount = 0;
-        int droneEdgesCount = 0;
 
         double cur = -1;
         double normalized = -1;
@@ -25,26 +23,17 @@ class InformationEntropy {
 
         int antsCount;
         int** truckEdgesOccurrence;
-        int** droneEdgesOccurrence;
 
-        void finalize();
+        virtual void finalize();
+        virtual void update();
+        virtual void resetEdgesValues();
+        virtual void updateEdgesOccurrence(const Solution& solution);
 
-        void update();
-        void updateWithDrone();
-
-        void updateTruckEdgesOccurrence(const Solution& solution);
-        void updateDroneEdgesOccurrence(const Solution& solution);
-
-        void resetTruckEdgesValues();
-        void resetDroneEdgesValues();
-
-    private:
+    protected:
         const ProblemInstance* problemInstance;
 
-        void init();
-
-        double calculate();
-        double calculateWithDrone();
+        virtual void init();
+        virtual double calculate();
 };
 
 #endif
