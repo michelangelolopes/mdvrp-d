@@ -1,9 +1,6 @@
 #ifndef DRONE_ROUTE_HPP
 #define DRONE_ROUTE_HPP
 
-#include <cstdlib>
-#include <iostream>
-
 #include "../problem/ProblemInstance.hpp"
 #include "Sortie.hpp"
 

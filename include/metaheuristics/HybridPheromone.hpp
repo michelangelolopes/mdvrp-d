@@ -11,7 +11,7 @@ class HybridPheromone : public Pheromone {
             init();
         }
 
-        double*** droneMatrices;
+        double*** droneMatrices = nullptr;
 
         void finalize() override;
         void evaporateMatrices(const InformationEntropy& informationEntropy) override;

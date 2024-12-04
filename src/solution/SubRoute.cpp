@@ -99,7 +99,7 @@ void SubRoute::exchangeMembers(int memberIndexA, int memberIndexB, int successiv
         // std::cout << "exchange:customerIndexB: " << customerIndexB << " - ";
         // std::cout << "exchange:customerB->demand: " << customerB->demand << "\n";
 
-        swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
+        std::swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
     }
 }
 
@@ -124,7 +124,7 @@ void SubRoute::revertExchangeMembers(int memberIndexA, int memberIndexB, int suc
         // std::cout << "revert:customerIndexB: " << customerIndexB << " - ";
         // std::cout << "revert:customerB->demand: " << customerB->demand << "\n";
 
-        swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
+        std::swap(members[successiveMemberIndexA], members[successiveMemberIndexB]);
     }
 }
 

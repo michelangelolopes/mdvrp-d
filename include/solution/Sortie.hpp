@@ -1,14 +1,11 @@
 #ifndef SORTIE_HPP
 #define SORTIE_HPP
 
-#include <cstdlib>
-#include <iostream>
-#include <string>
-
 #include "../problem/ProblemInstance.hpp"
 #include "SubRoute.hpp"
 
-using namespace std;
+using std::string;
+using std::to_string;
 
 class Sortie {
     public:

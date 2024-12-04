@@ -1,5 +1,7 @@
 #include "../../include/utils/ArrayUtils.hpp"
 
+#include <cstdlib>
+
 void** mallocMatrix(int count, int pointerSize, int objectSize) {
 
     return mallocMatrix(count, count, pointerSize, objectSize);

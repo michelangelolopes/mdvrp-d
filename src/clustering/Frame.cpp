@@ -1,8 +1,6 @@
 #include "../../include/clustering/Frame.hpp"
 
 #include <cmath>
-#include <iostream>
-#include "../../include/utils/ArrayUtils.hpp"
 
 void Frame::create() {
 

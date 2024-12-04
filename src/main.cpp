@@ -7,7 +7,9 @@
 #include "../include/metaheuristics/AntSystem.hpp"
 #include "../include/problem/ProblemInstance.hpp"
 
-using namespace std;
+using std::ifstream;
+using std::istringstream;
+using std::string;
 
 void loadExampleSolution(string filename, ProblemInstance problemInstance);
 

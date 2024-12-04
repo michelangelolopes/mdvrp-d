@@ -1,6 +1,7 @@
 #include "../../include/metaheuristics/InformationEntropy.hpp"
 
 #include <cmath>
+#include "../../include/utils/ArrayUtils.hpp"
 
 void InformationEntropy::init() {
 

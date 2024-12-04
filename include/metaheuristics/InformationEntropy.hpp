@@ -22,7 +22,7 @@ class InformationEntropy {
         double coef = 100;
 
         int antsCount;
-        int** truckEdgesOccurrence;
+        int** truckEdgesOccurrence = nullptr;
 
         virtual void finalize();
         virtual void update();

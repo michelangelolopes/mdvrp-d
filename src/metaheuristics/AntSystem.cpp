@@ -113,7 +113,7 @@ void AntSystem::run() {
             informationEntropy.updateEdgesOccurrence(antSolution);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
-                swap(generationBestSolution, antSolution);
+                std::swap(generationBestSolution, antSolution);
             }
         }
 
@@ -125,7 +125,7 @@ void AntSystem::run() {
         consideredSolution = &bestSolution;
         if(generationBestSolution.fitness < bestSolution.fitness) {
 
-            swap(bestSolution, generationBestSolution);
+            std::swap(bestSolution, generationBestSolution);
 
             globalImprovementsCount += 1;
 
@@ -211,7 +211,7 @@ void AntSystem::runWithDrone() {
             informationEntropy.updateEdgesOccurrence(antSolution);
 
             if(antSolution.fitness < generationBestSolution.fitness) {
-                swap(generationBestSolution, antSolution);
+                std::swap(generationBestSolution, antSolution);
             }
         }
 
@@ -223,7 +223,7 @@ void AntSystem::runWithDrone() {
         consideredSolution = &bestSolution;
         if(generationBestSolution.fitness < bestSolution.fitness) {
 
-            swap(bestSolution, generationBestSolution);
+            std::swap(bestSolution, generationBestSolution);
 
             globalImprovementsCount += 1;
 
@@ -268,7 +268,7 @@ void AntSystem::runWithDrone() {
     
     bestSolution.printWithDrone();
 
-    cout << "checkConstraints: " << bestSolution.checkConstraints() << endl;
+    std::cout << "checkConstraints: " << bestSolution.checkConstraints() << std::endl;
 }
 
 void AntSystem::buildAntRoutes(Solution& antSolution) {
@@ -402,7 +402,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                     // cout << endl;                    
 
                     double truckFullDuration = depotReturnDuration + currentDrone->launchTime + currentDrone->recoveryTime;
-                    double vehicleLongestDuration = max(truckFullDuration, sortie.duration);
+                    double vehicleLongestDuration = std::max(truckFullDuration, sortie.duration);
 
                     currentDroneRoute->insert(sortie);
                     currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
@@ -450,7 +450,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                 // cout << endl;
                 
                 double truckFullDuration = customerDeliveryDuration + currentDrone->launchTime + currentDrone->recoveryTime;
-                double vehicleLongestDuration = max(truckFullDuration, sortie.duration);
+                double vehicleLongestDuration = std::max(truckFullDuration, sortie.duration);
                 
                 currentDroneRoute->insert(sortie);
                 currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
@@ -696,7 +696,7 @@ int AntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int
                 candidatesCount++;
 
                 // std::cout << "pheromoneConcentration: " << pheromone.droneMatrices[depotIndex][launchVertexIndex][neighborCustomerIndex] << "\n";
-                maxPheromoneConcentration = max(
+                maxPheromoneConcentration = std::max(
                     maxPheromoneConcentration, 
                     pheromone.droneMatrices[depotIndex][launchVertexIndex][neighborCustomerIndex]
                 );

@@ -1,6 +1,7 @@
 #include "../../include/metaheuristics/HybridInformationEntropy.hpp"
 
 #include <cmath>
+#include "../../include/utils/ArrayUtils.hpp"
 
 void HybridInformationEntropy::init() {
 

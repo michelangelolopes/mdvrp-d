@@ -1,15 +1,12 @@
 #ifndef DEPOT_HPP
 #define DEPOT_HPP
 
-#include <cstdlib>
 #include <iostream>
 
 #include "../enum/ProblemTypeEnum.hpp"
 #include "../general/Position2D.hpp"
 #include "Truck.hpp"
 #include "Drone.hpp"
-
-#include "../utils/ArrayUtils.hpp"
 
 class Depot {
     public:

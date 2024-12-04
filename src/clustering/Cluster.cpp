@@ -1,12 +1,5 @@
 #include "../../include/clustering/Cluster.hpp"
 
-#include <cmath>
-#include <iostream>
-
-#include "../../include/clustering/Frame.hpp"
-#include "../../include/utils/ArrayUtils.hpp"
-#include "../../include/utils/MathUtils.hpp"
-
 void Cluster::create(int primarySubClustersMaxCount, int subClusterMaxSize, int vertexIndex) {
     
     int neighborCustomersCount = problemInstance->customersCount;

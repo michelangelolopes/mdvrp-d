@@ -1,10 +1,7 @@
 #ifndef CLUSTER_HPP
 #define CLUSTER_HPP
 
-#include <cmath>
-
 #include "../problem/ProblemInstance.hpp"
-
 #include "Frame.hpp"
 #include "SubCluster.hpp"
 

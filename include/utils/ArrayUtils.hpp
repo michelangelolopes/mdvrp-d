@@ -1,7 +1,6 @@
 #ifndef ARRAY_UTILS_HPP
 #define ARRAY_UTILS_HPP
 
-#include <cstdlib>
 #include <iostream>
 
 void** mallocMatrix(int count, int pointerSize, int objectSize);

@@ -8,6 +8,9 @@
 #include "../../include/utils/ArrayUtils.hpp"
 #include "../../include/utils/MathUtils.hpp"
 
+using std::ifstream;
+using std::istringstream;
+
 void ProblemInstance::create(const string& filename) {
 
     switch(problemType) {

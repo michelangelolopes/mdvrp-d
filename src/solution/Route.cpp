@@ -1,5 +1,7 @@
 #include "../../include/solution/Route.hpp"
 
+#include "../../include/utils/ArrayUtils.hpp"
+
 void Route::init() {
 
     maxSize = 1;
@@ -306,7 +308,7 @@ double Route::getComposedDuration(const Drone& drone, bool* hasConsideredSortie,
     }
 
     truckDuration += drone.launchTime + drone.recoveryTime;
-    return max(truckDuration, sortie->duration);
+    return std::max(truckDuration, sortie->duration);
 }
 
 double Route::getComposedDeliveryDuration(const Truck& truck, const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex) {

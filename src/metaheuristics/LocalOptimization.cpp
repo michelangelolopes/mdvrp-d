@@ -1,5 +1,7 @@
-#include <iostream>
 #include "../../include/metaheuristics/LocalOptimization.hpp"
+
+#include <iostream>
+#include "../../include/utils/ArrayUtils.hpp"
 
 void LocalOptimization::run(Solution& generationBestSolution) {
 
@@ -10,7 +12,7 @@ void LocalOptimization::run(Solution& generationBestSolution) {
     exchangeMembersInSolution(newSolution);
     // moveMembersInSolution(newSolution);
 
-    swap(generationBestSolution, newSolution);
+    std::swap(generationBestSolution, newSolution);
     newSolution.finalize();
 }
 
@@ -182,7 +184,7 @@ void LocalOptimization::exchangeMembersBetweenSubRoutes(SubRoute& subRouteA, Sub
         // std::cout << "subRouteBCustomerIndex: " << subRouteBCustomerIndex << " - ";
         // std::cout << "subRouteBCustomer->demand: " << subRouteBCustomer->demand << "\n";
 
-        swap(subRouteA.members[subRouteAMemberIndex], subRouteB.members[subRouteBMemberIndex]);
+        std::swap(subRouteA.members[subRouteAMemberIndex], subRouteB.members[subRouteBMemberIndex]);
     }
 }
 

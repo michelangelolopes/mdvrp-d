@@ -12,7 +12,7 @@ class HybridInformationEntropy : public InformationEntropy {
         }
 
         int droneEdgesCount = 0;
-        int** droneEdgesOccurrence;
+        int** droneEdgesOccurrence = nullptr;
 
         void finalize() override;
         void update() override;

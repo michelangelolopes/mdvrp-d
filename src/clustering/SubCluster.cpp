@@ -1,6 +1,5 @@
 #include "../../include/clustering/SubCluster.hpp"
 
-#include <cstdlib>
 #include <iostream>
 
 void SubCluster::initialize() {

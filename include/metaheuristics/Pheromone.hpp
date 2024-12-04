@@ -22,7 +22,7 @@ class Pheromone {
         double reinforcementCoef;
         double evaporationCoefMin;
         double evaporationCoefMax;
-        double*** truckMatrices;
+        double*** truckMatrices = nullptr;
 
         virtual void finalize();
         virtual void evaporateMatrices(const InformationEntropy& informationEntropy);

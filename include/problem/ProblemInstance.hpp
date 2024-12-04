@@ -10,7 +10,7 @@
 #include "Customer.hpp"
 #include "Depot.hpp"
 
-using namespace std;
+using std::string;
 
 class ProblemInstance {
     public:

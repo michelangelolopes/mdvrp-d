@@ -1,14 +1,8 @@
 #ifndef SOLUTION_HPP
 #define SOLUTION_HPP
 
-#include <cstdlib>
-#include <iostream>
-
-#include "../enum/MinimizationTypeEnum.hpp"
 #include "../problem/ProblemInstance.hpp"
-
 #include "Route.hpp"
-#include "DroneRoute.hpp"
 
 class Solution {
     public:
