@@ -288,12 +288,13 @@ void AntSystem::buildAntRoutes(Solution& antSolution) {
         // std::cout << "------------ depotIndex: " << depotIndex << "\n";
 
         Route* currentRoute = &antSolution.routes[depotIndex];
+        SubRoute* currentSubRoute = &antSolution.routes[depotIndex].last();
 
         // std::cout << "------------ currentRoute: ";
         // currentRoute->print();
         // std::cout << "\n";
 
-        int currentVertexIndex = currentRoute->lastCustomer();
+        int currentVertexIndex = currentSubRoute->last();
         // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
@@ -307,15 +308,16 @@ void AntSystem::buildAntRoutes(Solution& antSolution) {
         Customer* nextCustomer = &problemInstance.customers[customerIndex];
         Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
 
-        double updatedTruckLoad = ( currentRoute->currentLoad() + nextCustomer->demand );
+        double updatedTruckLoad = ( currentSubRoute->load + nextCustomer->demand );
         bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
 
         if(willTruckExceedCapacity) {
             currentRoute->expand();
+            currentSubRoute = &currentRoute->last();
         }
 
-        currentRoute->insert(customerIndex);
-        currentRoute->incrementCurrentLoad(nextCustomer->demand);
+        currentSubRoute->insert(customerIndex);
+        currentSubRoute->incrementLoad(nextCustomer->demand);
 
         visitedCustomersIndexes[customerIndex] = 1;
         unvisitedCustomersCount--;
@@ -341,13 +343,14 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         // std::cout << "------------ depotIndex: " << depotIndex << "\n";
 
         Route* currentRoute = &antSolution.routes[depotIndex];
+        SubRoute* currentSubRoute = &antSolution.routes[depotIndex].last();
 
         // std::cout << "------------ currentRoute: ";
         // currentRoute->print();
         // antSolution.printWithDrone(depotIndex);
         // std::cout << "\n";
 
-        int currentVertexIndex = currentRoute->lastCustomer();
+        int currentVertexIndex = currentSubRoute->last();
         // std::cout << "------------ currentVertexIndex: " << currentVertexIndex << "\n";
         // std::cout << "------------ currentCluster: ";
         // verticesClusters[currentVertexIndex].print(visitedCustomersIndexes);
@@ -361,7 +364,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         Customer* nextCustomer = &problemInstance.customers[customerIndex];
         Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
 
-        double updatedTruckLoad = ( currentRoute->currentLoad() + nextCustomer->demand );
+        double updatedTruckLoad = ( currentSubRoute->load + nextCustomer->demand );
         bool willTruckExceedCapacity = updatedTruckLoad > currentTruck->capacity;
 
         bool willTruckExceedMaxDuration = false;
@@ -371,7 +374,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         if(currentTruck->routeMaxDuration > 0) {
 
             double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, customerIndex, depotVertexIndex);
-            double updatedTruckDuration = (currentRoute->currentDuration() + customerDeliveryDuration + depotReturnDuration);
+            double updatedTruckDuration = (currentSubRoute->duration + customerDeliveryDuration + depotReturnDuration);
             
             willTruckExceedMaxDuration = updatedTruckDuration > currentTruck->routeMaxDuration;
         }
@@ -385,7 +388,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
                 int droneSubClusterIndex = selectSubCluster(depotIndex, currentVertexIndex, pheromone.droneMatrices);
                 // std::cout << "------------ droneSubClusterIndex: " << droneSubClusterIndex << "\n";
-                int droneCustomerIndex = selectDroneCustomer(depotIndex, droneSubClusterIndex, currentVertexIndex, depotVertexIndex, *currentRoute);
+                int droneCustomerIndex = selectDroneCustomer(depotIndex, droneSubClusterIndex, currentVertexIndex, depotVertexIndex, *currentSubRoute);
                 // std::cout << "------------ droneCustomerIndex: " << droneCustomerIndex << "\n";
 
                 hasDroneDelivered = (droneCustomerIndex != -1);
@@ -396,7 +399,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
                     Sortie sortie(problemInstance, currentVertexIndex, droneCustomerIndex, depotVertexIndex);
                     sortie.duration = problemInstance.calculateDeliveryDuration(*currentDrone, sortie.launchVertexIndex, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex);
-                    sortie.subRouteIndex = currentRoute->size - 1;
+                    sortie.subRouteIndex = currentSubRoute->subRouteIndex;
 
                     // sortie.print();
                     // cout << endl;                    
@@ -405,8 +408,8 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                     double vehicleLongestDuration = std::max(truckFullDuration, sortie.duration);
 
                     currentDroneRoute->insert(sortie);
-                    currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
-                    currentRoute->incrementCurrentDuration(vehicleLongestDuration);
+                    currentSubRoute->incrementLoad(nextDroneCustomer->demand);
+                    currentSubRoute->incrementDuration(vehicleLongestDuration);
 
                     visitedCustomersIndexes[droneCustomerIndex] = 1;
                     unvisitedCustomersCount--;
@@ -414,15 +417,16 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
             }
 
             if(!canDroneDeliver || !hasDroneDelivered) {
-                currentRoute->incrementCurrentDuration(depotReturnDuration);
+                currentSubRoute->incrementDuration(depotReturnDuration);
             }
 
             currentRoute->expand();
+            currentSubRoute = &currentRoute->last();
             currentVertexIndex = depotVertexIndex;
         }
 
-        currentRoute->insert(customerIndex);
-        currentRoute->incrementCurrentLoad(nextCustomer->demand);
+        currentSubRoute->insert(customerIndex);
+        currentSubRoute->incrementLoad(nextCustomer->demand);
 
         visitedCustomersIndexes[customerIndex] = 1;
         unvisitedCustomersCount--;
@@ -434,7 +438,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
             int droneSubClusterIndex = selectSubCluster(depotIndex, currentVertexIndex, pheromone.droneMatrices);
             // std::cout << "------------ droneSubClusterIndex: " << droneSubClusterIndex << "\n";
-            int droneCustomerIndex = selectDroneCustomer(depotIndex, droneSubClusterIndex, currentVertexIndex, customerIndex, *currentRoute);
+            int droneCustomerIndex = selectDroneCustomer(depotIndex, droneSubClusterIndex, currentVertexIndex, customerIndex, *currentSubRoute);
             // std::cout << "------------ droneCustomerIndex: " << droneCustomerIndex << "\n";
             hasDroneDelivered = (droneCustomerIndex != -1);
             if(hasDroneDelivered) {
@@ -444,7 +448,7 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
 
                 Sortie sortie(problemInstance, currentVertexIndex, droneCustomerIndex, customerIndex);
                 sortie.duration = problemInstance.calculateDeliveryDuration(*currentDrone, sortie.launchVertexIndex, sortie.deliveryVertexIndex, sortie.recoveryVertexIndex);
-                sortie.subRouteIndex = currentRoute->size - 1;
+                sortie.subRouteIndex = currentSubRoute->subRouteIndex;
 
                 // sortie.print();
                 // cout << endl;
@@ -453,8 +457,8 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
                 double vehicleLongestDuration = std::max(truckFullDuration, sortie.duration);
                 
                 currentDroneRoute->insert(sortie);
-                currentRoute->incrementCurrentLoad(nextDroneCustomer->demand);
-                currentRoute->incrementCurrentDuration(vehicleLongestDuration);
+                currentSubRoute->incrementLoad(nextDroneCustomer->demand);
+                currentSubRoute->incrementDuration(vehicleLongestDuration);
 
                 visitedCustomersIndexes[droneCustomerIndex] = 1;
                 unvisitedCustomersCount--;
@@ -462,17 +466,17 @@ void AntSystem::buildAntRoutesWithDrone(Solution& antSolution) {
         }
 
         if(!canDroneDeliver || !hasDroneDelivered) {
-            currentRoute->incrementCurrentDuration(customerDeliveryDuration);
+            currentSubRoute->incrementDuration(customerDeliveryDuration);
             currentRoute->duration = currentRoute->calculateDuration();
         }
     }
 
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
         int depotVertexIndex = problemInstance.getDepotVertexIndex(depotIndex);
-        Route* currentRoute = &antSolution.routes[depotIndex];
+        SubRoute* currentSubRoute = &antSolution.routes[depotIndex].last();
         Truck* currentTruck = &problemInstance.depots[depotIndex].truck;
-        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentRoute->lastCustomer(), depotVertexIndex);
-        currentRoute->incrementCurrentDuration(depotReturnDuration);
+        double depotReturnDuration = problemInstance.calculateMovementDuration(*currentTruck, currentSubRoute->last(), depotVertexIndex);
+        currentSubRoute->incrementDuration(depotReturnDuration);
     }
 
 
@@ -503,7 +507,8 @@ int AntSystem::updateDepotSelectionProbability(Route* routes) {
     int consideredCustomersCount = 0;
     for(int depotIndex = 0; depotIndex < problemInstance.depotsCount; depotIndex++) {
 
-        int vertexIndex = routes[depotIndex].lastCustomer();
+        SubRoute* subRoute = &routes[depotIndex].last();
+        int vertexIndex = subRoute->last();
         Cluster* cluster = &verticesClusters[vertexIndex];
 
         for(int subClusterIndex = 0; subClusterIndex < cluster->primariesCount; subClusterIndex++) {
@@ -667,7 +672,7 @@ void AntSystem::updateCustomerSelectionProbability(int depotIndex, int vertexInd
     }
 }
 
-int AntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route) {
+int AntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const SubRoute& subRoute) {
 
     int droneCustomerIndex = -1;
     double maxPheromoneConcentration = 0;
@@ -690,7 +695,7 @@ int AntSystem::selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int
 
             Sortie sortie(problemInstance, launchVertexIndex, neighborCustomerIndex, recoveryVertexIndex);
             Customer* droneCustomer = &problemInstance.customers[neighborCustomerIndex];
-            bool canDroneVisitCustomer = sortie.isFeasible(route.last(), neighborCustomerIndex);
+            bool canDroneVisitCustomer = sortie.isFeasible(subRoute, neighborCustomerIndex);
             if(canDroneVisitCustomer) {
                 candidateMembersIndex[memberIndex] = true;
                 candidatesCount++;

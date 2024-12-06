@@ -135,6 +135,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
             // std::cout << "depotIndex: " << depotIndex << "\n";
 
             Route* route = &example.routes[depotIndex];
+            SubRoute* subRoute = &example.routes[depotIndex].last();
 
             // std::cout << "route->size: " << route->size << "\n";
 
@@ -152,8 +153,8 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
 
                 if(vertexIndex > 0) {
                     vertexIndex--;
-                    route->insert(vertexIndex);
-                    route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                    subRoute->insert(vertexIndex);
+                    subRoute->incrementLoad(problemInstance.customers[vertexIndex].demand);
                 }
             }
 
@@ -177,6 +178,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
             if(delimiterFoundCount > 2) {
 
                 Route* route = &example.routes[depotIndex];
+                SubRoute* subRoute = &example.routes[depotIndex].last();
                 DroneRoute* droneRoute = &route->droneRoute;
                 Truck* truck = &problemInstance.depots[depotIndex].truck;
                 Drone* drone = &problemInstance.depots[depotIndex].drone;
@@ -202,9 +204,9 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
                         }
                         vertexIndex = stoi(number_str);
                         vertexIndex--;
-                        droneRoute->insert(Sortie(problemInstance, route->lastCustomer(), vertexIndex, -1));
+                        droneRoute->insert(Sortie(problemInstance, subRoute->last(), vertexIndex, -1));
                         needRecoveryVertex = true;
-                        route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                        subRoute->incrementLoad(problemInstance.customers[vertexIndex].demand);
                         // cout << "D" << vertexIndex << endl;
                     } else {
                         // Extract the number
@@ -216,12 +218,13 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
                         vertexIndex = stoi(number_str);
                         vertexIndex--;
                         // cout << vertexIndex << endl;
-                        if(vertexIndex == -1 && route->lastCustomer() < problemInstance.customersCount && i < line.length() - 1) {
+                        if(vertexIndex == -1 && subRoute->last() < problemInstance.customersCount && i < line.length() - 1) {
                             vertexIndex = depotVertexIndex;
                             route->expand();
+                            subRoute = &route->last();
                         } else if(vertexIndex != -1){
-                            route->insert(vertexIndex);
-                            route->incrementCurrentLoad(problemInstance.customers[vertexIndex].demand);
+                            subRoute->insert(vertexIndex);
+                            subRoute->incrementLoad(problemInstance.customers[vertexIndex].demand);
                         }
 
                         if(needRecoveryVertex) {
@@ -233,7 +236,7 @@ void loadExampleSolution(string filename, ProblemInstance problemInstance) {
                 }
 
                 double routeDuration = route->calculateDuration();
-                route->incrementCurrentDuration(routeDuration);
+                subRoute->incrementDuration(routeDuration);
                 depotVertexIndex = problemInstance.getDepotVertexIndex(++depotIndex);
             }
 

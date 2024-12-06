@@ -109,7 +109,7 @@ class AntSystem : public SimulatedAnnealing {
         int selectCustomer(int depotIndex, int vertexIndex, int subClusterIndex);
         void updateCustomerSelectionProbability(int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
-        int selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const Route& route);
+        int selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const SubRoute& subRoute);
         void updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
         bool hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);

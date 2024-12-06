@@ -31,12 +31,9 @@ class Route {
 
         void finalize();
         void expand();
-        void insert(int customerIndex);
         void reset();
         void copy(const Route& routeToCopy);
 
-        void incrementCurrentDuration(double deliveryDuration);
-        void incrementCurrentLoad(double demand);
         void shiftLeftSubRoutes(int subRouteOriginIndex);
         void shiftRightSubRoutes(int subRouteOriginIndex);
         void updateDistanceTraveled(int depotIndex);
@@ -44,9 +41,6 @@ class Route {
         double calculateDuration();
 
         SubRoute& last() const;
-        int lastCustomer() const;
-        double currentDuration() const;
-        double currentLoad() const;
         void print() const;
         void printWithDrone() const;
     private:

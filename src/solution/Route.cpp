@@ -57,11 +57,6 @@ void Route::expand() {
     }
 }
 
-void Route::insert(int customerIndex) {
-
-    subRoutes[size - 1].insert(customerIndex);
-}
-
 void Route::reset() {
 
     droneRoute.reset();
@@ -94,16 +89,6 @@ void Route::copy(const Route& routeToCopy) {
     for(int subRouteIndex = 0; subRouteIndex < routeToCopy.size; subRouteIndex++) {
         subRoutes[subRouteIndex].copy(routeToCopy.subRoutes[subRouteIndex]);
     }
-}
-
-void Route::incrementCurrentDuration(double deliveryDuration) {
-
-    subRoutes[size - 1].incrementDuration(deliveryDuration);
-}
-
-void Route::incrementCurrentLoad(double demand) {
-
-    subRoutes[size - 1].incrementLoad(demand);
 }
 
 void Route::shiftLeftSubRoutes(int subRouteOriginIndex) {
@@ -200,21 +185,6 @@ double Route::calculateDuration() {
 
 SubRoute& Route::last() const {
     return subRoutes[size - 1];
-}
-
-int Route::lastCustomer() const {
-
-    return subRoutes[size - 1].last();
-}
-
-double Route::currentDuration() const {
-
-    return subRoutes[size - 1].duration;
-}
-
-double Route::currentLoad() const {
-
-    return subRoutes[size - 1].load;
 }
 
 void Route::print() const {
