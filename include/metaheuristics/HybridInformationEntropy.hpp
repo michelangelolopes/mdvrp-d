@@ -14,15 +14,15 @@ class HybridInformationEntropy : public InformationEntropy {
         int droneEdgesCount = 0;
         int** droneEdgesOccurrence = nullptr;
 
-        void finalize() override;
-        void update() override;
+        void finalize();
+        void update();
 
-        void resetEdgesValues() override;
-        void updateEdgesOccurrence(const Solution& solution) override;
+        void resetEdgesValues();
+        void updateEdgesOccurrence(const Solution& solution);
 
     protected:
-        void init() override;
-        double calculate() override;
+        void init();
+        double calculate();
 };
 
 #endif

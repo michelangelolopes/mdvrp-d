@@ -24,16 +24,16 @@ class InformationEntropy {
         int antsCount;
         int** truckEdgesOccurrence = nullptr;
 
-        virtual void finalize();
-        virtual void update();
-        virtual void resetEdgesValues();
-        virtual void updateEdgesOccurrence(const Solution& solution);
+        void finalize();
+        void update();
+        void resetEdgesValues();
+        void updateEdgesOccurrence(const Solution& solution);
 
     protected:
         const ProblemInstance* problemInstance;
 
-        virtual void init();
-        virtual double calculate();
+        void init();
+        double calculate();
 };
 
 #endif

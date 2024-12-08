@@ -13,12 +13,12 @@ class HybridPheromone : public Pheromone {
 
         double*** droneMatrices = nullptr;
 
-        void finalize() override;
-        void evaporateMatrices(const InformationEntropy& informationEntropy) override;
-        void reinforceMatrices(const Solution& bestSolution, const Solution& consideredSolution) override;
+        void finalize();
+        void evaporateMatrices(const InformationEntropy& informationEntropy);
+        void reinforceMatrices(const Solution& bestSolution, const Solution& consideredSolution);
 
     protected:
-        void init() override;
+        void init();
 };
 
 #endif
