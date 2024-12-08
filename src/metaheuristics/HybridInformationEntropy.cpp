@@ -5,9 +5,7 @@
 
 void HybridInformationEntropy::init() {
 
-    if(truckEdgesOccurrence == nullptr) {
-        truckEdgesOccurrence = (int**) mallocMatrix(problemInstance->verticesCount, sizeof(int*), sizeof(int));
-    }
+    InformationEntropy::init();
 
     if(droneEdgesOccurrence == nullptr) {
         droneEdgesOccurrence = (int**) mallocMatrix(problemInstance->verticesCount, sizeof(int*), sizeof(int));
