@@ -10,6 +10,7 @@ class SubRoute {
         depotIndex(depotIndex), 
         subRouteIndex(subRouteIndex)
         {
+            resetValues();
             init();
         }
 
@@ -24,9 +25,9 @@ class SubRoute {
         int subRouteIndex;
         int* members = nullptr;
 
+        void resetValues();
         void finalize();
         void insert(int customerIndex);
-        void reset();
         void copy(const SubRoute& subRouteToCopy);
         
         void incrementDuration(double deliveryDuration);
@@ -42,11 +43,10 @@ class SubRoute {
         int first() const;
         int last() const;
     
-    private:
+    protected:
         const ProblemInstance* problemInstance;
 
         void init();
-        void initializeValues();
 };
 
 #endif

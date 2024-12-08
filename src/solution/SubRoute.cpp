@@ -2,14 +2,12 @@
 
 void SubRoute::init() {
 
-    initializeValues();
-
     if(members == nullptr) {
         members = (int*) malloc(problemInstance->customersCount * sizeof(int));
     }
 }
 
-void SubRoute::initializeValues() {
+void SubRoute::resetValues() {
 
     length = 0;
     duration = 0;
@@ -28,11 +26,6 @@ void SubRoute::finalize() {
 void SubRoute::insert(int customerIndex) {
 
     members[length++] = customerIndex;
-}
-
-void SubRoute::reset() {
-
-    initializeValues();
 }
 
 void SubRoute::copy(const SubRoute& subRouteToCopy) {

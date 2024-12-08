@@ -60,7 +60,7 @@ void Route::reset() {
     droneRoute.reset();
 
     for(int subRouteIndex = 0; subRouteIndex < maxSize; subRouteIndex++) {
-        subRoutes[subRouteIndex].reset();
+        subRoutes[subRouteIndex].resetValues();
     }
 
     initializeValues();
