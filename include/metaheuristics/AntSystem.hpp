@@ -72,10 +72,10 @@ class AntSystem : public SimulatedAnnealing {
         double maxOptimizationTime;
         double minInformationEntropyCoef;
 
-        int* visitedCustomersIndexes;
-        double* selectionProbability;
-        double* heuristicInformationAverage;
-        double* pheromoneConcentrationAverage;
+        int* visitedCustomersIndexes = nullptr;
+        double* selectionProbability = nullptr;
+        double* heuristicInformationAverage = nullptr;
+        double* pheromoneConcentrationAverage = nullptr;
 
         Cluster* verticesClusters = nullptr;
         Frame frame;

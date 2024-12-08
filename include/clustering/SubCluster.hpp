@@ -8,7 +8,7 @@ class SubCluster {
         }
 
         int size;
-        int* elements;
+        int* elements = nullptr;
 
         void finalize();
         void print() const;

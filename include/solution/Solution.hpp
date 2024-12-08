@@ -16,7 +16,7 @@ class Solution {
         double maxDistanceTraveled;
         double maxTimeSpent;
 
-        Route* routes;
+        Route* routes = nullptr;
 
         void finalize();
         void reset();

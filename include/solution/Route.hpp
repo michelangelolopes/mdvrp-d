@@ -26,7 +26,7 @@ class Route {
         double timeSpent;
         double duration;
 
-        SubRoute* subRoutes;
+        SubRoute* subRoutes = nullptr;
         DroneRoute droneRoute;
 
         void finalize();

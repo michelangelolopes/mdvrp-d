@@ -15,7 +15,7 @@ class Cluster {
 
         int size;
         int primariesCount;
-        SubCluster* subClusters;
+        SubCluster* subClusters = nullptr;
 
         void finalize();
         void print();
