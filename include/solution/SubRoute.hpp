@@ -5,11 +5,10 @@
 
 class SubRoute {
     public:
-        SubRoute(const ProblemInstance* problemInstance, int depotIndex, int subRouteIndex, int maxLength) :
+        SubRoute(const ProblemInstance* problemInstance, int depotIndex, int subRouteIndex) :
         problemInstance(problemInstance),
         depotIndex(depotIndex), 
-        subRouteIndex(subRouteIndex), 
-        maxLength(maxLength) 
+        subRouteIndex(subRouteIndex)
         {
             init();
         }
@@ -23,8 +22,7 @@ class SubRoute {
 
         int depotIndex;
         int subRouteIndex;
-        int maxLength;
-        int* members;
+        int* members = nullptr;
 
         void finalize();
         void insert(int customerIndex);
@@ -49,7 +47,6 @@ class SubRoute {
 
         void init();
         void initializeValues();
-        void initializeMembers();
 };
 
 #endif

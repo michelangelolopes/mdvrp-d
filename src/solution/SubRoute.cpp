@@ -3,7 +3,10 @@
 void SubRoute::init() {
 
     initializeValues();
-    initializeMembers();
+
+    if(members == nullptr) {
+        members = (int*) malloc(problemInstance->customersCount * sizeof(int));
+    }
 }
 
 void SubRoute::initializeValues() {
@@ -15,15 +18,12 @@ void SubRoute::initializeValues() {
     timeSpent = -1;
 }
 
-void SubRoute::initializeMembers() {
-
-    members = (int*) malloc(maxLength * sizeof(int));
-}
-
 void SubRoute::finalize() {
 
-    free(members);
+    if(members != nullptr) {
+        free(members);
     }
+}
 
 void SubRoute::insert(int customerIndex) {
 
@@ -153,7 +153,7 @@ void SubRoute::print() const {
 int SubRoute::first() const {
 
     if(length == 0) {
-        return depotIndex + maxLength;
+        return problemInstance->getDepotVertexIndex(depotIndex);
     }
 
     return members[0];
@@ -162,7 +162,7 @@ int SubRoute::first() const {
 int SubRoute::last() const {
 
     if(length == 0) {
-        return depotIndex + maxLength;
+        return problemInstance->getDepotVertexIndex(depotIndex);
     }
 
     return members[length - 1];

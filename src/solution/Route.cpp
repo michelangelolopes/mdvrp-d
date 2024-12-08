@@ -25,8 +25,7 @@ void Route::initializeSubRoutes() {
 void Route::initializeNextSubRoute() {
 
     int nextSubRouteIndex = size - 1;
-    int subRouteMaxLength = problemInstance->customersCount;
-    subRoutes[nextSubRouteIndex] = SubRoute(problemInstance, depotIndex, nextSubRouteIndex, subRouteMaxLength);
+    subRoutes[nextSubRouteIndex] = SubRoute(problemInstance, depotIndex, nextSubRouteIndex);
 }
 
 void Route::finalize() {
@@ -51,8 +50,7 @@ void Route::expand() {
         
         maxSize = size;
         subRoutes = (SubRoute*) realloc(subRoutes, size * sizeof(SubRoute));
-        
-        int subRouteMaxLength = subRoutes[0].maxLength;
+
         initializeNextSubRoute();
     }
 }
@@ -74,9 +72,8 @@ void Route::copy(const Route& routeToCopy) {
 
         subRoutes = (SubRoute*) realloc(subRoutes, routeToCopy.size * sizeof(SubRoute));
 
-        int subRouteMaxLength = subRoutes[0].maxLength;
         for(int subRouteIndex = maxSize; subRouteIndex < routeToCopy.size; subRouteIndex++) {
-            subRoutes[subRouteIndex] = SubRoute(problemInstance, depotIndex, subRouteIndex, subRouteMaxLength);
+            subRoutes[subRouteIndex] = SubRoute(problemInstance, depotIndex, subRouteIndex);
         }
 
         maxSize = routeToCopy.size;
@@ -206,7 +203,7 @@ void Route::printWithDrone() const {
 
     int sortieIndex = 0;
     Sortie* sortie = &droneRoute.sorties[sortieIndex];
-    int depotVertexIndex = depotIndex + subRoutes[0].maxLength;
+    int depotVertexIndex = problemInstance->getDepotVertexIndex(depotIndex);
     int customersInRouteCount = 0;
     bool hasDroneRouteEnded = (sortieIndex >= droneRoute.size);
 

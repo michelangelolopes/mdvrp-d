@@ -234,7 +234,7 @@ void Solution::printWithDrone(int depotIndex) const {
 
     int sortieIndex = 0;
     Sortie* sortie = &droneRoute->sorties[sortieIndex];
-    int depotVertexIndex = depotIndex + route->subRoutes[0].maxLength;
+    int depotVertexIndex = problemInstance->getDepotVertexIndex(depotIndex);
     int customersInRouteCount = 0;
     bool hasDroneRouteEnded = (sortieIndex >= droneRoute->size);
 
