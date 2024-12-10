@@ -19,11 +19,11 @@ class Route {
         }
 
         int depotIndex;
-        int size;
-        int maxSize;
+        int size = 1;
+        int maxSize = 1;
 
-        double distanceTraveled;
-        double timeSpent;
+        double distanceTraveled = -1;
+        double timeSpent = -1;
         double duration;
 
         SubRoute* subRoutes = nullptr;
@@ -47,7 +47,7 @@ class Route {
         const ProblemInstance* problemInstance;
 
         void init();
-        void initializeValues();
+        void resetValues();
         void initializeSubRoutes();
         void initializeNextSubRoute();
         double getComposedDuration(const Drone& drone, bool* hasConsideredSortie, int subRouteIndex, int sourceIndex, int destIndex, double truckDuration7);

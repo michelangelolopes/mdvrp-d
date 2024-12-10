@@ -5,11 +5,10 @@
 void Route::init() {
 
     maxSize = 1;
-    initializeValues();
     initializeSubRoutes();
 }
 
-void Route::initializeValues() {
+void Route::resetValues() {
 
     size = 1;
     distanceTraveled = -1;
@@ -63,7 +62,7 @@ void Route::reset() {
         subRoutes[subRouteIndex].resetValues();
     }
 
-    initializeValues();
+    resetValues();
 }
 
 void Route::copy(const Route& routeToCopy) {

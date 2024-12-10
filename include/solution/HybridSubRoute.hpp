@@ -9,14 +9,10 @@ class HybridSubRoute : public SubRoute {
         HybridSubRoute(const ProblemInstance* problemInstance, int depotIndex, int subRouteIndex) :
         SubRoute(problemInstance, depotIndex, subRouteIndex)
         {
-            std::cout << "HybridSubRoute: " << subRouteIndex << " - ";
-            std::cout << "HybridSubRoute()" << std::endl;
-
-            resetValues();
             init();
         }
 
-        int sortiesCount;
+        int sortiesCount = 0;
         Sortie* sorties = nullptr;
 
         void resetValues();
@@ -27,7 +23,7 @@ class HybridSubRoute : public SubRoute {
         Sortie& lastSortie() const;
         void printSorties() const;
     
-    protected:
+    private:
         void init();
 };
 

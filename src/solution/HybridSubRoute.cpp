@@ -2,8 +2,6 @@
 
 void HybridSubRoute::init() {
 
-    SubRoute::init();
-
     if(sorties == nullptr) {
         int maxSortiesCount = (problemInstance->customersCount / 2) + 1;
         sorties = (Sortie*) malloc(maxSortiesCount * sizeof(Sortie));

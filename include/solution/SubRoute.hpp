@@ -10,16 +10,15 @@ class SubRoute {
         depotIndex(depotIndex), 
         subRouteIndex(subRouteIndex)
         {
-            resetValues();
             init();
         }
 
-        int length;
-        double duration;
-        double load;
+        int length = 0;
+        double duration = 0;
+        double load = 0;
 
-        double distanceTraveled;
-        double timeSpent;
+        double distanceTraveled = -1;
+        double timeSpent = -1;
 
         int depotIndex;
         int subRouteIndex;
@@ -46,6 +45,7 @@ class SubRoute {
     protected:
         const ProblemInstance* problemInstance;
 
+    private:
         void init();
 };
 
