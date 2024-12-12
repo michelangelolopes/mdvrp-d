@@ -31,7 +31,7 @@ class AntSystem : public SimulatedAnnealing {
             int maxIterations,
             int maxIterationsWithoutImprovement,
             double maxOptimizationTime,
-            double minHybridInformationEntropyCoef
+            double minInformationEntropyCoef
         ) :
         SimulatedAnnealing(temperature, temperatureCoolingCoef),
         problemInstance(problemInstance),
@@ -50,7 +50,7 @@ class AntSystem : public SimulatedAnnealing {
         maxIterations(maxIterations),
         maxIterationsWithoutImprovement(maxIterationsWithoutImprovement),
         maxOptimizationTime(maxOptimizationTime),
-        minInformationEntropyCoef(minHybridInformationEntropyCoef)
+        minInformationEntropyCoef(minInformationEntropyCoef)
         {
             if(sectorsCount > subClusterMaxSize) {
                 std::cout << "Sectors will not be used when clustering\n";
