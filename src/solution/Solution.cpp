@@ -82,16 +82,16 @@ void Solution::updateFitness() {
     }
 
     switch(problemInstance->minimizationType) {
-        case TOTAL_DISTANCE_TRAVELED:
+        case MinimizationType::TOTAL_DISTANCE_TRAVELED:
             fitness = totalDistanceTraveled;
             break;
-        case TOTAL_TIME_SPENT:
+        case MinimizationType::TOTAL_TIME_SPENT:
             fitness = totalTimeSpent;
             break;
-        case MAX_DISTANCE_TRAVELED:
+        case MinimizationType::MAX_DISTANCE_TRAVELED:
             fitness = maxDistanceTraveled;
             break;
-        case MAX_TIME_SPENT:
+        case MinimizationType::MAX_TIME_SPENT:
             fitness = maxTimeSpent;
             break;
     }
@@ -170,16 +170,16 @@ void Solution::print() const {
     if(fitness != -1) {
 
         switch(problemInstance->minimizationType) {
-            case TOTAL_DISTANCE_TRAVELED:
+            case MinimizationType::TOTAL_DISTANCE_TRAVELED:
                 std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
                 break;
-            case TOTAL_TIME_SPENT:
+            case MinimizationType::TOTAL_TIME_SPENT:
                 std::cout << "Total Time Spent: " << totalTimeSpent << "\n";
                 break;
-            case MAX_DISTANCE_TRAVELED:
+            case MinimizationType::MAX_DISTANCE_TRAVELED:
                 std::cout << "Max Distance Traveled: " << maxDistanceTraveled << "\n";
                 break;
-            case MAX_TIME_SPENT:
+            case MinimizationType::MAX_TIME_SPENT:
                 std::cout << "Max Time Spent: " << maxTimeSpent << "\n";
                 break;
             }
@@ -201,16 +201,16 @@ void Solution::printWithDrone() const {
     if(fitness != -1) {
 
         switch(problemInstance->minimizationType) {
-            case TOTAL_DISTANCE_TRAVELED:
+            case MinimizationType::TOTAL_DISTANCE_TRAVELED:
                 std::cout << "Total Distance Traveled: " << totalDistanceTraveled << "\n";
                 break;
-            case TOTAL_TIME_SPENT:
+            case MinimizationType::TOTAL_TIME_SPENT:
                 std::cout << "Total Time Spent: " << totalTimeSpent << "\n";
                 break;
-            case MAX_DISTANCE_TRAVELED:
+            case MinimizationType::MAX_DISTANCE_TRAVELED:
                 std::cout << "Max Distance Traveled: " << maxDistanceTraveled << "\n";
                 break;
-            case MAX_TIME_SPENT:
+            case MinimizationType::MAX_TIME_SPENT:
                 std::cout << "Max Time Spent: " << maxTimeSpent << "\n";
                 break;
             }

@@ -1,7 +1,7 @@
 #ifndef MINIMIZATION_TYPE_ENUM_HPP
 #define MINIMIZATION_TYPE_ENUM_HPP
 
-enum MinimizationType {
+enum class MinimizationType {
     TOTAL_TIME_SPENT,
     TOTAL_DISTANCE_TRAVELED,
     MAX_TIME_SPENT,

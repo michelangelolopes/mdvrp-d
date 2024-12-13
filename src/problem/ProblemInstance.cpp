@@ -14,19 +14,19 @@ using std::istringstream;
 void ProblemInstance::create(const string& filename) {
 
     switch(problemType) {
-        case VRP:
+        case ProblemType::VRP:
             std::cout << "VRP\n";
             break;
-        case MDVRP:
+        case ProblemType::MDVRP:
             loadCordeauInstance(filename);
-            minimizationType = TOTAL_DISTANCE_TRAVELED;
+            minimizationType = MinimizationType::TOTAL_DISTANCE_TRAVELED;
             break;
-        case VRP_D:
+        case ProblemType::VRP_D:
             std::cout << "VRP-D\n";
             break;
-        case MDVRP_D:
+        case ProblemType::MDVRP_D:
             loadStodolaInstance(filename);
-            minimizationType = MAX_TIME_SPENT;
+            minimizationType = MinimizationType::MAX_TIME_SPENT;
             break;                                
     }
 
@@ -52,16 +52,16 @@ void ProblemInstance::print(int printDistanceMatrix) const {
     std::cout << "\n--------------------------------------------------\n";
 
     switch(problemType) {
-        case VRP:
+        case ProblemType::VRP:
             std::cout << "VRP - ";
             break;
-        case MDVRP:
+        case ProblemType::MDVRP:
             std::cout << "MDVRP - ";
             break;
-        case VRP_D:
+        case ProblemType::VRP_D:
             std::cout << "VRP-D - ";
             break;
-        case MDVRP_D:
+        case ProblemType::MDVRP_D:
             std::cout << "MDVRP-D - ";
             break;                                
     }
