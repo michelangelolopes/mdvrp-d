@@ -6,9 +6,9 @@
 #include "../problem/ProblemInstance.hpp"
 #include "../solution/Solution.hpp"
 
-#include "HybridInformationEntropy.hpp"
+#include "InformationEntropy.hpp"
 #include "LocalOptimization.hpp"
-#include "HybridPheromone.hpp"
+#include "Pheromone.hpp"
 #include "SimulatedAnnealing.hpp"
 
 class AntSystem : public SimulatedAnnealing {
@@ -80,8 +80,8 @@ class AntSystem : public SimulatedAnnealing {
         Cluster* verticesClusters = nullptr;
         Frame frame;
         LocalOptimization localOptimization;
-        HybridInformationEntropy informationEntropy;
-        HybridPheromone pheromone;
+        InformationEntropy informationEntropy;
+        Pheromone pheromone;
         ProblemInstance problemInstance;
         Solution generationBestSolution;
         Solution bestSolution;
@@ -89,14 +89,12 @@ class AntSystem : public SimulatedAnnealing {
 
         void finalize();
         void run();
-        void runWithDrone();
     
-    private:
+    protected:
         void create(int primarySubClustersMaxCount, int subClusterMaxSize);
         void createClusters(int primarySubClustersMaxCount, int subClusterMaxSize);
 
         void buildAntRoutes(Solution& antSolution);
-        void buildAntRoutesWithDrone(Solution& antSolution);
 
         int selectDepot(Route* routes);
         int updateDepotSelectionProbability(Route* routes);
@@ -108,9 +106,6 @@ class AntSystem : public SimulatedAnnealing {
 
         int selectCustomer(int depotIndex, int vertexIndex, int subClusterIndex);
         void updateCustomerSelectionProbability(int depotIndex, int vertexIndex, const SubCluster& subCluster);
-
-        int selectDroneCustomer(int depotIndex, int droneSubClusterIndex, int launchVertexIndex, int recoveryVertexIndex, const SubRoute& subRoute);
-        void updateDroneCustomerSelectionProbability(bool* candidateMembersIndex, int depotIndex, int vertexIndex, const SubCluster& subCluster);
 
         bool hasAchievedTerminationCondition(int iterationsCount, int iterationsWithoutImprovementCount, double currentOptimizationTime, double informationEntropyCoef);
         bool canUseWorseSolution(const Solution& generationBestSolution);

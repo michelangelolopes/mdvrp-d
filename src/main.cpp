@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "../include/metaheuristics/AntSystem.hpp"
+#include "../include/metaheuristics/HybridAntSystem.hpp"
 #include "../include/problem/ProblemInstance.hpp"
 
 using std::ifstream;
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    AntSystem antSystem(
+    HybridAntSystem antSystem(
             problemInstance, 
             antsCount, 
             pheromoneReinforcementCoef, 
@@ -94,8 +94,7 @@ int main(int argc, char** argv) {
             minInformationEntropyCoef
     );
 
-    // antSystem.run();
-    antSystem.runWithDrone();
+    antSystem.run();
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
